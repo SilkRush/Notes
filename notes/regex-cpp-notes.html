@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regex — From Zero to Advanced | C++ Focus</title>
+<style>
+  :root {
+    --bg: #0a0a14;
+    --bg2: #10101e;
+    --bg3: #161628;
+    --card: #1a1a2e;
+    --border: #2a2a4a;
+    --accent: #7c6aff;
+    --accent2: #00d4ff;
+    --accent3: #ff6b9d;
+    --accent4: #39ff98;
+    --accent5: #ffb347;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --code-bg: #0d0d1f;
+    --green: #39ff98;
+    --red: #ff4d6d;
+    --yellow: #ffb347;
+    --purple: #b06aff;
+    --cyan: #00d4ff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* HEADER */
+  .hero {
+    background: linear-gradient(135deg, #0a0a14 0%, #1a0a2e 50%, #0a1428 100%);
+    padding: 60px 40px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.15; pointer-events: none; }
+  .hero h1 { font-size: 3rem; font-weight: 800; background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; position: relative; }
+  .hero p { color: var(--muted); font-size: 1.1rem; margin-top: 10px; position: relative; }
+  .badge { display: inline-block; background: var(--accent); color: white; font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; margin: 5px 3px; }
+
+  /* NAV */
+  .toc {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .toc-inner { max-width: 1100px; margin: auto; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .toc a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .toc a:hover { color: var(--accent2); border-color: var(--accent2); }
+
+  /* LAYOUT */
+  .container { max-width: 1100px; margin: auto; padding: 0 30px; }
+  section { padding: 60px 0; border-bottom: 1px solid var(--border); }
+
+  /* SECTION HEADERS */
+  .section-tag { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); margin-bottom: 8px; }
+  h2 { font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
+  h3 { font-size: 1.3rem; font-weight: 600; color: var(--accent2); margin: 30px 0 12px; }
+  h4 { font-size: 1rem; font-weight: 600; color: var(--yellow); margin: 20px 0 8px; }
+  p { color: var(--text); margin-bottom: 14px; }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+  }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 20px 0; }
+
+  /* CODE */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    overflow-x: auto;
+    margin: 16px 0;
+    position: relative;
+  }
+  code { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.88rem; line-height: 1.6; }
+  p code, li code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    color: var(--accent2);
+  }
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .cm { color: #546e7a; font-style: italic; }
+  .num { color: #f78c6c; }
+  .type { color: #ffcb6b; }
+  .regex-lit { color: var(--accent3); }
+
+  /* SYNTAX TABLE */
+  .syn-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  .syn-table th { background: var(--bg3); color: var(--accent); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; padding: 10px 14px; text-align: left; }
+  .syn-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  .syn-table tr:hover td { background: var(--bg3); }
+  .pat { color: var(--accent3); font-family: monospace; font-weight: 600; }
+  .match { color: var(--green); }
+  .nomatch { color: var(--red); }
+
+  /* INTERACTIVE TESTER */
+  .tester {
+    background: var(--card);
+    border: 1px solid var(--accent);
+    border-radius: 14px;
+    padding: 28px;
+    margin: 30px 0;
+  }
+  .tester h3 { margin-top: 0; color: var(--accent); }
+  .tester-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+  .input-group label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .input-group input, .input-group select {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: 'Cascadia Code', monospace;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-group input:focus, .input-group select:focus { border-color: var(--accent); }
+  .result-box {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    min-height: 80px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+  .highlight-match { background: rgba(57, 255, 152, 0.25); color: var(--green); border-radius: 3px; padding: 1px 2px; border-bottom: 2px solid var(--green); }
+  .status-bar { display: flex; gap: 16px; margin-top: 10px; font-size: 0.85rem; }
+  .status-ok { color: var(--green); }
+  .status-err { color: var(--red); }
+  .status-warn { color: var(--yellow); }
+
+  /* BUTTONS */
+  .btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: var(--purple); transform: translateY(-1px); }
+  .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
+  .btn-outline:hover { background: var(--accent); color: white; }
+
+  /* CANVAS DEMOS */
+  canvas {
+    display: block;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .canvas-wrap { text-align: center; margin: 20px 0; }
+  .canvas-controls { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 12px; }
+  .ctrl-group { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--muted); }
+  .ctrl-group input[type=range] { accent-color: var(--accent); }
+
+  /* STEP EXPLAINER */
+  .steps { display: flex; flex-direction: column; gap: 0; margin: 20px 0; }
+  .step {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .step:hover { padding-left: 8px; }
+  .step-num {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .step-content h4 { margin: 4px 0; color: var(--text); }
+  .step-content p { margin: 0; color: var(--muted); font-size: 0.9rem; }
+
+  /* MATCH VISUALIZER */
+  .match-vis {
+    background: var(--code-bg);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 16px 0;
+    font-family: monospace;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+  .char-box {
+    display: inline-block;
+    width: 22px; height: 28px;
+    text-align: center;
+    line-height: 28px;
+    border-radius: 4px;
+    margin: 1px;
+    transition: all 0.3s;
+    color: var(--text);
+    background: var(--bg3);
+  }
+  .char-matched { background: rgba(57,255,152,0.3); color: var(--green); border: 1px solid var(--green); }
+  .char-group { background: rgba(124,106,255,0.3); color: var(--purple); border: 1px solid var(--purple); }
+  .char-anchor { background: rgba(255,107,157,0.3); color: var(--accent3); border: 1px solid var(--accent3); }
+
+  /* CALLOUTS */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(124,106,255,0.08);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+  }
+  .callout.warn { border-color: var(--yellow); background: rgba(255,179,71,0.08); }
+  .callout.danger { border-color: var(--red); background: rgba(255,77,109,0.08); }
+  .callout.tip { border-color: var(--green); background: rgba(57,255,152,0.08); }
+  .callout-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+  .callout.warn .callout-title { color: var(--yellow); }
+  .callout.danger .callout-title { color: var(--red); }
+  .callout.tip .callout-title { color: var(--green); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0; margin: 20px 0 0; border-bottom: 1px solid var(--border); }
+  .tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+  }
+  .tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+  .tab-content { display: none; padding: 20px 0; }
+  .tab-content.active { display: block; }
+
+  /* CHEATSHEET */
+  .cheat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 20px 0; }
+  .cheat-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .cheat-pat { font-family: monospace; color: var(--accent3); font-weight: 700; min-width: 60px; font-size: 0.95rem; }
+  .cheat-desc { color: var(--muted); font-size: 0.85rem; }
+
+  /* PROGRESS BAR */
+  .progress-bar { background: var(--border); border-radius: 10px; height: 6px; margin: 10px 0; }
+  .progress-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.3s; }
+
+  /* QUIZ */
+  .quiz-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 16px 0;
+  }
+  .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .quiz-opt {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+  .quiz-opt:hover { border-color: var(--accent); color: var(--accent); }
+  .quiz-opt.correct { border-color: var(--green); color: var(--green); background: rgba(57,255,152,0.1); }
+  .quiz-opt.wrong { border-color: var(--red); color: var(--red); background: rgba(255,77,109,0.1); }
+  .quiz-feedback { margin-top: 12px; font-size: 0.9rem; min-height: 20px; }
+
+  /* NFA VISUALIZER */
+  .nfa-state {
+    position: absolute;
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700;
+    transition: all 0.3s;
+    background: var(--card);
+    color: var(--text);
+  }
+  .nfa-state.active { background: var(--accent); color: white; box-shadow: 0 0 20px var(--accent); }
+  .nfa-state.accept { border-width: 4px; border-color: var(--green); }
+  .nfa-state.active.accept { background: var(--green); box-shadow: 0 0 20px var(--green); }
+
+  ul { padding-left: 24px; margin-bottom: 14px; }
+  li { margin-bottom: 6px; color: var(--text); }
+  li::marker { color: var(--accent); }
+
+  @media (max-width: 700px) {
+    .hero h1 { font-size: 2rem; }
+    .tester-grid { grid-template-columns: 1fr; }
+    .quiz-options { grid-template-columns: 1fr; }
+    h2 { font-size: 1.5rem; }
+    .container { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <canvas class="hero-canvas" id="heroCanvas"></canvas>
+  <h1>Regular Expressions</h1>
+  <p>Zero to Advanced — with C++ <code style="color:var(--accent2);background:rgba(0,212,255,0.1);padding:2px 8px;border-radius:4px;">&lt;regex&gt;</code> as the primary lens</p>
+  <div style="margin-top:16px;">
+    <span class="badge">Pattern Matching</span>
+    <span class="badge" style="background:var(--accent3)">std::regex</span>
+    <span class="badge" style="background:var(--green);color:#000">Capture Groups</span>
+    <span class="badge" style="background:var(--accent5);color:#000">Lookaheads</span>
+    <span class="badge" style="background:var(--accent2);color:#000">Edge Cases</span>
+  </div>
+</div>
+
+<!-- TOC -->
+<nav class="toc">
+  <div class="toc-inner">
+    <span style="color:var(--muted);font-size:0.8rem;font-weight:600;">JUMP TO →</span>
+    <a href="#s1">What is Regex</a>
+    <a href="#s2">How it Works</a>
+    <a href="#s3">Basic Syntax</a>
+    <a href="#s4">Quantifiers</a>
+    <a href="#s5">Groups</a>
+    <a href="#s6">Anchors</a>
+    <a href="#s7">C++ API</a>
+    <a href="#s8">Lookarounds</a>
+    <a href="#s9">Advanced</a>
+    <a href="#s10">Edge Cases</a>
+    <a href="#s11">Tester</a>
+    <a href="#s12">Cheatsheet</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- SECTION 1: WHAT IS REGEX -->
+<section id="s1">
+  <div class="section-tag">Section 01</div>
+  <h2>What Even Is Regex?</h2>
+  <p>Regex — short for <em>regular expression</em> — is a mini-language for describing patterns in text. That's all it is. You write a pattern, and the regex engine tells you whether a string matches it, where the match is, or lets you extract specific pieces.</p>
+  <p>Think of it like a search query, but extremely precise. Instead of searching for the word "cat", you can search for "any 3-letter word starting with c and ending with t." Instead of finding "2024", you can find "any 4-digit number between 1900 and 2099."</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div style="font-size:1.5rem;margin-bottom:8px;">🔍</div>
+      <h4 style="margin-top:0">Matching</h4>
+      <p style="margin:0;font-size:0.9rem;color:var(--muted)">Does this string fit my pattern? Yes or no.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:1.5rem;margin-bottom:8px;">📍</div>
+      <h4 style="margin-top:0">Searching</h4>
+      <p style="margin:0;font-size:0.9rem;color:var(--muted)">Find where the pattern appears inside a longer string.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:1.5rem;margin-bottom:8px;">✂️</div>
+      <h4 style="margin-top:0">Extracting</h4>
+      <p style="margin:0;font-size:0.9rem;color:var(--muted)">Pull out the parts you care about using capture groups.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:1.5rem;margin-bottom:8px;">🔄</div>
+      <h4 style="margin-top:0">Replacing</h4>
+      <p style="margin:0;font-size:0.9rem;color:var(--muted)">Find matches and swap them with something else.</p>
+    </div>
+  </div>
+
+  <h3>Real-world uses in C++</h3>
+  <p>Validating an email field, parsing log files for error codes, tokenizing a command-line input, finding all function names in a source file. Regex shows up constantly in system-level and tool-building code.</p>
+
+  <div class="callout tip">
+    <div class="callout-title">Key Idea</div>
+    Regex doesn't understand meaning. It only sees characters and matches patterns. It doesn't know what an email address "is" — it just checks if the string fits the shape you described.
+  </div>
+</section>
+
+<!-- SECTION 2: HOW IT WORKS INTERNALLY -->
+<section id="s2">
+  <div class="section-tag">Section 02</div>
+  <h2>How the Engine Works</h2>
+  <p>Before you write a single pattern, it's worth knowing what happens under the hood. The regex engine reads your pattern and builds a state machine — essentially a graph of states with transitions. Then it runs your input string through it, character by character.</p>
+
+  <h3>NFA — The State Machine Behind Regex</h3>
+  <p>Most regex engines (including C++'s) build a <strong>Nondeterministic Finite Automaton (NFA)</strong>. Each state represents a point in the matching process. Transitions are triggered by characters or character classes.</p>
+
+  <div class="canvas-wrap">
+    <canvas id="nfaCanvas" width="700" height="200"></canvas>
+    <div class="canvas-controls">
+      <div class="ctrl-group">
+        <span>Pattern: <code style="color:var(--accent3)">ab+c</code> &nbsp; Input:</span>
+        <input type="text" id="nfaInput" value="abbc" style="background:var(--code-bg);border:1px solid var(--border);color:var(--text);padding:4px 10px;border-radius:6px;font-family:monospace;width:100px;outline:none;">
+        <button class="btn btn-sm" onclick="runNFA()">Run ▶</button>
+        <button class="btn btn-sm btn-outline" onclick="resetNFA()">Reset</button>
+      </div>
+    </div>
+    <div id="nfaStatus" style="margin-top:10px;font-size:0.9rem;color:var(--muted);"></div>
+  </div>
+
+  <h3>Two Matching Strategies</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4 style="margin-top:0;color:var(--green)">Greedy (default)</h4>
+      <p style="font-size:0.9rem;">Matches as much as possible. The quantifier <code>.*</code> will eat the entire string, then backtrack only as needed.</p>
+      <p style="font-size:0.85rem;color:var(--muted);">Pattern <code>a.*b</code> on "aXbYb" → matches "aXbYb" (all of it)</p>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0;color:var(--yellow)">Lazy (add ?)</h4>
+      <p style="font-size:0.9rem;">Matches as little as possible. Stops at the first valid end point.</p>
+      <p style="font-size:0.85rem;color:var(--muted);">Pattern <code>a.*?b</code> on "aXbYb" → matches "aXb" only</p>
+    </div>
+  </div>
+
+  <div id="greedyVis" style="margin:20px 0;">
+    <h4>Interactive: Greedy vs Lazy</h4>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+      <button class="btn btn-sm" onclick="showGreedy('greedy')">Show Greedy a.*b</button>
+      <button class="btn btn-sm btn-outline" onclick="showGreedy('lazy')">Show Lazy a.*?b</button>
+    </div>
+    <div class="match-vis" id="greedyDisplay">Click a button above to visualize matching</div>
+    <div id="greedyExplain" style="font-size:0.9rem;color:var(--muted);margin-top:8px;"></div>
+  </div>
+
+  <h3>Backtracking</h3>
+  <p>When the engine tries a path and fails, it backs up and tries a different one. This is called backtracking. It's what makes regex powerful — but also what makes some patterns extremely slow on certain inputs (more on this in the edge cases section).</p>
+</section>
+
+<!-- SECTION 3: BASIC SYNTAX -->
+<section id="s3">
+  <div class="section-tag">Section 03</div>
+  <h2>Basic Syntax</h2>
+  <p>Let's start with the building blocks. Every regex pattern is made of these pieces.</p>
+
+  <h3>Literal Characters</h3>
+  <p>The simplest pattern is just a literal character. The pattern <code>cat</code> matches exactly the substring "cat". No magic — just character-by-character comparison.</p>
+
+  <h3>The Dot <code>.</code></h3>
+  <p>A dot matches <em>any single character</em> except a newline. Think of it as a wildcard for one character.</p>
+
+  <div class="card">
+    <table class="syn-table">
+      <tr><th>Pattern</th><th>Matches</th><th>Doesn't Match</th></tr>
+      <tr><td class="pat">c.t</td><td class="match">cat, cot, cut, c3t, c!t</td><td class="nomatch">ct, caat</td></tr>
+      <tr><td class="pat">a.b.c</td><td class="match">aXbYc, a1b2c</td><td class="nomatch">abc, aXbc</td></tr>
+    </table>
+  </div>
+
+  <h3>Character Classes <code>[...]</code></h3>
+  <p>Square brackets define a set of characters. The pattern matches if the character at that position is <em>any one</em> of the listed characters.</p>
+
+  <table class="syn-table">
+    <tr><th>Pattern</th><th>What It Means</th><th>Example Match</th></tr>
+    <tr><td class="pat">[aeiou]</td><td>any vowel</td><td class="match">a, e, i, o, u</td></tr>
+    <tr><td class="pat">[a-z]</td><td>any lowercase letter</td><td class="match">a through z</td></tr>
+    <tr><td class="pat">[A-Z]</td><td>any uppercase letter</td><td class="match">A through Z</td></tr>
+    <tr><td class="pat">[0-9]</td><td>any digit</td><td class="match">0 through 9</td></tr>
+    <tr><td class="pat">[a-zA-Z]</td><td>any letter</td><td class="match">a-z or A-Z</td></tr>
+    <tr><td class="pat">[a-zA-Z0-9]</td><td>any alphanumeric</td><td class="match">letters or digits</td></tr>
+    <tr><td class="pat">[^aeiou]</td><td>NOT a vowel (negation with ^)</td><td class="match">b, c, d, 3, !</td></tr>
+  </table>
+
+  <div class="callout warn">
+    <div class="callout-title">Watch Out</div>
+    Inside <code>[...]</code>, most special characters lose their meaning. The dot <code>.</code> inside a character class is just a literal dot — not a wildcard. So <code>[.]</code> only matches an actual period.
+  </div>
+
+  <h3>Shorthand Character Classes</h3>
+  <p>These are so common they got abbreviations:</p>
+
+  <div class="cheat-grid">
+    <div class="cheat-item"><span class="cheat-pat">\d</span><span class="cheat-desc">Any digit. Same as [0-9]</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\D</span><span class="cheat-desc">Any NON-digit. Same as [^0-9]</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\w</span><span class="cheat-desc">Word char: [a-zA-Z0-9_]</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\W</span><span class="cheat-desc">Non-word char</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\s</span><span class="cheat-desc">Whitespace: space, tab, newline</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\S</span><span class="cheat-desc">Non-whitespace</span></div>
+  </div>
+
+  <h3>Escape Special Characters</h3>
+  <p>Some characters have special meaning in regex. To match them literally, you put a backslash before them. In C++ raw strings this gets cleaner.</p>
+
+  <div class="card">
+    <p style="margin:0 0 12px;font-size:0.9rem;color:var(--muted);">Special characters that need escaping: <code>. ^ $ * + ? { } [ ] \ | ( )</code></p>
+    <table class="syn-table">
+      <tr><th>To match</th><th>Pattern</th><th>In C++ raw string</th></tr>
+      <tr><td>A literal dot</td><td class="pat">\.</td><td class="pat">R"(\.)"</td></tr>
+      <tr><td>A literal $</td><td class="pat">\$</td><td class="pat">R"(\$)"</td></tr>
+      <tr><td>A literal (</td><td class="pat">\(</td><td class="pat">R"(\()"</td></tr>
+      <tr><td>A literal \</td><td class="pat">\\</td><td class="pat">R"(\\)"</td></tr>
+    </table>
+  </div>
+
+  <div class="callout danger">
+    <div class="callout-title">C++ Double-Escape Problem</div>
+    In a regular C++ string literal, backslash is already the escape character for the string itself. So <code>\d</code> in regex becomes <code>"\\d"</code> in a regular C++ string. That's why <strong>raw string literals</strong> (<code>R"(...)"</code>) are strongly preferred — they eliminate this entirely.
+    <pre><code><span class="cm">// BAD — easy to get wrong</span>
+std::regex r(<span class="str">"\\d{3}-\\d{4}"</span>);
+
+<span class="cm">// GOOD — what you see is what you get</span>
+std::regex r(<span class="str">R"(\d{3}-\d{4})"</span>);</code></pre>
+  </div>
+
+  <!-- Interactive char class demo -->
+  <h3>Character Class Explorer</h3>
+  <div class="card" style="border-color:var(--accent2);">
+    <p style="margin:0 0 12px;font-size:0.9rem;">Type a character class pattern and test characters against it:</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+      <div class="input-group" style="flex:1;min-width:150px;">
+        <label>Class Pattern</label>
+        <input type="text" id="classPattern" value="[a-zA-Z0-9_]" placeholder="e.g. [a-z0-9]">
+      </div>
+      <div class="input-group" style="flex:1;min-width:150px;">
+        <label>Test String</label>
+        <input type="text" id="classTest" value="Hello World 123!">
+      </div>
+    </div>
+    <button class="btn" onclick="testClass()">Test Each Character</button>
+    <div id="classResult" style="margin-top:16px;display:flex;flex-wrap:wrap;gap:4px;min-height:40px;"></div>
+    <div id="classStatus" style="margin-top:8px;font-size:0.85rem;color:var(--muted);"></div>
+  </div>
+</section>
+
+<!-- SECTION 4: QUANTIFIERS -->
+<section id="s4">
+  <div class="section-tag">Section 04</div>
+  <h2>Quantifiers — How Many Times?</h2>
+  <p>A quantifier goes after a character, class, or group and says "how many times should this appear?" This is where regex gets expressive.</p>
+
+  <table class="syn-table">
+    <tr><th>Quantifier</th><th>Meaning</th><th>Example</th><th>Matches</th></tr>
+    <tr><td class="pat">*</td><td>0 or more</td><td class="pat">a*</td><td class="match">"", "a", "aa", "aaa"</td></tr>
+    <tr><td class="pat">+</td><td>1 or more</td><td class="pat">a+</td><td class="match">"a", "aa", "aaa" — but NOT ""</td></tr>
+    <tr><td class="pat">?</td><td>0 or 1 (optional)</td><td class="pat">colou?r</td><td class="match">"color", "colour"</td></tr>
+    <tr><td class="pat">{n}</td><td>Exactly n times</td><td class="pat">\d{4}</td><td class="match">"2024", "1234"</td></tr>
+    <tr><td class="pat">{n,}</td><td>At least n times</td><td class="pat">\d{3,}</td><td class="match">"123", "12345"</td></tr>
+    <tr><td class="pat">{n,m}</td><td>Between n and m times</td><td class="pat">\d{2,4}</td><td class="match">"12", "123", "1234"</td></tr>
+    <tr><td class="pat">*?</td><td>0 or more, lazy</td><td class="pat">a*?</td><td class="match">Matches as few as possible</td></tr>
+    <tr><td class="pat">+?</td><td>1 or more, lazy</td><td class="pat">a+?</td><td class="match">Matches minimum that still satisfies</td></tr>
+    <tr><td class="pat">??</td><td>0 or 1, lazy</td><td class="pat">a??</td><td class="match">Prefers 0</td></tr>
+  </table>
+
+  <h3>Quantifier Visualizer</h3>
+  <div class="card" style="border-color:var(--accent3);">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+      <div class="input-group" style="flex:1;min-width:140px;">
+        <label>Base Pattern</label>
+        <input type="text" id="qBase" value="a">
+      </div>
+      <div class="input-group" style="flex:1;min-width:140px;">
+        <label>Quantifier</label>
+        <select id="qQuant">
+          <option>*</option><option>+</option><option>?</option>
+          <option>{2}</option><option>{2,4}</option><option>*?</option><option>+?</option>
+        </select>
+      </div>
+      <div class="input-group" style="flex:2;min-width:180px;">
+        <label>Test String</label>
+        <input type="text" id="qTest" value="aaa bbb aaaa">
+      </div>
+    </div>
+    <button class="btn" onclick="testQuantifier()">Visualize</button>
+    <div class="result-box" id="qResult" style="margin-top:14px;"></div>
+    <div id="qExplain" style="margin-top:8px;font-size:0.85rem;color:var(--muted);"></div>
+  </div>
+
+  <!-- Animated quantifier canvas -->
+  <h3>Greedy Backtracking Animation</h3>
+  <p>Watch how a greedy <code>a+b</code> pattern actually works step by step on the string "aaab":</p>
+  <div class="canvas-wrap">
+    <canvas id="btCanvas" width="680" height="180"></canvas>
+    <div class="canvas-controls">
+      <button class="btn btn-sm" onclick="startBT()">▶ Animate</button>
+      <button class="btn btn-sm btn-outline" onclick="resetBT()">↺ Reset</button>
+    </div>
+    <div id="btLabel" style="margin-top:10px;font-size:0.9rem;color:var(--muted);height:20px;"></div>
+  </div>
+</section>
+
+<!-- SECTION 5: GROUPS -->
+<section id="s5">
+  <div class="section-tag">Section 05</div>
+  <h2>Groups and Alternation</h2>
+  <p>Groups are one of the most powerful features. They let you apply quantifiers to whole patterns, capture substrings, and create alternatives.</p>
+
+  <h3>Capturing Groups <code>(...)</code></h3>
+  <p>Parentheses do two things at once: they group a sub-pattern so you can apply a quantifier to it, and they capture the matched text so you can extract it later.</p>
+
+  <pre><code><span class="cm">// Pattern: (\d{4})-(\d{2})-(\d{2})</span>
+<span class="cm">// Input:   "2024-03-15"</span>
+<span class="cm">// Group 1: "2024"   (year)</span>
+<span class="cm">// Group 2: "03"     (month)</span>
+<span class="cm">// Group 3: "15"     (day)</span>
+
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;regex&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;string&gt;</span>
+
+<span class="type">int</span> <span class="fn">main</span>() {
+    std::string s = <span class="str">"2024-03-15"</span>;
+    std::regex r(<span class="str">R"((\d{4})-(\d{2})-(\d{2}))"</span>);
+    std::smatch m;
+    
+    <span class="kw">if</span> (std::regex_match(s, m, r)) {
+        std::cout &lt;&lt; <span class="str">"Full match: "</span>  &lt;&lt; m[<span class="num">0</span>] &lt;&lt; <span class="str">"\n"</span>;  <span class="cm">// "2024-03-15"</span>
+        std::cout &lt;&lt; <span class="str">"Year:  "</span> &lt;&lt; m[<span class="num">1</span>] &lt;&lt; <span class="str">"\n"</span>;  <span class="cm">// "2024"</span>
+        std::cout &lt;&lt; <span class="str">"Month: "</span> &lt;&lt; m[<span class="num">2</span>] &lt;&lt; <span class="str">"\n"</span>;  <span class="cm">// "03"</span>
+        std::cout &lt;&lt; <span class="str">"Day:   "</span> &lt;&lt; m[<span class="num">3</span>] &lt;&lt; <span class="str">"\n"</span>;  <span class="cm">// "15"</span>
+    }
+}</code></pre>
+
+  <h3>Non-Capturing Groups <code>(?:...)</code></h3>
+  <p>Sometimes you want to group for quantifier purposes without capturing the result. Use <code>(?:...)</code>. This is faster and doesn't clutter your match results.</p>
+
+  <pre><code><span class="cm">// Match "ha" repeated 1 or more times: ha, haha, hahaha</span>
+std::regex r(<span class="str">R"((?:ha)+)"</span>);   <span class="cm">// groups "ha" but doesn't capture it</span>
+
+<span class="cm">// Compare with capturing:</span>
+std::regex r2(<span class="str">R"((ha)+)"</span>);    <span class="cm">// group 1 = last "ha" captured (not the whole thing!)</span></code></pre>
+
+  <div class="callout warn">
+    <div class="callout-title">Subtle Bug</div>
+    When you use <code>(ha)+</code>, group 1 captures only the <em>last</em> iteration of "ha", not all of them. If you want the whole repeated section, wrap the outer match, or use a non-capturing group inside.
+  </div>
+
+  <h3>Alternation <code>|</code></h3>
+  <p>The pipe symbol means "or". It has very low precedence — it splits the entire pattern on each side, unless you put it inside a group.</p>
+
+  <table class="syn-table">
+    <tr><th>Pattern</th><th>Matches</th><th>Note</th></tr>
+    <tr><td class="pat">cat|dog</td><td class="match">"cat" or "dog"</td><td>Entire sides alternate</td></tr>
+    <tr><td class="pat">gr(a|e)y</td><td class="match">"gray" or "grey"</td><td>Only the a/e alternates</td></tr>
+    <tr><td class="pat">one|two|three</td><td class="match">"one", "two", "three"</td><td>Can chain multiple</td></tr>
+    <tr><td class="pat">c(at|op)s</td><td class="match">"cats", "cops"</td><td>Group scopes the alt</td></tr>
+  </table>
+
+  <!-- Group visualizer -->
+  <h3>Group Capture Visualizer</h3>
+  <div class="card" style="border-color:var(--purple);">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+      <div class="input-group" style="flex:1;min-width:200px;">
+        <label>Regex Pattern</label>
+        <input type="text" id="groupPat" value="(\w+)\s+(\d{4})">
+      </div>
+      <div class="input-group" style="flex:1;min-width:200px;">
+        <label>Test String</label>
+        <input type="text" id="groupStr" value="Born 1998 in Kathmandu">
+      </div>
+    </div>
+    <button class="btn" onclick="showGroups()">Show Groups</button>
+    <div id="groupResult" style="margin-top:16px;"></div>
+  </div>
+
+  <h3>Named Capture Groups <code>(?&lt;name&gt;...)</code></h3>
+  <p>Instead of referencing groups by index (<code>m[1]</code>, <code>m[2]</code>), you can give them names. This makes complex patterns far more readable.</p>
+  <pre><code>std::regex r(<span class="str">R"((?&lt;year&gt;\d{4})-(?&lt;month&gt;\d{2})-(?&lt;day&gt;\d{2}))"</span>);
+std::smatch m;
+
+<span class="kw">if</span> (std::regex_search(s, m, r)) {
+    std::cout &lt;&lt; m[<span class="str">"year"</span>]  &lt;&lt; <span class="str">"\n"</span>;   <span class="cm">// Access by name</span>
+    std::cout &lt;&lt; m[<span class="str">"month"</span>] &lt;&lt; <span class="str">"\n"</span>;
+    std::cout &lt;&lt; m[<span class="str">"day"</span>]   &lt;&lt; <span class="str">"\n"</span>;
+}</code></pre>
+
+  <div class="callout tip">
+    <div class="callout-title">Named Groups in C++</div>
+    Named groups require <code>std::regex_constants::ECMAScript</code> (the default grammar). They don't work with all grammar flags. If you switch to <code>std::regex::extended</code> or <code>std::regex::awk</code>, named groups may not be supported.
+  </div>
+</section>
+
+<!-- SECTION 6: ANCHORS -->
+<section id="s6">
+  <div class="section-tag">Section 06</div>
+  <h2>Anchors — Position, Not Characters</h2>
+  <p>Anchors don't match characters. They match <em>positions</em> in the string. This is subtle but crucial.</p>
+
+  <table class="syn-table">
+    <tr><th>Anchor</th><th>Matches Position</th><th>Example</th></tr>
+    <tr><td class="pat">^</td><td>Start of string (or line)</td><td><code>^hello</code> matches "hello world" but not "say hello"</td></tr>
+    <tr><td class="pat">$</td><td>End of string (or line)</td><td><code>world$</code> matches "hello world" but not "worldwide"</td></tr>
+    <tr><td class="pat">\b</td><td>Word boundary</td><td><code>\bcat\b</code> matches "cat" but not "catch" or "scat"</td></tr>
+    <tr><td class="pat">\B</td><td>NOT a word boundary</td><td><code>\Bcat\B</code> matches "scatter" (cat inside a word)</td></tr>
+    <tr><td class="pat">\A</td><td>Absolute start of string</td><td>Doesn't change with multiline mode</td></tr>
+    <tr><td class="pat">\Z</td><td>Absolute end of string</td><td>Doesn't change with multiline mode</td></tr>
+  </table>
+
+  <h3>Word Boundary <code>\b</code> — The Tricky One</h3>
+  <p>A word boundary exists between a word character (<code>\w</code>) and a non-word character (<code>\W</code>), including the start and end of the string. This is the most commonly misunderstood anchor.</p>
+
+  <div class="card" style="border-color:var(--accent5);">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+      <div class="input-group" style="flex:1;">
+        <label>Test \b boundaries</label>
+        <input type="text" id="boundaryInput" value="The cat in concatenation">
+      </div>
+      <div class="input-group" style="flex:1;">
+        <label>Word to find</label>
+        <input type="text" id="boundaryWord" value="cat">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-sm" onclick="testBoundary(true)">With \b (whole word)</button>
+      <button class="btn btn-sm btn-outline" onclick="testBoundary(false)">Without \b (substring)</button>
+    </div>
+    <div class="result-box" id="boundaryResult" style="margin-top:14px;"></div>
+    <div id="boundaryExplain" style="font-size:0.85rem;color:var(--muted);margin-top:8px;"></div>
+  </div>
+
+  <h3>Multiline Mode</h3>
+  <p>By default, <code>^</code> and <code>$</code> match the start and end of the entire string. With the multiline flag, they match the start and end of each <em>line</em>.</p>
+  <pre><code><span class="cm">// multiline: ^ and $ match each line</span>
+std::regex r(<span class="str">R"(^\w+)"</span>, std::regex::multiline);
+
+<span class="cm">// Now matches the first word on each line, not just the first line</span></code></pre>
+</section>
+
+<!-- SECTION 7: C++ API -->
+<section id="s7">
+  <div class="section-tag">Section 07</div>
+  <h2>The C++ <code>&lt;regex&gt;</code> API</h2>
+  <p>Everything above was pattern syntax. Now let's talk about how you actually use it in C++. The <code>&lt;regex&gt;</code> header gives you four main tools.</p>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(this,'tab-match')">regex_match</div>
+    <div class="tab" onclick="switchTab(this,'tab-search')">regex_search</div>
+    <div class="tab" onclick="switchTab(this,'tab-replace')">regex_replace</div>
+    <div class="tab" onclick="switchTab(this,'tab-iter')">regex_iterator</div>
+  </div>
+
+  <div class="tab-content active" id="tab-match">
+    <h3>std::regex_match</h3>
+    <p>Tests if the regex matches the <em>entire</em> string. If even one character falls outside the match, it returns false. Use this for validation.</p>
+    <pre><code><span class="kw">#include</span> <span class="str">&lt;regex&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;string&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;iostream&gt;</span>
+
+<span class="type">bool</span> <span class="fn">isValidEmail</span>(<span class="kw">const</span> std::string&amp; s) {
+    std::regex r(<span class="str">R"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})"</span>);
+    <span class="kw">return</span> std::regex_match(s, r);
+}
+
+<span class="type">int</span> <span class="fn">main</span>() {
+    std::cout &lt;&lt; <span class="fn">isValidEmail</span>(<span class="str">"user@example.com"</span>) &lt;&lt; <span class="str">"\n"</span>;  <span class="cm">// 1 (true)</span>
+    std::cout &lt;&lt; <span class="fn">isValidEmail</span>(<span class="str">"notanemail"</span>)       &lt;&lt; <span class="str">"\n"</span>;  <span class="cm">// 0 (false)</span>
+    std::cout &lt;&lt; <span class="fn">isValidEmail</span>(<span class="str">"a@b.c"</span>)            &lt;&lt; <span class="str">"\n"</span>;  <span class="cm">// 0 (TLD < 2 chars)</span>
+}
+
+<span class="cm">// With smatch to access groups:</span>
+std::string s = <span class="str">"2024-12-25"</span>;
+std::regex r(<span class="str">R"((\d{4})-(\d{2})-(\d{2}))"</span>);
+std::smatch m;
+
+<span class="kw">if</span> (std::regex_match(s, m, r)) {
+    std::cout &lt;&lt; <span class="str">"Year: "</span> &lt;&lt; m[<span class="num">1</span>].str() &lt;&lt; <span class="str">"\n"</span>;
+    <span class="cm">// m[0] = entire match, m[1], m[2]... = capture groups</span>
+}</code></pre>
+    <div class="callout tip">
+      <div class="callout-title">regex_match vs regex_search</div>
+      <code>regex_match</code> requires the pattern to match the <em>entire</em> string. <code>regex_search</code> finds the pattern anywhere inside the string. Forgetting this difference is one of the most common bugs.
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-search">
+    <h3>std::regex_search</h3>
+    <p>Finds the first occurrence of the pattern anywhere in the string. Returns true if found, and fills your <code>smatch</code> with details.</p>
+    <pre><code>std::string log = <span class="str">"[ERROR 404] Page not found at /home/index.html"</span>;
+std::regex r(<span class="str">R"(\d{3})"</span>);  <span class="cm">// Find 3-digit number</span>
+std::smatch m;
+
+<span class="kw">if</span> (std::regex_search(log, m, r)) {
+    std::cout &lt;&lt; <span class="str">"Found: "</span> &lt;&lt; m[<span class="num">0</span>] &lt;&lt; <span class="str">"\n"</span>;       <span class="cm">// "404"</span>
+    std::cout &lt;&lt; <span class="str">"At pos: "</span> &lt;&lt; m.position(<span class="num">0</span>) &lt;&lt; <span class="str">"\n"</span>; <span class="cm">// 7</span>
+    std::cout &lt;&lt; <span class="str">"Prefix: "</span> &lt;&lt; m.prefix() &lt;&lt; <span class="str">"\n"</span>;   <span class="cm">// "[ERROR "</span>
+    std::cout &lt;&lt; <span class="str">"Suffix: "</span> &lt;&lt; m.suffix() &lt;&lt; <span class="str">"\n"</span>;   <span class="cm">// "] Page not found..."</span>
+}</code></pre>
+    <p>Key <code>smatch</code> members:</p>
+    <table class="syn-table">
+      <tr><th>Member</th><th>What it gives you</th></tr>
+      <tr><td><code>m[0]</code></td><td>The full match</td></tr>
+      <tr><td><code>m[n]</code></td><td>The nth capture group</td></tr>
+      <tr><td><code>m.position(n)</code></td><td>Index in string where group n starts</td></tr>
+      <tr><td><code>m.length(n)</code></td><td>Length of group n</td></tr>
+      <tr><td><code>m.prefix()</code></td><td>Everything before the match</td></tr>
+      <tr><td><code>m.suffix()</code></td><td>Everything after the match</td></tr>
+      <tr><td><code>m.size()</code></td><td>Number of groups + 1 (for m[0])</td></tr>
+      <tr><td><code>m[n].str()</code></td><td>Convert group to std::string</td></tr>
+    </table>
+  </div>
+
+  <div class="tab-content" id="tab-replace">
+    <h3>std::regex_replace</h3>
+    <p>Replaces all matches with a replacement string. You can reference capture groups in the replacement using <code>$1</code>, <code>$2</code>, etc.</p>
+    <pre><code><span class="cm">// Simple replace</span>
+std::string s = <span class="str">"Hello World"</span>;
+std::string out = std::regex_replace(s, std::regex(<span class="str">R"(\s+)"</span>), <span class="str">"_"</span>);
+<span class="cm">// out = "Hello_World"</span>
+
+<span class="cm">// Replace using capture groups — swap first and last name</span>
+std::string name = <span class="str">"Smith, John"</span>;
+std::regex r(<span class="str">R"((\w+), (\w+))"</span>);
+std::string fixed = std::regex_replace(name, r, <span class="str">"$2 $1"</span>);
+<span class="cm">// fixed = "John Smith"</span>
+
+<span class="cm">// Replace dates from MM/DD/YYYY to YYYY-MM-DD</span>
+std::string date = <span class="str">"03/15/2024"</span>;
+std::regex dr(<span class="str">R"((\d{2})/(\d{2})/(\d{4}))"</span>);
+std::string iso = std::regex_replace(date, dr, <span class="str">"$3-$1-$2"</span>);
+<span class="cm">// iso = "2024-03-15"</span></code></pre>
+    <p>Replacement flags:</p>
+    <table class="syn-table">
+      <tr><th>Flag</th><th>Effect</th></tr>
+      <tr><td><code>format_default</code></td><td>Replace all matches (default)</td></tr>
+      <tr><td><code>format_first_only</code></td><td>Replace only the first match</td></tr>
+      <tr><td><code>format_no_copy</code></td><td>Don't copy non-matching parts to output</td></tr>
+    </table>
+    <pre><code><span class="cm">// Replace only the first match</span>
+std::string out = std::regex_replace(s, r, <span class="str">"X"</span>,
+    std::regex_constants::format_first_only);</code></pre>
+  </div>
+
+  <div class="tab-content" id="tab-iter">
+    <h3>std::sregex_iterator — Find ALL Matches</h3>
+    <p><code>regex_search</code> only finds the first match. To find all of them, use an iterator.</p>
+    <pre><code>std::string text = <span class="str">"Call 555-1234 or 800-5678 for info"</span>;
+std::regex r(<span class="str">R"(\d{3}-\d{4})"</span>);
+
+<span class="cm">// Iterator walks through all matches</span>
+std::sregex_iterator it(text.begin(), text.end(), r);
+std::sregex_iterator end;
+
+<span class="kw">while</span> (it != end) {
+    std::cout &lt;&lt; (*it)[<span class="num">0</span>] &lt;&lt; <span class="str">"\n"</span>;  <span class="cm">// "555-1234", then "800-5678"</span>
+    ++it;
+}
+
+<span class="cm">// Collect all matches into a vector</span>
+std::vector&lt;std::string&gt; matches;
+std::sregex_iterator it2(text.begin(), text.end(), r);
+
+<span class="kw">for</span> (; it2 != end; ++it2) {
+    matches.push_back((*it2)[<span class="num">0</span>].str());
+}
+<span class="cm">// matches = { "555-1234", "800-5678" }</span></code></pre>
+    <div class="callout tip">
+      <div class="callout-title">Token Iterator</div>
+      There's also <code>std::sregex_token_iterator</code> which splits a string by a pattern — similar to Python's <code>re.split()</code>.
+      <pre><code>std::string csv = <span class="str">"one,two,,three"</span>;
+std::regex sep(<span class="str">R"(,)"</span>);
+std::sregex_token_iterator it(csv.begin(), csv.end(), sep, -<span class="num">1</span>);
+<span class="cm">// Gives: "one", "two", "", "three"</span></code></pre>
+    </div>
+
+    <h4>Grammar Flags — Choosing the Regex Dialect</h4>
+    <p>C++ supports multiple regex dialects via flags passed to the <code>std::regex</code> constructor:</p>
+    <table class="syn-table">
+      <tr><th>Flag</th><th>Dialect</th><th>Notes</th></tr>
+      <tr><td><code>std::regex::ECMAScript</code></td><td>ECMAScript (JS-style)</td><td>Default. Most features available.</td></tr>
+      <tr><td><code>std::regex::basic</code></td><td>POSIX BRE</td><td>Old UNIX style. <code>+</code> and <code>?</code> need escaping.</td></tr>
+      <tr><td><code>std::regex::extended</code></td><td>POSIX ERE</td><td>No backreferences in pattern.</td></tr>
+      <tr><td><code>std::regex::grep</code></td><td>POSIX grep</td><td>Like basic but newline = alternation.</td></tr>
+      <tr><td><code>std::regex::icase</code></td><td>(modifer)</td><td>Case-insensitive matching.</td></tr>
+      <tr><td><code>std::regex::multiline</code></td><td>(modifier)</td><td><code>^</code>/<code>$</code> match per-line.</td></tr>
+    </table>
+    <pre><code><span class="cm">// Case-insensitive</span>
+std::regex r(<span class="str">R"(hello)"</span>, std::regex::icase);
+<span class="cm">// Matches "hello", "HELLO", "Hello", etc.</span>
+
+<span class="cm">// Combine flags with |</span>
+std::regex r2(<span class="str">R"(^\w+)"</span>, std::regex::multiline | std::regex::icase);</code></pre>
+  </div>
+</section>
+
+<!-- SECTION 8: LOOKAROUNDS -->
+<section id="s8">
+  <div class="section-tag">Section 08</div>
+  <h2>Lookaheads and Lookbehinds</h2>
+  <p>Lookarounds let you match based on what comes before or after a position — without consuming those characters. The match moves through them like they're not there, but still uses them as conditions.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4 style="margin-top:0;color:var(--green)">Positive Lookahead <code>(?=...)</code></h4>
+      <p style="font-size:0.9rem;">Match if what follows fits the pattern.</p>
+      <p style="font-size:0.85rem;color:var(--muted)"><code>\d+(?= dollars)</code> matches "100" in "100 dollars" but not "100 euros"</p>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0;color:var(--red)">Negative Lookahead <code>(?!...)</code></h4>
+      <p style="font-size:0.9rem;">Match if what follows does NOT fit the pattern.</p>
+      <p style="font-size:0.85rem;color:var(--muted)"><code>\d+(?! euros)</code> matches "100" in "100 dollars" but NOT "100 euros"</p>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0;color:var(--cyan)">Positive Lookbehind <code>(?&lt;=...)</code></h4>
+      <p style="font-size:0.9rem;">Match if what precedes fits the pattern.</p>
+      <p style="font-size:0.85rem;color:var(--muted)"><code>(?&lt;=\$)\d+</code> matches "100" in "$100" but not "100"</p>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0;color:var(--yellow)">Negative Lookbehind <code>(?&lt;!...)</code></h4>
+      <p style="font-size:0.9rem;">Match if what precedes does NOT fit.</p>
+      <p style="font-size:0.85rem;color:var(--muted)"><code>(?&lt;!\$)\d+</code> matches "100" but not "$100"</p>
+    </div>
+  </div>
+
+  <h3>Key Point — Lookarounds Don't Consume</h3>
+  <p>This is the thing people always get confused about. When you use <code>\d+(?= dollars)</code> on "100 dollars", the match result is "100" — not "100 dollars". The lookahead checked for " dollars" but didn't include it in the match. This is incredibly useful for extracting data from structured text without pulling in surrounding delimiters.</p>
+
+  <pre><code><span class="cm">// Extract price number after $ sign using lookbehind</span>
+std::string prices = <span class="str">"Item costs $49 and tax is $5"</span>;
+std::regex r(<span class="str">R"((?&lt;=\$)\d+)"</span>);
+std::sregex_iterator it(prices.begin(), prices.end(), r);
+std::sregex_iterator end;
+
+<span class="kw">while</span> (it != end) {
+    std::cout &lt;&lt; (*it)[<span class="num">0</span>] &lt;&lt; <span class="str">"\n"</span>;  <span class="cm">// "49", then "5"</span>
+    ++it;
+}</code></pre>
+
+  <!-- Interactive lookaround demo -->
+  <div class="card" style="border-color:var(--cyan);">
+    <h4 style="margin-top:0;color:var(--cyan)">Lookaround Sandbox</h4>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+      <div class="input-group" style="flex:2;min-width:200px;">
+        <label>Pattern (use lookarounds)</label>
+        <input type="text" id="lookPat" value="\d+(?= dollars)">
+      </div>
+      <div class="input-group" style="flex:3;min-width:200px;">
+        <label>Test String</label>
+        <input type="text" id="lookStr" value="I have 50 dollars and 30 euros">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-sm" onclick="testLook()">Find Matches</button>
+      <button class="btn btn-sm btn-outline" onclick="setLook('\\d+(?= dollars)')">Pos Lookahead</button>
+      <button class="btn btn-sm btn-outline" onclick="setLook('\\d+(?! euros)')">Neg Lookahead</button>
+      <button class="btn btn-sm btn-outline" onclick="setLook('(?&lt;=\\$)\\d+')">Pos Lookbehind</button>
+    </div>
+    <div class="result-box" id="lookResult" style="margin-top:14px;"></div>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-title">C++ Lookbehind Limitation</div>
+    In C++ (<code>std::regex</code> with ECMAScript grammar), lookbehinds must be <strong>fixed-length</strong>. You can't use <code>*</code>, <code>+</code>, or <code>{n,m}</code> inside a lookbehind. <code>(?&lt;=\w+)</code> will throw an exception. Fixed patterns like <code>(?&lt;=\d{3})</code> are fine.
+  </div>
+</section>
+
+<!-- SECTION 9: ADVANCED -->
+<section id="s9">
+  <div class="section-tag">Section 09</div>
+  <h2>Advanced Techniques</h2>
+
+  <h3>Backreferences</h3>
+  <p>A backreference lets a later part of the pattern refer to what an earlier group actually captured. The pattern <code>(a)\1</code> means: capture "a", then match it again. This is how you find repeated content.</p>
+
+  <pre><code><span class="cm">// Find doubled words like "the the" or "is is"</span>
+std::regex r(<span class="str">R"(\b(\w+)\s+\1\b)"</span>);
+<span class="cm">//   ^Group 1^  ^space^  ^backreference^</span>
+
+std::string s = <span class="str">"This is is a test and the the result"</span>;
+std::sregex_iterator it(s.begin(), s.end(), r);
+<span class="kw">while</span> (it != end) {
+    std::cout &lt;&lt; (*it)[<span class="num">0</span>] &lt;&lt; <span class="str">"\n"</span>;  <span class="cm">// "is is", "the the"</span>
+    ++it;
+}
+
+<span class="cm">// Find HTML-like matching tags: &lt;b&gt;...&lt;/b&gt;</span>
+std::regex tag(<span class="str">R"(&lt;(\w+)&gt;[^&lt;]*&lt;/\1&gt;)"</span>);
+<span class="cm">// \1 must match whatever (\w+) captured — "b", "p", etc.</span></code></pre>
+
+  <h3>Possessive Quantifiers and Atomic Groups</h3>
+  <p>Standard C++ <code>std::regex</code> doesn't support possessive quantifiers (<code>++</code>, <code>*+</code>) or atomic groups (<code>(?&gt;...)</code>). These are Perl/PCRE features. If you need them, you'd use a third-party library like Boost.Regex. Worth knowing the concept though — they prevent backtracking, which makes certain patterns much faster.</p>
+
+  <h3>Compiling Regex Once — Performance</h3>
+  <p>Constructing a <code>std::regex</code> object is expensive. The constructor compiles the pattern into an internal state machine. If you're calling a function in a loop, compiling the regex inside the loop is a major performance mistake.</p>
+
+  <pre><code><span class="cm">// BAD — recompiles on every call</span>
+<span class="type">bool</span> <span class="fn">isDigits</span>(<span class="kw">const</span> std::string&amp; s) {
+    <span class="kw">return</span> std::regex_match(s, std::regex(<span class="str">R"(\d+)"</span>));  <span class="cm">// compiled every time!</span>
+}
+
+<span class="cm">// GOOD — compile once, reuse</span>
+<span class="type">bool</span> <span class="fn">isDigits</span>(<span class="kw">const</span> std::string&amp; s) {
+    <span class="kw">static const</span> std::regex r(<span class="str">R"(\d+)"</span>);  <span class="cm">// compiled once on first call</span>
+    <span class="kw">return</span> std::regex_match(s, r);
+}</code></pre>
+
+  <h3>Regex for Log Parsing — Real Example</h3>
+  <pre><code><span class="cm">// Parse Apache-style log: IP - - [date] "method URL protocol" status bytes</span>
+<span class="cm">// Example: 192.168.1.1 - - [25/Dec/2024:10:30:00] "GET /index.html HTTP/1.1" 200 1234</span>
+
+std::regex logR(
+    <span class="str">R"((\d{1,3}(?:\.\d{1,3}){3}))"</span>   <span class="cm">// IP address</span>
+    <span class="str">R"( - - \[([^\]]+)\])"</span>            <span class="cm">// date in brackets</span>
+    <span class="str">R"( "(\w+) ([^ ]+) ([^"]+)")"</span>    <span class="cm">// method, URL, protocol</span>
+    <span class="str">R"( (\d{3}) (\d+))"</span>               <span class="cm">// status code, bytes</span>
+);
+
+std::smatch m;
+<span class="kw">if</span> (std::regex_search(line, m, logR)) {
+    std::cout &lt;&lt; <span class="str">"IP:     "</span> &lt;&lt; m[<span class="num">1</span>] &lt;&lt; <span class="str">"\n"</span>;
+    std::cout &lt;&lt; <span class="str">"Date:   "</span> &lt;&lt; m[<span class="num">2</span>] &lt;&lt; <span class="str">"\n"</span>;
+    std::cout &lt;&lt; <span class="str">"Method: "</span> &lt;&lt; m[<span class="num">3</span>] &lt;&lt; <span class="str">"\n"</span>;
+    std::cout &lt;&lt; <span class="str">"URL:    "</span> &lt;&lt; m[<span class="num">4</span>] &lt;&lt; <span class="str">"\n"</span>;
+    std::cout &lt;&lt; <span class="str">"Status: "</span> &lt;&lt; m[<span class="num">6</span>] &lt;&lt; <span class="str">"\n"</span>;
+}</code></pre>
+
+  <h3>POSIX Character Classes (inside <code>[...]</code>)</h3>
+  <p>These are bracket expressions that work like shorthands but are locale-aware:</p>
+  <table class="syn-table">
+    <tr><th>Class</th><th>Equivalent</th></tr>
+    <tr><td class="pat">[:alpha:]</td><td>Letters (locale-aware)</td></tr>
+    <tr><td class="pat">[:digit:]</td><td>Digits, like \d</td></tr>
+    <tr><td class="pat">[:alnum:]</td><td>Letters and digits</td></tr>
+    <tr><td class="pat">[:space:]</td><td>Whitespace, like \s</td></tr>
+    <tr><td class="pat">[:upper:]</td><td>Uppercase letters</td></tr>
+    <tr><td class="pat">[:lower:]</td><td>Lowercase letters</td></tr>
+    <tr><td class="pat">[:punct:]</td><td>Punctuation</td></tr>
+  </table>
+  <pre><code><span class="cm">// Usage — must be inside outer brackets</span>
+std::regex r(<span class="str">R"([[:alpha:]]+)"</span>);  <span class="cm">// match one or more letters</span>
+std::regex r2(<span class="str">R"([[:digit:]{4}])"</span>);  <span class="cm">// WARNING: this is wrong — see edge cases</span></code></pre>
+</section>
+
+<!-- SECTION 10: EDGE CASES -->
+<section id="s10">
+  <div class="section-tag">Section 10</div>
+  <h2>Edge Cases and Tricky Behavior</h2>
+  <p>This is the section that separates people who use regex from people who understand it.</p>
+
+  <h3>1. Catastrophic Backtracking</h3>
+  <p>Certain patterns cause the engine to explore an exponential number of paths before failing. This can hang your program on malicious or even accidental input.</p>
+  <div class="card" style="border-color:var(--red);">
+    <pre><code><span class="cm">// DANGEROUS PATTERN</span>
+std::regex r(<span class="str">R"((a+)+b)"</span>);
+std::string s = <span class="str">"aaaaaaaaaaaaaaaaaaaac"</span>;  <span class="cm">// no 'b' at end</span>
+<span class="cm">// This can take exponential time to fail!</span>
+<span class="cm">// The engine tries every combination of how to split the a's between the groups.</span>
+
+<span class="cm">// FIX: atomic group (PCRE/Boost) or rewrite the pattern</span>
+<span class="cm">// Rewritten safely:</span>
+std::regex safe(<span class="str">R"(a+b)"</span>);  <span class="cm">// removes the ambiguity entirely</span></code></pre>
+    <div class="callout danger" style="margin:0;">
+      <div class="callout-title">ReDoS — Regex Denial of Service</div>
+      In web servers and input parsers, catastrophic backtracking is a real attack vector. Attackers send specially crafted input to make the regex engine spin forever. Never use nested quantifiers on overlapping patterns when processing untrusted input.
+    </div>
+  </div>
+
+  <h3>2. Empty Matches and Zero-Width Assertions</h3>
+  <pre><code><span class="cm">// Pattern that can match empty string</span>
+std::regex r(<span class="str">R"(\d*)"</span>);  <span class="cm">// zero or more digits — always matches</span>
+std::string s = <span class="str">"a1b"</span>;
+
+std::sregex_iterator it(s.begin(), s.end(), r);
+<span class="cm">// Produces: "", "1", "", ""  — empty matches at every non-digit position!</span>
+
+<span class="cm">// Better: use + for "at least one"</span>
+std::regex r2(<span class="str">R"(\d+)"</span>);  <span class="cm">// only matches where digits actually exist</span></code></pre>
+
+  <h3>3. The <code>^</code> Inside Character Class vs. Anchor</h3>
+  <pre><code><span class="cm">// ^ at START of pattern = anchor (start of string)</span>
+std::regex r1(<span class="str">R"(^hello)"</span>);   <span class="cm">// "hello" at start of string</span>
+
+<span class="cm">// ^ INSIDE [...] = negation</span>
+std::regex r2(<span class="str">R"([^hello])"</span>);  <span class="cm">// any character that is NOT h, e, l, or o</span>
+
+<span class="cm">// ^ NOT at start of [...] = literal ^</span>
+std::regex r3(<span class="str">R"([a^b])"</span>);     <span class="cm">// matches 'a', '^', or 'b'</span></code></pre>
+
+  <h3>4. Dot Doesn't Match Newline (by Default)</h3>
+  <pre><code>std::string s = <span class="str">"line1\nline2"</span>;
+std::regex r(<span class="str">R"(line.line)"</span>);          <span class="cm">// does NOT match — \n not matched by .</span>
+
+<span class="cm">// Fix: use [\s\S] to match truly any character</span>
+std::regex r2(<span class="str">R"(line[\s\S]line)"</span>);   <span class="cm">// matches!</span></code></pre>
+
+  <h3>5. Greedy Quantifiers and HTML Parsing</h3>
+  <pre><code>std::string html = <span class="str">"&lt;b&gt;bold&lt;/b&gt; and &lt;i&gt;italic&lt;/i&gt;"</span>;
+
+<span class="cm">// Greedy — matches from first &lt; to LAST &gt;</span>
+std::regex bad(<span class="str">R"(&lt;.+&gt;)"</span>);       <span class="cm">// matches "&lt;b&gt;bold&lt;/b&gt; and &lt;i&gt;italic&lt;/i&gt;" — everything!</span>
+
+<span class="cm">// Lazy — matches from each &lt; to its nearest &gt;</span>
+std::regex good(<span class="str">R"(&lt;.+?&gt;)"</span>);     <span class="cm">// matches "&lt;b&gt;", "&lt;/b&gt;", "&lt;i&gt;", "&lt;/i&gt;"</span>
+
+<span class="cm">// Even better — no backtracking, use negated class</span>
+std::regex best(<span class="str">R"(&lt;[^&gt;]+&gt;)"</span>);   <span class="cm">// [^&gt;]+ = any char except >, faster</span></code></pre>
+
+  <h3>6. std::regex Exception on Bad Pattern</h3>
+  <pre><code><span class="cm">// Malformed patterns throw std::regex_error</span>
+<span class="kw">try</span> {
+    std::regex r(<span class="str">R"([unclosed)"</span>);  <span class="cm">// missing ]</span>
+} <span class="kw">catch</span> (<span class="kw">const</span> std::regex_error&amp; e) {
+    std::cerr &lt;&lt; <span class="str">"Regex error: "</span> &lt;&lt; e.what() &lt;&lt; <span class="str">"\n"</span>;
+    std::cerr &lt;&lt; <span class="str">"Error code: "</span>  &lt;&lt; e.code()  &lt;&lt; <span class="str">"\n"</span>;
+}
+
+<span class="cm">// Always wrap user-supplied regex patterns in try-catch!</span></code></pre>
+
+  <h3>7. Capturing Group Numbering with Alternation</h3>
+  <pre><code><span class="cm">// Groups are numbered left-to-right by opening parenthesis</span>
+std::regex r(<span class="str">R"((a(b))|((c)(d)))"</span>);
+<span class="cm">//   ^1^ ^2^   ^3^^4^^5^</span>
+<span class="cm">// Group 1: "ab", Group 2: "b"</span>
+<span class="cm">// Group 3: "cd", Group 4: "c", Group 5: "d"</span>
+<span class="cm">// When the first alt matches: groups 3,4,5 are empty</span>
+<span class="cm">// When the second alt matches: groups 1,2 are empty</span>
+
+<span class="cm">// Check if a group participated in the match:</span>
+<span class="kw">if</span> (m[<span class="num">2</span>].matched) {
+    std::cout &lt;&lt; <span class="str">"Group 2 matched: "</span> &lt;&lt; m[<span class="num">2</span>] &lt;&lt; <span class="str">"\n"</span>;
+}</code></pre>
+
+  <h3>8. Unicode and std::regex</h3>
+  <div class="callout danger">
+    <div class="callout-title">Important Limitation</div>
+    <code>std::regex</code> in C++ works on <code>char</code> (single byte) or <code>wchar_t</code> (wide char). It does NOT natively handle UTF-8 multi-byte sequences correctly. A pattern like <code>\w</code> won't match letters with accents or non-ASCII characters unless you use the wide-char version (<code>std::wregex</code>) or a library like ICU or Boost.Regex with Unicode support.
+  </div>
+  <pre><code><span class="cm">// For wide strings:</span>
+std::wstring ws = <span class="str">L"héllo"</span>;
+std::wregex wr(<span class="str">LR"(\w+)"</span>);
+std::wsmatch wm;
+<span class="kw">if</span> (std::regex_search(ws, wm, wr)) {
+    std::wcout &lt;&lt; wm[<span class="num">0</span>] &lt;&lt; <span class="str">L"\n"</span>;
+}</code></pre>
+
+  <h3>Interactive Edge Case Quiz</h3>
+  <div class="quiz-card">
+    <p style="font-weight:600;">What does <code>std::regex_match("abc123", std::regex(R"(\d+)"))</code> return?</p>
+    <div class="quiz-options">
+      <div class="quiz-opt" onclick="checkQ(this, false)">true — digits found</div>
+      <div class="quiz-opt" onclick="checkQ(this, true)">false — full string must match</div>
+      <div class="quiz-opt" onclick="checkQ(this, false)">throws exception</div>
+      <div class="quiz-opt" onclick="checkQ(this, false)">matches "123" part</div>
+    </div>
+    <div class="quiz-feedback" id="qfeedback"></div>
+  </div>
+  <div class="quiz-card">
+    <p style="font-weight:600;">Pattern: <code>a{2,4}</code> applied greedily to "aaaaa". What's the match?</p>
+    <div class="quiz-options">
+      <div class="quiz-opt" onclick="checkQ2(this, false)">"aa"</div>
+      <div class="quiz-opt" onclick="checkQ2(this, false)">"aaa"</div>
+      <div class="quiz-opt" onclick="checkQ2(this, true)">"aaaa"</div>
+      <div class="quiz-opt" onclick="checkQ2(this, false)">"aaaaa"</div>
+    </div>
+    <div class="quiz-feedback" id="qfeedback2"></div>
+  </div>
+</section>
+
+<!-- SECTION 11: LIVE TESTER -->
+<section id="s11">
+  <div class="section-tag">Section 11</div>
+  <h2>Live Regex Tester</h2>
+  <p>Test any pattern here. Matches are highlighted in the string.</p>
+  <div class="tester">
+    <div class="tester-grid">
+      <div class="input-group">
+        <label>Regex Pattern</label>
+        <input type="text" id="mainPat" value="\b\w{4}\b" oninput="runMainTest()">
+      </div>
+      <div class="input-group">
+        <label>Flags</label>
+        <select id="mainFlags" onchange="runMainTest()">
+          <option value="">None</option>
+          <option value="i">Case insensitive (i)</option>
+          <option value="g">Global (find all)</option>
+          <option value="gi">Global + Case insensitive</option>
+          <option value="m">Multiline</option>
+        </select>
+      </div>
+    </div>
+    <div class="input-group" style="margin-bottom:14px;">
+      <label>Test String</label>
+      <input type="text" id="mainStr" value="Hello World this is a test with some four five" oninput="runMainTest()" style="width:100%;">
+    </div>
+    <div style="font-size:0.8rem;color:var(--muted);margin-bottom:8px;">Highlighted Output:</div>
+    <div class="result-box" id="mainResult"></div>
+    <div class="status-bar" id="mainStatus"></div>
+
+    <div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:8px;">
+      <span style="font-size:0.8rem;color:var(--muted);align-self:center;">Quick patterns:</span>
+      <button class="btn btn-sm btn-outline" onclick="setQuick(String.raw`\b\w{4}\b`)">4-letter words</button>
+      <button class="btn btn-sm btn-outline" onclick="setQuick(String.raw`\d+`)">All numbers</button>
+      <button class="btn btn-sm btn-outline" onclick="setQuick(String.raw`[A-Z][a-z]+`)">Capitalized words</button>
+      <button class="btn btn-sm btn-outline" onclick="setQuick(String.raw`\b\w+ing\b`)">-ing words</button>
+      <button class="btn btn-sm btn-outline" onclick="setQuick(String.raw`[aeiou]{2,}`)">2+ vowels</button>
+      <button class="btn btn-sm btn-outline" onclick="setQuick(String.raw`\w+@\w+\.\w+`)">Email-like</button>
+    </div>
+  </div>
+
+  <h3>Capture Group Extractor</h3>
+  <div class="tester" style="border-color:var(--accent3);">
+    <div class="tester-grid">
+      <div class="input-group">
+        <label>Pattern with Groups</label>
+        <input type="text" id="capPat" value="(\w+)\s+(\d{4})" oninput="runCapTest()">
+      </div>
+      <div class="input-group">
+        <label>Test String</label>
+        <input type="text" id="capStr" value="Born 1998 Graduated 2024 Class 2029" oninput="runCapTest()">
+      </div>
+    </div>
+    <div id="capResult" style="margin-top:14px;"></div>
+  </div>
+</section>
+
+<!-- SECTION 12: CHEATSHEET -->
+<section id="s12">
+  <div class="section-tag">Section 12</div>
+  <h2>Quick Reference Cheatsheet</h2>
+
+  <h3>Pattern Syntax</h3>
+  <div class="cheat-grid">
+    <div class="cheat-item"><span class="cheat-pat">.</span><span class="cheat-desc">Any char except newline</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\d</span><span class="cheat-desc">Digit [0-9]</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\D</span><span class="cheat-desc">Non-digit</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\w</span><span class="cheat-desc">Word char [a-zA-Z0-9_]</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\W</span><span class="cheat-desc">Non-word char</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\s</span><span class="cheat-desc">Whitespace</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\S</span><span class="cheat-desc">Non-whitespace</span></div>
+    <div class="cheat-item"><span class="cheat-pat">[abc]</span><span class="cheat-desc">Character class</span></div>
+    <div class="cheat-item"><span class="cheat-pat">[^abc]</span><span class="cheat-desc">Negated class</span></div>
+    <div class="cheat-item"><span class="cheat-pat">[a-z]</span><span class="cheat-desc">Character range</span></div>
+    <div class="cheat-item"><span class="cheat-pat">^</span><span class="cheat-desc">Start of string/line</span></div>
+    <div class="cheat-item"><span class="cheat-pat">$</span><span class="cheat-desc">End of string/line</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\b</span><span class="cheat-desc">Word boundary</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\B</span><span class="cheat-desc">Non-word boundary</span></div>
+    <div class="cheat-item"><span class="cheat-pat">*</span><span class="cheat-desc">0 or more (greedy)</span></div>
+    <div class="cheat-item"><span class="cheat-pat">+</span><span class="cheat-desc">1 or more (greedy)</span></div>
+    <div class="cheat-item"><span class="cheat-pat">?</span><span class="cheat-desc">0 or 1 (optional)</span></div>
+    <div class="cheat-item"><span class="cheat-pat">{n,m}</span><span class="cheat-desc">n to m repetitions</span></div>
+    <div class="cheat-item"><span class="cheat-pat">*?</span><span class="cheat-desc">0 or more (lazy)</span></div>
+    <div class="cheat-item"><span class="cheat-pat">+?</span><span class="cheat-desc">1 or more (lazy)</span></div>
+    <div class="cheat-item"><span class="cheat-pat">(abc)</span><span class="cheat-desc">Capture group</span></div>
+    <div class="cheat-item"><span class="cheat-pat">(?:abc)</span><span class="cheat-desc">Non-capture group</span></div>
+    <div class="cheat-item"><span class="cheat-pat">(?&lt;n&gt;abc)</span><span class="cheat-desc">Named capture group</span></div>
+    <div class="cheat-item"><span class="cheat-pat">\1</span><span class="cheat-desc">Backreference to group 1</span></div>
+    <div class="cheat-item"><span class="cheat-pat">a|b</span><span class="cheat-desc">Alternation (or)</span></div>
+    <div class="cheat-item"><span class="cheat-pat">(?=abc)</span><span class="cheat-desc">Positive lookahead</span></div>
+    <div class="cheat-item"><span class="cheat-pat">(?!abc)</span><span class="cheat-desc">Negative lookahead</span></div>
+    <div class="cheat-item"><span class="cheat-pat">(?&lt;=abc)</span><span class="cheat-desc">Positive lookbehind</span></div>
+    <div class="cheat-item"><span class="cheat-pat">(?&lt;!abc)</span><span class="cheat-desc">Negative lookbehind</span></div>
+  </div>
+
+  <h3>C++ API Summary</h3>
+  <div class="cheat-grid">
+    <div class="cheat-item"><span class="cheat-pat" style="min-width:120px;font-size:0.8rem;">regex_match</span><span class="cheat-desc">Entire string must match</span></div>
+    <div class="cheat-item"><span class="cheat-pat" style="min-width:120px;font-size:0.8rem;">regex_search</span><span class="cheat-desc">Find first match anywhere</span></div>
+    <div class="cheat-item"><span class="cheat-pat" style="min-width:120px;font-size:0.8rem;">regex_replace</span><span class="cheat-desc">Replace matches in string</span></div>
+    <div class="cheat-item"><span class="cheat-pat" style="min-width:120px;font-size:0.8rem;">sregex_iterator</span><span class="cheat-desc">Iterate all matches</span></div>
+    <div class="cheat-item"><span class="cheat-pat" style="min-width:120px;font-size:0.8rem;">smatch / m[0]</span><span class="cheat-desc">Full match result</span></div>
+    <div class="cheat-item"><span class="cheat-pat" style="min-width:120px;font-size:0.8rem;">m[n]</span><span class="cheat-desc">nth capture group</span></div>
+    <div class="cheat-item"><span class="cheat-pat" style="min-width:120px;font-size:0.8rem;">m.position(n)</span><span class="cheat-desc">Start index of group n</span></div>
+    <div class="cheat-item"><span class="cheat-pat" style="min-width:120px;font-size:0.8rem;">m.prefix()</span><span class="cheat-desc">String before match</span></div>
+    <div class="cheat-item"><span class="cheat-pat" style="min-width:120px;font-size:0.8rem;">m.suffix()</span><span class="cheat-desc">String after match</span></div>
+    <div class="cheat-item"><span class="cheat-pat" style="min-width:120px;font-size:0.8rem;">regex::icase</span><span class="cheat-desc">Case-insensitive flag</span></div>
+    <div class="cheat-item"><span class="cheat-pat" style="min-width:120px;font-size:0.8rem;">regex::multiline</span><span class="cheat-desc">^ and $ per-line</span></div>
+  </div>
+
+  <h3>Common Patterns</h3>
+  <table class="syn-table">
+    <tr><th>What to Match</th><th>Pattern</th></tr>
+    <tr><td>Integer</td><td class="pat">-?\d+</td></tr>
+    <tr><td>Decimal number</td><td class="pat">-?\d+(\.\d+)?</td></tr>
+    <tr><td>Email (simple)</td><td class="pat">\w+[\w.]*@\w+\.\w{2,}</td></tr>
+    <tr><td>US phone</td><td class="pat">\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}</td></tr>
+    <tr><td>IP address</td><td class="pat">\d{1,3}(?:\.\d{1,3}){3}</td></tr>
+    <tr><td>URL (simple)</td><td class="pat">https?://[\w./%-]+</td></tr>
+    <tr><td>Date MM/DD/YYYY</td><td class="pat">\d{2}/\d{2}/\d{4}</td></tr>
+    <tr><td>ISO date YYYY-MM-DD</td><td class="pat">\d{4}-\d{2}-\d{2}</td></tr>
+    <tr><td>Hex color</td><td class="pat">#[0-9a-fA-F]{6}</td></tr>
+    <tr><td>HTML tag</td><td class="pat">&lt;[^&gt;]+&gt;</td></tr>
+    <tr><td>C++ identifier</td><td class="pat">[a-zA-Z_]\w*</td></tr>
+    <tr><td>Quoted string</td><td class="pat">"[^"]*"</td></tr>
+    <tr><td>Repeated word</td><td class="pat">\b(\w+)\s+\1\b</td></tr>
+    <tr><td>Blank line</td><td class="pat">^\s*$</td></tr>
+    <tr><td>Line comment (//)  </td><td class="pat">//[^\n]*</td></tr>
+  </table>
+
+  <div style="margin-top:40px;padding:30px;background:var(--card);border-radius:12px;border:1px solid var(--border);text-align:center;">
+    <div style="font-size:1.2rem;font-weight:700;margin-bottom:8px;">You now know regex.</div>
+    <p style="color:var(--muted);margin:0;">The pattern syntax, the C++ API, lookarounds, edge cases, and the traps that catch everyone. The only thing left is practice. Use the tester above, write patterns for real problems, and look at what the engine actually does.</p>
+  </div>
+</section>
+
+</div><!-- end container -->
+
+<script>
+// ===== HERO CANVAS =====
+(function() {
+  const c = document.getElementById('heroCanvas');
+  c.width = c.offsetWidth; c.height = c.offsetHeight;
+  const ctx = c.getContext('2d');
+  const chars = ['\\d','\\w','[^','.*','(?=','+?','\\b','{3}','|','(?:','\\s','$1'];
+  const particles = Array.from({length:30}, () => ({
+    x: Math.random()*c.width, y: Math.random()*c.height,
+    vx: (Math.random()-0.5)*0.4, vy: (Math.random()-0.5)*0.4,
+    char: chars[Math.floor(Math.random()*chars.length)],
+    alpha: Math.random()*0.5+0.2,
+    size: Math.floor(Math.random()*10)+10
+  }));
+  function frame() {
+    ctx.clearRect(0,0,c.width,c.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = c.width;
+      if (p.x > c.width) p.x = 0;
+      if (p.y < 0) p.y = c.height;
+      if (p.y > c.height) p.y = 0;
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = '#7c6aff';
+      ctx.font = `${p.size}px monospace`;
+      ctx.fillText(p.char, p.x, p.y);
+      ctx.restore();
+    });
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+// ===== NFA VISUALIZER =====
+const nfaStates = [
+  {label:'q0', x:60,  y:100, accept:false},
+  {label:'q1', x:200, y:100, accept:false},
+  {label:'q2', x:340, y:100, accept:false},
+  {label:'q3', x:480, y:100, accept:true},
+];
+const nfaTrans = [
+  {from:0, to:1, label:'a'},
+  {from:1, to:2, label:'b'},
+  {from:2, to:2, label:'b'},
+  {from:2, to:3, label:'c'},
+];
+let nfaCurrent = 0, nfaStep = 0, nfaInput = '', nfaTimer = null;
+
+function drawNFA(active) {
+  const c = document.getElementById('nfaCanvas');
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  // Draw transitions
+  nfaTrans.forEach(t => {
+    const s = nfaStates[t.from], e = nfaStates[t.to];
+    ctx.beginPath();
+    ctx.strokeStyle = '#2a2a4a';
+    ctx.lineWidth = 2;
+    const isSelf = t.from === t.to;
+    if (isSelf) {
+      ctx.arc(s.x, s.y - 40, 20, Math.PI*1.2, Math.PI*1.8);
+      ctx.stroke();
+      ctx.fillStyle = '#7c6aff';
+      ctx.font = '13px monospace';
+      ctx.fillText(t.label, s.x - 4, s.y - 65);
+    } else {
+      ctx.moveTo(s.x + 25, s.y);
+      ctx.lineTo(e.x - 25, e.y);
+      ctx.stroke();
+      // Arrow
+      const angle = Math.atan2(e.y - s.y, e.x - s.x);
+      ctx.save(); ctx.translate(e.x-27, e.y); ctx.rotate(angle);
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(-10,-5); ctx.lineTo(-10,5); ctx.closePath();
+      ctx.fillStyle = '#2a2a4a'; ctx.fill(); ctx.restore();
+      // Label
+      const mx = (s.x + e.x) / 2, my = (s.y + e.y) / 2;
+      ctx.fillStyle = '#7c6aff'; ctx.font = 'bold 14px monospace';
+      ctx.fillText(t.label, mx - 4, my - 10);
+    }
+  });
+  // Draw states
+  nfaStates.forEach((st, i) => {
+    const isActive = active === i;
+    ctx.beginPath();
+    ctx.arc(st.x, st.y, 24, 0, Math.PI*2);
+    ctx.fillStyle = isActive ? (st.accept ? '#39ff98' : '#7c6aff') : '#1a1a2e';
+    ctx.strokeStyle = st.accept ? '#39ff98' : '#7c6aff';
+    ctx.lineWidth = st.accept ? 3 : 2;
+    ctx.fill(); ctx.stroke();
+    if (st.accept) {
+      ctx.beginPath(); ctx.arc(st.x, st.y, 18, 0, Math.PI*2);
+      ctx.strokeStyle = isActive ? '#0a0a14' : '#39ff98'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+    ctx.fillStyle = isActive ? '#0a0a14' : '#e8e8f0';
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(st.label, st.x, st.y);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  });
+}
+drawNFA(0);
+
+function runNFA() {
+  clearInterval(nfaTimer);
+  nfaInput = document.getElementById('nfaInput').value;
+  nfaStep = 0; nfaCurrent = 0;
+  document.getElementById('nfaStatus').textContent = `Input: "${nfaInput}" — Processing...`;
+  nfaTimer = setInterval(() => {
+    if (nfaStep >= nfaInput.length) {
+      clearInterval(nfaTimer);
+      const ok = nfaStates[nfaCurrent].accept;
+      document.getElementById('nfaStatus').textContent = ok
+        ? `✅ ACCEPTED — reached accept state ${nfaStates[nfaCurrent].label}`
+        : `❌ REJECTED — ended in non-accept state ${nfaStates[nfaCurrent].label}`;
+      return;
+    }
+    const ch = nfaInput[nfaStep];
+    const t = nfaTrans.find(tr => tr.from === nfaCurrent && tr.label === ch);
+    if (!t) {
+      clearInterval(nfaTimer);
+      document.getElementById('nfaStatus').textContent = `❌ REJECTED — no transition from ${nfaStates[nfaCurrent].label} on '${ch}'`;
+      return;
+    }
+    nfaCurrent = t.to;
+    drawNFA(nfaCurrent);
+    document.getElementById('nfaStatus').textContent = `Step ${nfaStep+1}: '${ch}' → moved to ${nfaStates[nfaCurrent].label}`;
+    nfaStep++;
+  }, 700);
+}
+function resetNFA() {
+  clearInterval(nfaTimer);
+  nfaCurrent = 0; nfaStep = 0;
+  drawNFA(0);
+  document.getElementById('nfaStatus').textContent = '';
+}
+
+// ===== GREEDY VS LAZY =====
+function showGreedy(mode) {
+  const s = "aXbYb";
+  const d = document.getElementById('greedyDisplay');
+  const e = document.getElementById('greedyExplain');
+  let html = '';
+  if (mode === 'greedy') {
+    // a.*b greedy matches entire aXbYb
+    const matchIndices = [0,1,2,3,4];
+    for (let i = 0; i < s.length; i++) {
+      if (matchIndices.includes(i)) html += `<span class="char-box char-matched">${s[i]}</span>`;
+      else html += `<span class="char-box">${s[i]}</span>`;
+    }
+    e.textContent = 'Greedy a.*b on "aXbYb": matches the whole string "aXbYb". The .* eats X, b, Y then stops at the last b.';
+  } else {
+    // a.*?b lazy matches aXb only (index 0-2)
+    for (let i = 0; i < s.length; i++) {
+      if (i <= 2) html += `<span class="char-box char-matched">${s[i]}</span>`;
+      else html += `<span class="char-box">${s[i]}</span>`;
+    }
+    e.textContent = 'Lazy a.*?b on "aXbYb": matches "aXb" only. The .*? stops at the first b it finds.';
+  }
+  d.innerHTML = html;
+}
+
+// ===== BACKTRACKING ANIMATION =====
+let btFrame = 0, btTimer = null;
+const btSteps = [
+  {pos:[0,1,2,3], phase:'a+', note:'a+ greedily consumes all a\'s'},
+  {pos:[0,1,2,3], phase:'a+', note:'Now tries to match b — but position 4 is end. Backtrack!'},
+  {pos:[0,1,2], phase:'backtrack', note:'Give up last a. Now at position 3 (the \'b\'). Try matching b...'},
+  {pos:[0,1,2,3], phase:'match', note:'✅ Match! a+ matched "aaa", b matched "b"'},
+];
+function drawBT(step) {
+  const c = document.getElementById('btCanvas');
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);
+  const chars = ['a','a','a','b'];
+  const colors = {'a+':'#7c6aff','backtrack':'#ff4d6d','match':'#39ff98'};
+  const xStart = 80, y = 90, boxW = 60, gap = 20;
+  // Label
+  ctx.fillStyle = '#7a7a9a'; ctx.font = '13px monospace'; ctx.textAlign='left';
+  ctx.fillText('Pattern: a+b', 20, 30);
+  ctx.fillText('String:  "aaab"', 20, 50);
+  chars.forEach((ch, i) => {
+    const x = xStart + i*(boxW+gap);
+    const st = step < btSteps.length ? btSteps[step] : btSteps[0];
+    const isActive = st.pos.includes(i);
+    ctx.fillStyle = isActive ? colors[st.phase] : '#1a1a2e';
+    ctx.beginPath(); ctx.roundRect(x, y-30, boxW, 50, 8); ctx.fill();
+    ctx.strokeStyle = isActive ? colors[st.phase] : '#2a2a4a'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle = isActive ? '#0a0a14' : '#e8e8f0';
+    ctx.font = 'bold 22px monospace'; ctx.textAlign='center';
+    ctx.fillText(ch, x+boxW/2, y+8);
+    ctx.fillStyle = '#7a7a9a'; ctx.font = '11px monospace';
+    ctx.fillText(`[${i}]`, x+boxW/2, y+30);
+  });
+  ctx.textAlign='left';
+}
+drawBT(0);
+function startBT() {
+  clearInterval(btTimer); btFrame=0; drawBT(0);
+  btTimer = setInterval(() => {
+    btFrame++;
+    if (btFrame >= btSteps.length) { clearInterval(btTimer); return; }
+    drawBT(btFrame);
+    document.getElementById('btLabel').textContent = btSteps[btFrame].note;
+  }, 1200);
+}
+function resetBT() {
+  clearInterval(btTimer); btFrame=0; drawBT(0);
+  document.getElementById('btLabel').textContent='';
+}
+
+// ===== CHARACTER CLASS TESTER =====
+function testClass() {
+  const pat = document.getElementById('classPattern').value;
+  const str = document.getElementById('classTest').value;
+  const res = document.getElementById('classResult');
+  const sta = document.getElementById('classStatus');
+  res.innerHTML = '';
+  try {
+    const r = new RegExp('^' + pat + '$');
+    let matchCount = 0;
+    for (const ch of str) {
+      const matches = r.test(ch);
+      if (matches) matchCount++;
+      const span = document.createElement('span');
+      span.className = 'char-box ' + (matches ? 'char-matched' : '');
+      span.textContent = ch === ' ' ? '·' : ch;
+      span.title = matches ? `'${ch}' ✅ matches` : `'${ch}' ❌ no match`;
+      res.appendChild(span);
+    }
+    sta.textContent = `${matchCount}/${str.length} characters matched`;
+    sta.style.color = matchCount > 0 ? 'var(--green)' : 'var(--red)';
+  } catch(e) {
+    sta.textContent = 'Invalid pattern: ' + e.message;
+    sta.style.color = 'var(--red)';
+  }
+}
+testClass();
+
+// ===== QUANTIFIER TESTER =====
+function testQuantifier() {
+  const base = document.getElementById('qBase').value;
+  const quant = document.getElementById('qQuant').value;
+  const str = document.getElementById('qTest').value;
+  const res = document.getElementById('qResult');
+  const exp = document.getElementById('qExplain');
+  try {
+    const pat = base + quant;
+    const r = new RegExp(pat, 'g');
+    let html = str;
+    const matches = [...str.matchAll(r)].reverse();
+    let highlighted = str;
+    for (const m of [...str.matchAll(r)].reverse()) {
+      const before = highlighted.slice(0, m.index);
+      const match = highlighted.slice(m.index, m.index + m[0].length);
+      const after = highlighted.slice(m.index + m[0].length);
+      highlighted = before + `<span class="highlight-match">${match || '∅'}</span>` + after;
+    }
+    res.innerHTML = highlighted || str;
+    const count = [...str.matchAll(r)].length;
+    exp.textContent = `Pattern /${pat}/g found ${count} match(es) in "${str}"`;
+  } catch(e) {
+    res.textContent = 'Error: ' + e.message;
+    exp.textContent = '';
+  }
+}
+
+// ===== GROUP VISUALIZER =====
+function showGroups() {
+  const pat = document.getElementById('groupPat').value;
+  const str = document.getElementById('groupStr').value;
+  const res = document.getElementById('groupResult');
+  try {
+    const r = new RegExp(pat);
+    const m = str.match(r);
+    if (!m) { res.innerHTML = '<p style="color:var(--red)">No match found</p>'; return; }
+    let html = `<div style="margin-bottom:12px;"><span style="color:var(--muted);font-size:0.8rem;">FULL MATCH [0]:</span> <code style="color:var(--green)">${m[0]}</code></div>`;
+    const colors = ['var(--accent)','var(--accent3)','var(--cyan)','var(--yellow)','var(--purple)'];
+    for (let i = 1; i < m.length; i++) {
+      html += `<div style="margin:4px 0;"><span style="color:${colors[(i-1)%5]};font-size:0.8rem;">GROUP [${i}]:</span> <code style="color:var(--text)">${m[i] ?? '<undefined>'}</code></div>`;
+    }
+    res.innerHTML = html;
+  } catch(e) {
+    res.innerHTML = `<p style="color:var(--red)">Error: ${e.message}</p>`;
+  }
+}
+
+// ===== BOUNDARY TESTER =====
+function testBoundary(withBoundary) {
+  const word = document.getElementById('boundaryWord').value;
+  const str = document.getElementById('boundaryInput').value;
+  const res = document.getElementById('boundaryResult');
+  const exp = document.getElementById('boundaryExplain');
+  const pat = withBoundary ? `\\b${word}\\b` : word;
+  const r = new RegExp(pat, 'g');
+  const matches = [...str.matchAll(r)];
+  let highlighted = str;
+  for (const m of matches.reverse()) {
+    const before = highlighted.slice(0, m.index);
+    const match = highlighted.slice(m.index, m.index + m[0].length);
+    const after = highlighted.slice(m.index + m[0].length);
+    highlighted = before + `<span class="highlight-match">${match}</span>` + after;
+  }
+  res.innerHTML = highlighted;
+  exp.textContent = withBoundary
+    ? `Pattern /\\b${word}\\b/ — matches "${word}" as a whole word only. Found ${matches.length} match(es).`
+    : `Pattern /${word}/ — matches "${word}" anywhere, even inside other words. Found ${matches.length} match(es).`;
+}
+
+// ===== LOOKAROUND TESTER =====
+function testLook() {
+  const pat = document.getElementById('lookPat').value;
+  const str = document.getElementById('lookStr').value;
+  const res = document.getElementById('lookResult');
+  try {
+    const r = new RegExp(pat, 'g');
+    const matches = [...str.matchAll(r)];
+    if (!matches.length) { res.innerHTML = '<span style="color:var(--red)">No matches found</span>'; return; }
+    let highlighted = str;
+    for (const m of matches.reverse()) {
+      const before = highlighted.slice(0, m.index);
+      const match = highlighted.slice(m.index, m.index + m[0].length);
+      const after = highlighted.slice(m.index + m[0].length);
+      highlighted = before + `<span class="highlight-match">${match}</span>` + after;
+    }
+    res.innerHTML = highlighted + `<div style="margin-top:8px;color:var(--green);font-size:0.85rem;">Found ${matches.length} match(es): ${matches.map(m=>`"${m[0]}"`).join(', ')}</div>`;
+  } catch(e) {
+    res.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
+  }
+}
+function setLook(pat) {
+  document.getElementById('lookPat').value = pat;
+  testLook();
+}
+
+// ===== TABS =====
+function switchTab(el, id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== MAIN TESTER =====
+function runMainTest() {
+  const pat = document.getElementById('mainPat').value;
+  const str = document.getElementById('mainStr').value;
+  const flags = document.getElementById('mainFlags').value;
+  const res = document.getElementById('mainResult');
+  const sta = document.getElementById('mainStatus');
+  try {
+    const r = new RegExp(pat, flags.includes('g') ? 'g' : 'g');
+    const matches = [...str.matchAll(r)];
+    if (!matches.length) {
+      res.innerHTML = str;
+      sta.innerHTML = `<span class="status-warn">No matches found</span>`;
+      return;
+    }
+    let highlighted = str;
+    for (const m of matches.reverse()) {
+      const b = highlighted.slice(0, m.index);
+      const match = highlighted.slice(m.index, m.index + m[0].length);
+      const a = highlighted.slice(m.index + m[0].length);
+      highlighted = b + `<span class="highlight-match">${match}</span>` + a;
+    }
+    res.innerHTML = highlighted;
+    sta.innerHTML = `<span class="status-ok">✅ ${matches.length} match(es)</span> <span style="color:var(--muted)">${matches.map(m=>`"${m[0]}"`).slice(0,5).join(', ')}${matches.length>5?'...':''}</span>`;
+  } catch(e) {
+    res.innerHTML = str;
+    sta.innerHTML = `<span class="status-err">❌ ${e.message}</span>`;
+  }
+}
+runMainTest();
+
+function setQuick(pat) {
+  document.getElementById('mainPat').value = pat;
+  runMainTest();
+}
+
+// ===== CAPTURE TESTER =====
+function runCapTest() {
+  const pat = document.getElementById('capPat').value;
+  const str = document.getElementById('capStr').value;
+  const res = document.getElementById('capResult');
+  try {
+    const r = new RegExp(pat, 'g');
+    const matches = [...str.matchAll(r)];
+    if (!matches.length) { res.innerHTML = '<p style="color:var(--red)">No matches</p>'; return; }
+    const colors = ['var(--accent)','var(--accent3)','var(--cyan)','var(--yellow)'];
+    let html = '';
+    matches.forEach((m, mi) => {
+      html += `<div style="background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px;margin:8px 0;">`;
+      html += `<div style="font-size:0.75rem;color:var(--muted);margin-bottom:6px;">MATCH ${mi+1} — full: <code style="color:var(--green)">${m[0]}</code></div>`;
+      for (let i = 1; i < m.length; i++) {
+        html += `<div style="font-size:0.85rem;margin:2px 0;"><span style="color:${colors[(i-1)%4]}">Group ${i}:</span> <code>${m[i] ?? 'undefined'}</code></div>`;
+      }
+      html += '</div>';
+    });
+    res.innerHTML = html;
+  } catch(e) {
+    res.innerHTML = `<p style="color:var(--red)">${e.message}</p>`;
+  }
+}
+runCapTest();
+
+// ===== QUIZ =====
+function checkQ(el, correct) {
+  document.querySelectorAll('.quiz-card:first-of-type .quiz-opt').forEach(o => o.onclick=null);
+  el.classList.add(correct ? 'correct' : 'wrong');
+  document.getElementById('qfeedback').innerHTML = correct
+    ? '<span style="color:var(--green)">✅ Correct! regex_match requires the entire string to match the pattern. It would return false because "abc123" has non-digit characters — even though digits exist inside it. Use regex_search to find digits within a larger string.</span>'
+    : '<span style="color:var(--red)">❌ Wrong. regex_match requires the ENTIRE string to match. Even though "123" matches \\d+, the "abc" part doesn\'t, so it returns false.</span>';
+}
+function checkQ2(el, correct) {
+  document.querySelectorAll('.quiz-card:last-of-type .quiz-opt').forEach(o => o.onclick=null);
+  el.classList.add(correct ? 'correct' : 'wrong');
+  document.getElementById('qfeedback2').innerHTML = correct
+    ? '<span style="color:var(--green)">✅ Correct! Greedy {2,4} tries to match as many as possible. "aaaaa" has 5 a\'s, but {2,4} can take at most 4. So it greedily takes 4 — not 2, not 3. The 5th \'a\' remains unmatched.</span>'
+    : '<span style="color:var(--red)">❌ Greedy means take the maximum allowed. {2,4} allows up to 4, so greedy takes 4 from "aaaaa".</span>';
+}
+
+// Init boundary test
+testBoundary(true);
+</script>
+</body>
+</html>

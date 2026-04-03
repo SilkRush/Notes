@@ -1,0 +1,2772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL — Complete Study Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #080c14;
+    --bg2: #0d1320;
+    --bg3: #121929;
+    --surface: #161f30;
+    --surface2: #1c2840;
+    --border: #1e2d45;
+    --border2: #243550;
+    --text: #c8d8f0;
+    --text-dim: #6b82a8;
+    --text-muted: #3d5070;
+    --accent: #38bdf8;
+    --accent2: #818cf8;
+    --accent3: #34d399;
+    --accent4: #fb923c;
+    --accent5: #f472b6;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --code-bg: #0a1020;
+    --glow: rgba(56,189,248,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(56,189,248,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 90%, rgba(129,140,248,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Sidebar */
+  #sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    z-index: 100;
+    overflow-y: auto;
+    padding: 0 0 40px 0;
+    transition: transform 0.3s ease;
+  }
+
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-track { background: transparent; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .sidebar-logo .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .sidebar-logo .logo-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .nav-section {
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+
+  .nav-section-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 8px 8px 4px;
+    margin-top: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .nav-item:hover, .nav-item.active {
+    background: var(--surface);
+    color: var(--accent);
+  }
+
+  .nav-item .nav-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--border2);
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .nav-item:hover .nav-dot, .nav-item.active .nav-dot {
+    background: var(--accent);
+  }
+
+  .nav-badge {
+    margin-left: auto;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  .badge-basic { background: rgba(52,211,153,0.15); color: var(--accent3); }
+  .badge-mid { background: rgba(56,189,248,0.15); color: var(--accent); }
+  .badge-adv { background: rgba(248,114,132,0.15); color: var(--red); }
+
+  /* Main content */
+  #main {
+    margin-left: 260px;
+    padding: 0 48px 80px;
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 64px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 64px;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(56,189,248,0.1);
+    border: 1px solid rgba(56,189,248,0.2);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 span { color: var(--accent); }
+
+  .hero p {
+    font-size: 16px;
+    color: var(--text-dim);
+    max-width: 560px;
+    line-height: 1.8;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 32px;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 48px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent3), var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+
+  /* Sections */
+  .section {
+    margin-bottom: 80px;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .section.visible { opacity: 1; transform: translateY(0); }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+
+  .section-badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--border2); }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card p { color: var(--text-dim); font-size: 14px; line-height: 1.8; }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-lang {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .copy-btn {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 10px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  .code-body {
+    padding: 18px 20px;
+    overflow-x: auto;
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+
+  /* SQL syntax highlighting */
+  .kw { color: #7dd3fc; font-weight: 600; }
+  .fn { color: #c084fc; }
+  .str { color: #86efac; }
+  .num { color: #fdba74; }
+  .com { color: #475569; font-style: italic; }
+  .tbl { color: #f9a8d4; }
+  .col { color: #e2e8f0; }
+
+  /* Interactive demos */
+  .demo-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 20px 0;
+  }
+
+  .demo-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .demo-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .d1 { background: var(--red); }
+  .d2 { background: var(--yellow); }
+  .d3 { background: var(--accent3); }
+
+  .demo-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-left: 4px;
+  }
+
+  .demo-body { padding: 20px; }
+
+  /* Tables */
+  .sql-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+
+  .sql-table th {
+    background: var(--surface2);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+
+  .sql-table td {
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+
+  .sql-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .sql-table tr.highlight td { background: rgba(56,189,248,0.1); color: var(--text); }
+  .sql-table tr { transition: background 0.2s; }
+  .sql-table tbody tr:hover td { background: rgba(56,189,248,0.05); }
+
+  /* Interactive filter demo */
+  .filter-controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+
+  .sql-input {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 140px;
+  }
+
+  .sql-input:focus { border-color: var(--accent); }
+
+  .sql-select {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .run-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .run-btn:hover { background: #7dd3fc; transform: translateY(-1px); }
+
+  .query-display {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    margin-bottom: 12px;
+    color: var(--text-dim);
+    min-height: 40px;
+    transition: all 0.3s;
+  }
+
+  .result-count {
+    font-size: 12px;
+    color: var(--accent3);
+    margin-bottom: 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* JOIN visualizer */
+  .join-visualizer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    gap: 0;
+    position: relative;
+    min-height: 200px;
+  }
+
+  .venn-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    position: relative;
+    transition: all 0.5s ease;
+    cursor: default;
+  }
+
+  .venn-left {
+    background: rgba(56,189,248,0.25);
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    z-index: 2;
+  }
+
+  .venn-right {
+    background: rgba(129,140,248,0.25);
+    border: 2px solid var(--accent2);
+    color: var(--accent2);
+    margin-left: -50px;
+    z-index: 1;
+  }
+
+  .venn-overlap {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .join-btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .join-btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .join-btn:hover, .join-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(56,189,248,0.08);
+  }
+
+  .join-desc {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 8px;
+    min-height: 40px;
+    transition: all 0.3s;
+    padding: 0 20px;
+  }
+
+  /* Concept pills */
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0;
+  }
+
+  .pill {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid;
+    cursor: default;
+    transition: all 0.2s;
+  }
+
+  .pill:hover { transform: translateY(-2px); }
+
+  .pill-blue { color: var(--accent); border-color: rgba(56,189,248,0.3); background: rgba(56,189,248,0.08); }
+  .pill-green { color: var(--accent3); border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.08); }
+  .pill-purple { color: var(--accent2); border-color: rgba(129,140,248,0.3); background: rgba(129,140,248,0.08); }
+  .pill-orange { color: var(--accent4); border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.08); }
+  .pill-pink { color: var(--accent5); border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.08); }
+
+  /* Animation: query execution flow */
+  #execution-canvas {
+    width: 100%;
+    height: 280px;
+    border-radius: 10px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    display: block;
+  }
+
+  /* Aggregate demo */
+  .agg-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+
+  .agg-btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .agg-btn:hover, .agg-btn.active { border-color: var(--accent3); color: var(--accent3); background: rgba(52,211,153,0.08); }
+
+  #agg-chart {
+    width: 100%;
+    height: 200px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 0 10px 30px;
+  }
+
+  .bar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    gap: 6px;
+  }
+
+  .bar-label { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+  .bar-wrap { flex: 1; display: flex; align-items: flex-end; width: 100%; justify-content: center; }
+
+  .bar {
+    width: 36px;
+    border-radius: 4px 4px 0 0;
+    transition: height 0.6s cubic-bezier(0.34,1.56,0.64,1), background 0.3s;
+    position: relative;
+    min-height: 4px;
+  }
+
+  .bar-val {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Window function visualizer */
+  .wf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  .wf-table th {
+    background: var(--surface2);
+    color: var(--accent2);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+  }
+
+  .wf-table td {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    transition: all 0.4s;
+  }
+
+  .wf-table .partition-a td { background: rgba(56,189,248,0.06); }
+  .wf-table .partition-b td { background: rgba(129,140,248,0.06); }
+  .wf-table .wf-highlight td { background: rgba(52,211,153,0.15) !important; color: var(--accent3); font-weight: 600; }
+
+  /* Index vs full scan */
+  #scan-canvas {
+    width: 100%;
+    height: 220px;
+    border-radius: 10px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    display: block;
+  }
+
+  /* Transaction flow */
+  .txn-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .txn-step {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    transition: all 0.4s;
+    opacity: 0.4;
+  }
+
+  .txn-step.active { opacity: 1; border-color: var(--accent3); background: rgba(52,211,153,0.05); }
+  .txn-step.failed { opacity: 1; border-color: var(--red); background: rgba(248,113,113,0.05); }
+  .txn-step.rolled { opacity: 1; border-color: var(--yellow); background: rgba(251,191,36,0.05); }
+
+  .txn-icon { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .txn-label { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; }
+  .txn-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .txn-controls { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .txn-btn {
+    padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-dim); font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: 'JetBrains Mono', monospace; transition: all 0.2s;
+  }
+  .txn-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Cheat sheet */
+  .cheat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .cheat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+
+  .cheat-card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .cheat-item {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.6;
+  }
+
+  .cheat-item:last-child { border-bottom: none; }
+  .cheat-item .ck { color: #7dd3fc; font-weight: 600; }
+  .cheat-item .cs { color: #86efac; }
+
+  /* Tooltip */
+  .tooltip-wrap { position: relative; display: inline-block; cursor: help; }
+  .tooltip-wrap .tt {
+    visibility: hidden; opacity: 0;
+    background: var(--surface2); border: 1px solid var(--border2);
+    color: var(--text-dim); font-size: 12px;
+    border-radius: 6px; padding: 8px 12px;
+    position: absolute; z-index: 200; bottom: 130%; left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    font-family: 'Inter', sans-serif;
+    max-width: 220px;
+    white-space: normal;
+    text-align: center;
+  }
+  .tooltip-wrap:hover .tt { visibility: visible; opacity: 1; }
+
+  /* Info callout */
+  .callout {
+    display: flex;
+    gap: 12px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+
+  .callout-info { background: rgba(56,189,248,0.07); border: 1px solid rgba(56,189,248,0.2); }
+  .callout-warn { background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.2); }
+  .callout-tip { background: rgba(52,211,153,0.07); border: 1px solid rgba(52,211,153,0.2); }
+
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout p { color: var(--text-dim); line-height: 1.7; }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.open { transform: translateX(0); }
+    #main { margin-left: 0; padding: 0 20px 60px; }
+    .hero h1 { font-size: 36px; }
+    #menu-toggle { display: flex; }
+  }
+
+  #menu-toggle {
+    display: none;
+    position: fixed; top: 16px; left: 16px; z-index: 200;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px; cursor: pointer; gap: 6px;
+    flex-direction: column; align-items: center;
+  }
+
+  #menu-toggle span { display: block; width: 18px; height: 2px; background: var(--text); border-radius: 1px; }
+
+  .inline-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 7px;
+    color: var(--accent);
+  }
+
+  /* Two column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 900px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  .section-intro {
+    font-size: 15px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin-bottom: 28px;
+    max-width: 680px;
+  }
+
+  /* Animated steps */
+  .step-list { counter-reset: steps; display: flex; flex-direction: column; gap: 12px; }
+  .step {
+    counter-increment: steps;
+    display: flex; gap: 16px; align-items: flex-start;
+    padding: 14px 18px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .step:hover { border-color: var(--border2); }
+  .step::before {
+    content: counter(steps);
+    min-width: 26px; height: 26px;
+    border-radius: 50%;
+    background: rgba(56,189,248,0.15);
+    border: 1px solid rgba(56,189,248,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-content { font-size: 14px; color: var(--text-dim); line-height: 1.7; }
+  .step-content strong { color: var(--text); font-weight: 600; }
+
+  /* ACID cards */
+  .acid-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (max-width: 700px) { .acid-grid { grid-template-columns: 1fr; } }
+  .acid-card { padding: 20px; border-radius: 10px; border: 1px solid; }
+  .acid-card .acid-letter { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+  .acid-card .acid-word { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; opacity: 0.7; }
+  .acid-card p { font-size: 13px; line-height: 1.7; }
+  .acid-a { background: rgba(56,189,248,0.05); border-color: rgba(56,189,248,0.25); }
+  .acid-a .acid-letter { color: var(--accent); }
+  .acid-c { background: rgba(52,211,153,0.05); border-color: rgba(52,211,153,0.25); }
+  .acid-c .acid-letter { color: var(--accent3); }
+  .acid-i { background: rgba(251,146,60,0.05); border-color: rgba(251,146,60,0.25); }
+  .acid-i .acid-letter { color: var(--accent4); }
+  .acid-d { background: rgba(244,114,182,0.05); border-color: rgba(244,114,182,0.25); }
+  .acid-d .acid-letter { color: var(--accent5); }
+
+  /* Subquery visual */
+  .subquery-viz {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+  }
+
+  .outer-query { color: var(--text-dim); }
+  .inner-query {
+    display: inline-block;
+    background: rgba(129,140,248,0.1);
+    border: 1px solid rgba(129,140,248,0.3);
+    border-radius: 6px;
+    padding: 4px 12px;
+    margin: 2px 0;
+    color: var(--accent2);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .inner-query:hover { background: rgba(129,140,248,0.2); }
+  .inner-result {
+    display: none;
+    background: rgba(129,140,248,0.05);
+    border: 1px solid rgba(129,140,248,0.2);
+    border-radius: 6px;
+    padding: 10px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--accent2);
+  }
+  .inner-result.show { display: block; }
+
+  /* CTE visual */
+  .cte-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 16px 0;
+  }
+  .cte-box {
+    flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    min-width: 130px;
+    text-align: center;
+    transition: all 0.2s;
+    cursor: default;
+  }
+  .cte-box:hover { border-color: var(--accent2); }
+  .cte-box .cte-name { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent2); font-weight: 600; }
+  .cte-box .cte-desc { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .cte-arrow { padding: 0 8px; color: var(--border2); font-size: 18px; flex-shrink: 0; }
+
+  /* Index animation */
+  .index-demo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .index-side { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .index-side-title { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+  .index-row {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    color: var(--text-dim);
+    transition: all 0.3s;
+    border: 1px solid transparent;
+  }
+  .index-row.scanning { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.3); color: var(--yellow); }
+  .index-row.found { background: rgba(52,211,153,0.15); border-color: rgba(52,211,153,0.4); color: var(--accent3); font-weight: 700; }
+  .index-row.skipped { opacity: 0.3; }
+
+  @media (max-width: 700px) { .index-demo { grid-template-columns: 1fr; } }
+
+  /* Spacing helpers */
+  .mt8 { margin-top: 8px; }
+  .mt16 { margin-top: 16px; }
+  .mb8 { margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<button id="menu-toggle" onclick="toggleMenu()">
+  <span></span><span></span><span></span>
+</button>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">SQL</div>
+    <div class="logo-sub">Complete Study Guide</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Foundations</div>
+    <a class="nav-item" href="#what-is-sql"><span class="nav-dot"></span>What is SQL?</a>
+    <a class="nav-item" href="#databases"><span class="nav-dot"></span>Databases & Tables</a>
+    <a class="nav-item" href="#datatypes"><span class="nav-dot"></span>Data Types</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Basic Queries</div>
+    <a class="nav-item" href="#select"><span class="nav-dot"></span>SELECT <span class="nav-badge badge-basic">Basic</span></a>
+    <a class="nav-item" href="#where"><span class="nav-dot"></span>WHERE & Filtering</a>
+    <a class="nav-item" href="#order-limit"><span class="nav-dot"></span>ORDER BY & LIMIT</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Manipulating Data</div>
+    <a class="nav-item" href="#crud"><span class="nav-dot"></span>INSERT / UPDATE / DELETE</a>
+    <a class="nav-item" href="#aggregates"><span class="nav-dot"></span>Aggregate Functions <span class="nav-badge badge-mid">Mid</span></a>
+    <a class="nav-item" href="#groupby"><span class="nav-dot"></span>GROUP BY & HAVING</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Joins & Subqueries</div>
+    <a class="nav-item" href="#joins"><span class="nav-dot"></span>JOINs (all types)</a>
+    <a class="nav-item" href="#subqueries"><span class="nav-dot"></span>Subqueries</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Advanced</div>
+    <a class="nav-item" href="#window"><span class="nav-dot"></span>Window Functions <span class="nav-badge badge-adv">Adv</span></a>
+    <a class="nav-item" href="#cte"><span class="nav-dot"></span>CTEs (WITH clause)</a>
+    <a class="nav-item" href="#indexes"><span class="nav-dot"></span>Indexes</a>
+    <a class="nav-item" href="#views"><span class="nav-dot"></span>Views</a>
+    <a class="nav-item" href="#transactions"><span class="nav-dot"></span>Transactions & ACID</a>
+    <a class="nav-item" href="#optimization"><span class="nav-dot"></span>Query Optimization</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Reference</div>
+    <a class="nav-item" href="#cheatsheet"><span class="nav-dot"></span>Cheat Sheet</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">📘 Self-Study Notes</div>
+    <h1>Master<br><span>SQL</span></h1>
+    <p>Everything from what a database even is, all the way to window functions and query optimization. No assumed knowledge. Zero to advanced.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">13</div><div class="stat-label">Topics</div></div>
+      <div class="stat"><div class="stat-num">20+</div><div class="stat-label">Live Demos</div></div>
+      <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Queries</div></div>
+    </div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="reading-progress"></div></div>
+
+  <!-- ===== SECTION 1: WHAT IS SQL ===== -->
+  <div class="section" id="what-is-sql">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">What is SQL?</h2>
+      <span class="section-badge badge-basic" style="background:rgba(52,211,153,0.12);color:var(--accent3);border:1px solid rgba(52,211,153,0.3);">Basic</span>
+    </div>
+
+    <p class="section-intro">
+      SQL stands for <strong>Structured Query Language</strong>. Think of it as the language you use to talk to a database. You ask questions ("give me all users who signed up this month"), and the database answers. You also use it to store, change, and delete data.
+    </p>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">🗃️ The Filing Cabinet Analogy</div>
+        <p>Imagine a huge filing cabinet. Each <strong>drawer</strong> is a database. Each <strong>folder</strong> inside is a table. Each <strong>sheet of paper</strong> is a row of data. SQL is how you search through, add, or remove those papers without opening every drawer yourself.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">⚡ What SQL Can Do</div>
+        <p>SQL handles four main things: reading data (SELECT), writing data (INSERT), changing data (UPDATE), and deleting data (DELETE). These four together are called <strong>CRUD</strong> — Create, Read, Update, Delete.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🌍 Why "Universal"?</div>
+      <p>SQL is standardized, meaning MySQL, PostgreSQL, SQLite, MS SQL Server, Oracle — all of them speak SQL. The syntax is mostly the same everywhere. Small differences exist at the edges (a function name here, a syntax variant there), but 90% of what you learn works on any database.</p>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">💡</span>
+      <p>SQL is pronounced either "S-Q-L" (saying each letter) or "sequel" — both are completely accepted. Don't let anyone tell you one is wrong.</p>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: DATABASES & TABLES ===== -->
+  <div class="section" id="databases">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Databases & Tables</h2>
+    </div>
+
+    <p class="section-intro">A database is a container for organized data. Inside it, data lives in <strong>tables</strong> — grids with rows and columns, similar to a spreadsheet but more powerful and structured.</p>
+
+    <!-- Interactive table demo -->
+    <div class="demo-box">
+      <div class="demo-header">
+        <span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span>
+        <span class="demo-label">employees table — hover rows to inspect</span>
+      </div>
+      <div class="demo-body">
+        <table class="sql-table" id="employees-table">
+          <thead>
+            <tr>
+              <th>id</th>
+              <th>name</th>
+              <th>department</th>
+              <th>salary</th>
+              <th>hire_date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Alice Chen</td><td>Engineering</td><td>92000</td><td>2021-03-15</td></tr>
+            <tr><td>2</td><td>Bob Smith</td><td>Marketing</td><td>68000</td><td>2020-07-22</td></tr>
+            <tr><td>3</td><td>Carol Wu</td><td>Engineering</td><td>105000</td><td>2019-01-10</td></tr>
+            <tr><td>4</td><td>David Lee</td><td>HR</td><td>72000</td><td>2022-05-01</td></tr>
+            <tr><td>5</td><td>Eva Kim</td><td>Marketing</td><td>64000</td><td>2023-02-14</td></tr>
+            <tr><td>6</td><td>Frank Ray</td><td>Engineering</td><td>88000</td><td>2022-11-30</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:10px;font-family:'JetBrains Mono',monospace;">← Each row is one record. Each column is one field/attribute.</p>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">📋 Creating a Table</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <div class="code-body">
+<span class="kw">CREATE TABLE</span> <span class="tbl">employees</span> (<br>
+&nbsp;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="fn">INT</span> <span class="kw">PRIMARY KEY</span>,<br>
+&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="fn">VARCHAR</span>(<span class="num">100</span>) <span class="kw">NOT NULL</span>,<br>
+&nbsp;&nbsp;department <span class="fn">VARCHAR</span>(<span class="num">50</span>),<br>
+&nbsp;&nbsp;salary&nbsp;&nbsp;&nbsp;&nbsp; <span class="fn">DECIMAL</span>(<span class="num">10</span>,<span class="num">2</span>),<br>
+&nbsp;&nbsp;hire_date&nbsp; <span class="fn">DATE</span><br>
+);
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">🗑️ Dropping a Table</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <div class="code-body">
+<span class="com">-- Permanently deletes the table + all data</span><br>
+<span class="kw">DROP TABLE</span> <span class="tbl">employees</span>;<br><br>
+<span class="com">-- Safer: only drops if it exists</span><br>
+<span class="kw">DROP TABLE IF EXISTS</span> <span class="tbl">employees</span>;
+          </div>
+        </div>
+        <p class="mt8" style="font-size:13px;color:var(--red);">⚠️ DROP TABLE is permanent. No undo. Be careful.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: DATA TYPES ===== -->
+  <div class="section" id="datatypes">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Data Types</h2>
+    </div>
+
+    <p class="section-intro">Every column in a table must have a type. This tells the database what kind of data goes there and how to store it efficiently.</p>
+
+    <div class="demo-box">
+      <div class="demo-header">
+        <span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span>
+        <span class="demo-label">Common SQL Data Types — click any row</span>
+      </div>
+      <div class="demo-body">
+        <table class="sql-table" id="types-table">
+          <thead>
+            <tr><th>Type</th><th>What it stores</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr onclick="showTypeInfo('INT','Whole numbers. No decimals.','age INT → 25')">
+              <td style="color:var(--accent);font-weight:600;">INT</td><td>Whole numbers</td><td style="color:var(--accent3);">25, -3, 0</td>
+            </tr>
+            <tr onclick="showTypeInfo('DECIMAL(p,s)','Fixed-point number. p = total digits, s = decimal places. Perfect for money.','salary DECIMAL(10,2) → 92000.50')">
+              <td style="color:var(--accent);font-weight:600;">DECIMAL(p,s)</td><td>Precise decimal numbers</td><td style="color:var(--accent3);">92000.50</td>
+            </tr>
+            <tr onclick="showTypeInfo('VARCHAR(n)','Variable-length text up to n characters. Most common for names, emails, etc.','name VARCHAR(100) → Alice Chen')">
+              <td style="color:var(--accent);font-weight:600;">VARCHAR(n)</td><td>Text (variable length)</td><td style="color:var(--accent3);">&apos;Alice&apos;</td>
+            </tr>
+            <tr onclick="showTypeInfo('TEXT','Large blocks of text with no specified max length.','description TEXT → long paragraph')">
+              <td style="color:var(--accent);font-weight:600;">TEXT</td><td>Long text (no limit)</td><td style="color:var(--accent3);">&apos;Long paragraph...&apos;</td>
+            </tr>
+            <tr onclick="showTypeInfo('DATE','Calendar date in YYYY-MM-DD format. No time included.','hire_date DATE → 2021-03-15')">
+              <td style="color:var(--accent);font-weight:600;">DATE</td><td>Date only</td><td style="color:var(--accent3);">2021-03-15</td>
+            </tr>
+            <tr onclick="showTypeInfo('TIMESTAMP','Date AND time together. Great for tracking when things happened.','created_at TIMESTAMP → 2021-03-15 14:22:00')">
+              <td style="color:var(--accent);font-weight:600;">TIMESTAMP</td><td>Date + time</td><td style="color:var(--accent3);">2021-03-15 14:22:00</td>
+            </tr>
+            <tr onclick="showTypeInfo('BOOLEAN','True or false. Stored as 1/0 or TRUE/FALSE depending on the system.','is_active BOOLEAN → TRUE')">
+              <td style="color:var(--accent);font-weight:600;">BOOLEAN</td><td>True / False</td><td style="color:var(--accent3);">TRUE, FALSE</td>
+            </tr>
+          </tbody>
+        </table>
+        <div id="type-info" style="display:none;margin-top:12px;background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);border-radius:8px;padding:14px 16px;">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;" id="type-name"></div>
+          <div style="font-size:13px;color:var(--text-dim);margin-bottom:6px;" id="type-desc"></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent3);" id="type-example"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: SELECT ===== -->
+  <div class="section" id="select">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">SELECT — Reading Data</h2>
+      <span class="section-badge badge-basic" style="background:rgba(52,211,153,0.12);color:var(--accent3);border:1px solid rgba(52,211,153,0.3);">Basic</span>
+    </div>
+
+    <p class="section-intro">SELECT is the most used SQL command by far. Every time you want to read or retrieve data, you use SELECT. It doesn't change anything — it just asks the database a question and shows you the answer.</p>
+
+    <!-- Query execution flow animation -->
+    <div class="demo-box" style="margin-bottom:20px;">
+      <div class="demo-header">
+        <span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span>
+        <span class="demo-label">How a SELECT query executes — click Run</span>
+      </div>
+      <div class="demo-body">
+        <canvas id="execution-canvas"></canvas>
+        <div style="text-align:center;margin-top:12px;">
+          <button class="run-btn" onclick="runExecution()">▶ Run Animation</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — SELECT Syntax</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Select all columns</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">employees</span>;<br><br>
+<span class="com">-- Select specific columns</span><br>
+<span class="kw">SELECT</span> name, department, salary <span class="kw">FROM</span> <span class="tbl">employees</span>;<br><br>
+<span class="com">-- Give a column a nickname (alias)</span><br>
+<span class="kw">SELECT</span> name <span class="kw">AS</span> employee_name,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; salary * <span class="num">12</span> <span class="kw">AS</span> annual_salary<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span>;<br><br>
+<span class="com">-- Select unique values only</span><br>
+<span class="kw">SELECT DISTINCT</span> department <span class="kw">FROM</span> <span class="tbl">employees</span>;
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <p><span class="inline-code">SELECT *</span> is fine for exploring but avoid it in production code. It fetches every column even ones you don't need, which slows things down. Always name the columns you actually want.</p>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 5: WHERE ===== -->
+  <div class="section" id="where">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2 class="section-title">WHERE — Filtering Rows</h2>
+    </div>
+
+    <p class="section-intro">WHERE lets you filter rows. Instead of getting everything, you set conditions and only get the rows that match. It's like a gatekeeper — rows that don't meet the condition don't get through.</p>
+
+    <!-- Interactive WHERE demo -->
+    <div class="demo-box">
+      <div class="demo-header">
+        <span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span>
+        <span class="demo-label">Interactive Filter — adjust and click Run Query</span>
+      </div>
+      <div class="demo-body">
+        <div class="filter-controls">
+          <select class="sql-select" id="filter-col">
+            <option value="department">department</option>
+            <option value="salary">salary</option>
+          </select>
+          <select class="sql-select" id="filter-op" onchange="updateFilterOptions()">
+            <option value="=">=</option>
+            <option value="!=">!=</option>
+            <option value=">">&gt;</option>
+            <option value="<">&lt;</option>
+            <option value=">=">&gt;=</option>
+          </select>
+          <input class="sql-input" id="filter-val" value="Engineering" placeholder="value">
+          <button class="run-btn" onclick="runFilter()">▶ Run Query</button>
+        </div>
+        <div class="query-display" id="query-display">SELECT * FROM employees WHERE ...</div>
+        <div class="result-count" id="result-count"></div>
+        <div id="filter-result"></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — WHERE operators</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Comparison operators</span><br>
+<span class="kw">WHERE</span> salary <span class="kw">></span> <span class="num">80000</span><br>
+<span class="kw">WHERE</span> department <span class="kw">=</span> <span class="str">'Engineering'</span><br>
+<span class="kw">WHERE</span> salary <span class="kw">!=</span> <span class="num">68000</span><br><br>
+<span class="com">-- Combine conditions</span><br>
+<span class="kw">WHERE</span> department <span class="kw">=</span> <span class="str">'Engineering'</span> <span class="kw">AND</span> salary <span class="kw">></span> <span class="num">90000</span><br>
+<span class="kw">WHERE</span> department <span class="kw">=</span> <span class="str">'HR'</span> <span class="kw">OR</span> department <span class="kw">=</span> <span class="str">'Marketing'</span><br><br>
+<span class="com">-- Range check</span><br>
+<span class="kw">WHERE</span> salary <span class="kw">BETWEEN</span> <span class="num">60000</span> <span class="kw">AND</span> <span class="num">90000</span><br><br>
+<span class="com">-- Match a list</span><br>
+<span class="kw">WHERE</span> department <span class="kw">IN</span> (<span class="str">'Engineering'</span>, <span class="str">'HR'</span>)<br><br>
+<span class="com">-- Pattern matching (% = any characters, _ = one char)</span><br>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'A%'</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="com">-- names starting with A</span><br>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'%Chen'</span>&nbsp;&nbsp;<span class="com">-- names ending with Chen</span><br><br>
+<span class="com">-- Check for missing values</span><br>
+<span class="kw">WHERE</span> department <span class="kw">IS NULL</span><br>
+<span class="kw">WHERE</span> department <span class="kw">IS NOT NULL</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 6: ORDER BY & LIMIT ===== -->
+  <div class="section" id="order-limit">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2 class="section-title">ORDER BY & LIMIT</h2>
+    </div>
+
+    <p class="section-intro">ORDER BY sorts your results. LIMIT cuts the result set to a specific number of rows. Together they're incredibly useful — like getting the top 5 highest-paid employees.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">↕️ Sorting</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <div class="code-body">
+<span class="com">-- Ascending (default)</span><br>
+<span class="kw">SELECT</span> name, salary <br>
+<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">ORDER BY</span> salary <span class="kw">ASC</span>;<br><br>
+<span class="com">-- Descending (highest first)</span><br>
+<span class="kw">SELECT</span> name, salary<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">ORDER BY</span> salary <span class="kw">DESC</span>;<br><br>
+<span class="com">-- Sort by multiple columns</span><br>
+<span class="kw">ORDER BY</span> department <span class="kw">ASC</span>, salary <span class="kw">DESC</span>;
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">✂️ Limiting Results</div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+          <div class="code-body">
+<span class="com">-- Top 3 highest paid</span><br>
+<span class="kw">SELECT</span> name, salary<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">ORDER BY</span> salary <span class="kw">DESC</span><br>
+<span class="kw">LIMIT</span> <span class="num">3</span>;<br><br>
+<span class="com">-- Skip first 2, then get next 3</span><br>
+<span class="com">-- (pagination — page 2)</span><br>
+<span class="kw">LIMIT</span> <span class="num">3</span> <span class="kw">OFFSET</span> <span class="num">2</span>;
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive sort demo -->
+    <div class="demo-box">
+      <div class="demo-header">
+        <span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span>
+        <span class="demo-label">Click column headers to sort</span>
+      </div>
+      <div class="demo-body">
+        <table class="sql-table" id="sort-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('name')" style="cursor:pointer;" title="Click to sort">name ⇅</th>
+              <th onclick="sortTable('salary')" style="cursor:pointer;" title="Click to sort">salary ⇅</th>
+              <th onclick="sortTable('department')" style="cursor:pointer;" title="Click to sort">department ⇅</th>
+            </tr>
+          </thead>
+          <tbody id="sort-tbody"></tbody>
+        </table>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;font-family:'JetBrains Mono',monospace;" id="sort-info"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 7: CRUD ===== -->
+  <div class="section" id="crud">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2 class="section-title">INSERT / UPDATE / DELETE</h2>
+    </div>
+
+    <p class="section-intro">These three commands let you modify the data in a table. INSERT adds rows, UPDATE changes existing ones, and DELETE removes them.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — INSERT</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Add a single row</span><br>
+<span class="kw">INSERT INTO</span> <span class="tbl">employees</span> (id, name, department, salary, hire_date)<br>
+<span class="kw">VALUES</span> (<span class="num">7</span>, <span class="str">'Grace Tan'</span>, <span class="str">'Engineering'</span>, <span class="num">96000</span>, <span class="str">'2024-01-08'</span>);<br><br>
+<span class="com">-- Insert multiple rows at once</span><br>
+<span class="kw">INSERT INTO</span> <span class="tbl">employees</span> (id, name, department, salary, hire_date)<br>
+<span class="kw">VALUES</span><br>
+&nbsp;&nbsp;(<span class="num">8</span>, <span class="str">'Henry Park'</span>, <span class="str">'HR'</span>, <span class="num">70000</span>, <span class="str">'2024-02-01'</span>),<br>
+&nbsp;&nbsp;(<span class="num">9</span>, <span class="str">'Iris Lam'</span>, <span class="str">'Marketing'</span>, <span class="num">67000</span>, <span class="str">'2024-03-15'</span>);
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — UPDATE</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Give Alice a raise</span><br>
+<span class="kw">UPDATE</span> <span class="tbl">employees</span><br>
+<span class="kw">SET</span> salary = <span class="num">98000</span><br>
+<span class="kw">WHERE</span> id = <span class="num">1</span>;<br><br>
+<span class="com">-- Update multiple columns at once</span><br>
+<span class="kw">UPDATE</span> <span class="tbl">employees</span><br>
+<span class="kw">SET</span> salary = salary * <span class="num">1.10</span>,&nbsp;<span class="com">-- 10% raise</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;department = <span class="str">'Senior Engineering'</span><br>
+<span class="kw">WHERE</span> department = <span class="str">'Engineering'</span> <span class="kw">AND</span> salary <span class="kw">></span> <span class="num">90000</span>;
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <p><strong>Always write the WHERE clause first</strong> when doing UPDATE or DELETE. If you forget it, you'll change or delete every single row in the table. No undo. Test your WHERE with a SELECT first before running the UPDATE/DELETE.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — DELETE</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Delete one specific row</span><br>
+<span class="kw">DELETE FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">WHERE</span> id = <span class="num">5</span>;<br><br>
+<span class="com">-- Delete all employees in a department</span><br>
+<span class="kw">DELETE FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">WHERE</span> department = <span class="str">'Marketing'</span>;<br><br>
+<span class="com">-- TRUNCATE: faster way to delete ALL rows (no WHERE)</span><br>
+<span class="kw">TRUNCATE TABLE</span> <span class="tbl">employees</span>;
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 8: AGGREGATES ===== -->
+  <div class="section" id="aggregates">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2 class="section-title">Aggregate Functions</h2>
+      <span class="section-badge badge-mid" style="background:rgba(56,189,248,0.12);color:var(--accent);border:1px solid rgba(56,189,248,0.3);">Intermediate</span>
+    </div>
+
+    <p class="section-intro">Aggregate functions collapse multiple rows into a single calculated value. Instead of seeing all 6 salaries, you might want just the average salary. That's what these do.</p>
+
+    <div class="pills">
+      <span class="pill pill-green">COUNT()</span>
+      <span class="pill pill-blue">SUM()</span>
+      <span class="pill pill-purple">AVG()</span>
+      <span class="pill pill-orange">MAX()</span>
+      <span class="pill pill-pink">MIN()</span>
+    </div>
+
+    <!-- Live aggregate chart -->
+    <div class="demo-box">
+      <div class="demo-header">
+        <span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span>
+        <span class="demo-label">Salary aggregates by department — click a function</span>
+      </div>
+      <div class="demo-body">
+        <div class="agg-controls">
+          <button class="agg-btn active" onclick="setAgg('avg', this)">AVG</button>
+          <button class="agg-btn" onclick="setAgg('sum', this)">SUM</button>
+          <button class="agg-btn" onclick="setAgg('max', this)">MAX</button>
+          <button class="agg-btn" onclick="setAgg('min', this)">MIN</button>
+          <button class="agg-btn" onclick="setAgg('count', this)">COUNT</button>
+        </div>
+        <div id="agg-chart"></div>
+        <div id="agg-query" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-dim);margin-top:8px;padding:8px 12px;background:var(--code-bg);border-radius:6px;"></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — Aggregate examples</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Total number of employees</span><br>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> total_employees <span class="kw">FROM</span> <span class="tbl">employees</span>;<br><br>
+<span class="com">-- Average salary across the whole company</span><br>
+<span class="kw">SELECT</span> <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_salary <span class="kw">FROM</span> <span class="tbl">employees</span>;<br><br>
+<span class="com">-- Highest salary in Engineering</span><br>
+<span class="kw">SELECT</span> <span class="fn">MAX</span>(salary)<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">WHERE</span> department = <span class="str">'Engineering'</span>;<br><br>
+<span class="com">-- Total payroll budget</span><br>
+<span class="kw">SELECT</span> <span class="fn">SUM</span>(salary) <span class="kw">AS</span> total_payroll <span class="kw">FROM</span> <span class="tbl">employees</span>;<br><br>
+<span class="com">-- COUNT ignores NULL values</span><br>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(department) <span class="kw">FROM</span> <span class="tbl">employees</span>;&nbsp;<span class="com">-- skips NULLs</span><br>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">FROM</span> <span class="tbl">employees</span>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="com">-- counts all rows</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 9: GROUP BY & HAVING ===== -->
+  <div class="section" id="groupby">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2 class="section-title">GROUP BY & HAVING</h2>
+    </div>
+
+    <p class="section-intro">GROUP BY takes the rows, splits them into groups by some column, then runs an aggregate function on each group. HAVING is like WHERE but it filters after grouping — it filters groups, not rows.</p>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">💡</span>
+      <p><strong>Key rule:</strong> Every column in your SELECT that isn't inside an aggregate function <em>must</em> appear in the GROUP BY clause. If you're selecting name, department, and AVG(salary) — department goes in GROUP BY, name probably shouldn't be there at all.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — GROUP BY & HAVING</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Average salary per department</span><br>
+<span class="kw">SELECT</span> department, <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_salary<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">GROUP BY</span> department;<br><br>
+<span class="com">-- How many employees in each department?</span><br>
+<span class="kw">SELECT</span> department, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> headcount<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">GROUP BY</span> department<br>
+<span class="kw">ORDER BY</span> headcount <span class="kw">DESC</span>;<br><br>
+<span class="com">-- Only departments with avg salary above 80k</span><br>
+<span class="com">-- WHERE filters rows BEFORE grouping</span><br>
+<span class="com">-- HAVING filters groups AFTER grouping</span><br>
+<span class="kw">SELECT</span> department, <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_sal<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">GROUP BY</span> department<br>
+<span class="kw">HAVING</span> <span class="fn">AVG</span>(salary) <span class="kw">></span> <span class="num">80000</span>;
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 SQL Execution Order (Important!)</div>
+      <p>SQL doesn't execute left to right. The actual order is:</p>
+      <div class="step-list mt16">
+        <div class="step"><div class="step-content"><strong>FROM</strong> — pick which table(s)</div></div>
+        <div class="step"><div class="step-content"><strong>WHERE</strong> — filter individual rows</div></div>
+        <div class="step"><div class="step-content"><strong>GROUP BY</strong> — bundle rows into groups</div></div>
+        <div class="step"><div class="step-content"><strong>HAVING</strong> — filter whole groups</div></div>
+        <div class="step"><div class="step-content"><strong>SELECT</strong> — pick which columns to show</div></div>
+        <div class="step"><div class="step-content"><strong>ORDER BY</strong> — sort the results</div></div>
+        <div class="step"><div class="step-content"><strong>LIMIT</strong> — cut to N rows</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 10: JOINS ===== -->
+  <div class="section" id="joins">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <h2 class="section-title">JOINs — Combining Tables</h2>
+    </div>
+
+    <p class="section-intro">In a real database, data is split across multiple tables to avoid repetition. JOINs let you combine them based on a shared column. This is one of the most important SQL concepts.</p>
+
+    <!-- JOIN Venn diagram interactive -->
+    <div class="demo-box">
+      <div class="demo-header">
+        <span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span>
+        <span class="demo-label">JOIN Types Visualizer — click each join</span>
+      </div>
+      <div class="demo-body">
+        <div class="join-btn-group">
+          <button class="join-btn active" onclick="showJoin('inner', this)">INNER JOIN</button>
+          <button class="join-btn" onclick="showJoin('left', this)">LEFT JOIN</button>
+          <button class="join-btn" onclick="showJoin('right', this)">RIGHT JOIN</button>
+          <button class="join-btn" onclick="showJoin('full', this)">FULL OUTER JOIN</button>
+          <button class="join-btn" onclick="showJoin('cross', this)">CROSS JOIN</button>
+        </div>
+        <div class="join-visualizer">
+          <div class="venn-circle venn-left" id="venn-left">employees</div>
+          <div class="venn-overlap"><div id="venn-mid" style="width:50px;height:100px;background:rgba(255,255,255,0.05);transition:all 0.5s;"></div></div>
+          <div class="venn-circle venn-right" id="venn-right">departments</div>
+        </div>
+        <div class="join-desc" id="join-desc">Returns only rows where there's a match in BOTH tables. Unmatched rows are excluded.</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — All JOIN types with example tables</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Setup: employees has dept_id, departments has id + dept_name</span><br><br>
+<span class="com">-- INNER JOIN: only matched rows</span><br>
+<span class="kw">SELECT</span> e.name, d.dept_name<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span> e<br>
+<span class="kw">INNER JOIN</span> <span class="tbl">departments</span> d <span class="kw">ON</span> e.dept_id = d.id;<br><br>
+<span class="com">-- LEFT JOIN: all employees + their dept (NULL if no dept)</span><br>
+<span class="kw">SELECT</span> e.name, d.dept_name<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span> e<br>
+<span class="kw">LEFT JOIN</span> <span class="tbl">departments</span> d <span class="kw">ON</span> e.dept_id = d.id;<br><br>
+<span class="com">-- RIGHT JOIN: all departments + employees (NULL if no employees)</span><br>
+<span class="kw">SELECT</span> e.name, d.dept_name<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span> e<br>
+<span class="kw">RIGHT JOIN</span> <span class="tbl">departments</span> d <span class="kw">ON</span> e.dept_id = d.id;<br><br>
+<span class="com">-- FULL OUTER JOIN: everything from both tables</span><br>
+<span class="kw">SELECT</span> e.name, d.dept_name<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span> e<br>
+<span class="kw">FULL OUTER JOIN</span> <span class="tbl">departments</span> d <span class="kw">ON</span> e.dept_id = d.id;<br><br>
+<span class="com">-- Join 3 tables</span><br>
+<span class="kw">SELECT</span> e.name, d.dept_name, p.project_name<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span> e<br>
+<span class="kw">INNER JOIN</span> <span class="tbl">departments</span> d <span class="kw">ON</span> e.dept_id = d.id<br>
+<span class="kw">INNER JOIN</span> <span class="tbl">projects</span> p <span class="kw">ON</span> p.dept_id = d.id;
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">✅</span>
+      <p>Using table aliases (e, d, p) makes long queries much cleaner. Write <span class="inline-code">FROM employees e</span> and then use <span class="inline-code">e.column_name</span> everywhere. Much less typing, much easier to read.</p>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 11: SUBQUERIES ===== -->
+  <div class="section" id="subqueries">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <h2 class="section-title">Subqueries</h2>
+    </div>
+
+    <p class="section-intro">A subquery is a query nested inside another query. The database runs the inner query first, then uses that result in the outer query. It's like asking "give me employees whose salary is above the result of this other calculation."</p>
+
+    <!-- Subquery interactive visual -->
+    <div class="demo-box">
+      <div class="demo-header">
+        <span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span>
+        <span class="demo-label">Click the inner query to see what it returns</span>
+      </div>
+      <div class="demo-body">
+        <div class="subquery-viz">
+          <div class="outer-query">
+            <span class="kw">SELECT</span> name, salary <span class="kw">FROM</span> <span class="tbl">employees</span><br>
+            <span class="kw">WHERE</span> salary <span class="kw">></span>
+            <span class="inner-query" onclick="toggleInner(this)">
+              ( <span class="kw">SELECT</span> <span class="fn">AVG</span>(salary) <span class="kw">FROM</span> <span class="tbl">employees</span> )
+            </span>
+            <div class="inner-result" id="inner-result-1">
+              → Returns a single value: <strong style="color:var(--accent3);">81,500</strong> (average salary)<br>
+              <span style="font-size:11px;opacity:0.7;margin-top:4px;display:block;">The outer query then filters: WHERE salary > 81500</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — Subquery types</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Scalar subquery: returns one value</span><br>
+<span class="kw">SELECT</span> name, salary<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">WHERE</span> salary <span class="kw">></span> (<span class="kw">SELECT</span> <span class="fn">AVG</span>(salary) <span class="kw">FROM</span> <span class="tbl">employees</span>);<br><br>
+<span class="com">-- IN subquery: returns a list</span><br>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">WHERE</span> dept_id <span class="kw">IN</span> (<br>
+&nbsp;&nbsp;<span class="kw">SELECT</span> id <span class="kw">FROM</span> <span class="tbl">departments</span><br>
+&nbsp;&nbsp;<span class="kw">WHERE</span> location = <span class="str">'New York'</span><br>
+);<br><br>
+<span class="com">-- EXISTS subquery: checks if rows exist</span><br>
+<span class="kw">SELECT</span> name <span class="kw">FROM</span> <span class="tbl">employees</span> e<br>
+<span class="kw">WHERE EXISTS</span> (<br>
+&nbsp;&nbsp;<span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> <span class="tbl">projects</span> p<br>
+&nbsp;&nbsp;<span class="kw">WHERE</span> p.lead_id = e.id<br>
+);<br><br>
+<span class="com">-- Subquery in FROM (derived table)</span><br>
+<span class="kw">SELECT</span> dept, avg_sal<br>
+<span class="kw">FROM</span> (<br>
+&nbsp;&nbsp;<span class="kw">SELECT</span> department <span class="kw">AS</span> dept, <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_sal<br>
+&nbsp;&nbsp;<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+&nbsp;&nbsp;<span class="kw">GROUP BY</span> department<br>
+) <span class="kw">AS</span> dept_averages<br>
+<span class="kw">WHERE</span> avg_sal <span class="kw">></span> <span class="num">70000</span>;
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 12: WINDOW FUNCTIONS ===== -->
+  <div class="section" id="window">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <h2 class="section-title">Window Functions</h2>
+      <span class="section-badge badge-adv" style="background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.3);">Advanced</span>
+    </div>
+
+    <p class="section-intro">Window functions are like aggregate functions but they don't collapse rows. You get one result per row, but the calculation uses a "window" of surrounding rows. The OVER() clause defines the window.</p>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">💡</span>
+      <p>The big difference: <span class="inline-code">GROUP BY + AVG()</span> gives you one row per group. <span class="inline-code">AVG() OVER()</span> gives you the average next to every row. All rows stay — you just get extra calculated columns alongside them.</p>
+    </div>
+
+    <!-- Window function table demo -->
+    <div class="demo-box">
+      <div class="demo-header">
+        <span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span>
+        <span class="demo-label">Window function results — click a function to highlight</span>
+      </div>
+      <div class="demo-body">
+        <div class="agg-controls mb8">
+          <button class="agg-btn active" onclick="highlightWF('rank', this)">RANK()</button>
+          <button class="agg-btn" onclick="highlightWF('rn', this)">ROW_NUMBER()</button>
+          <button class="agg-btn" onclick="highlightWF('avg', this)">AVG() OVER</button>
+          <button class="agg-btn" onclick="highlightWF('lag', this)">LAG()</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="wf-table" id="wf-table">
+            <thead>
+              <tr>
+                <th>name</th>
+                <th>dept</th>
+                <th>salary</th>
+                <th id="wf-col-header">rank_in_dept</th>
+              </tr>
+            </thead>
+            <tbody id="wf-tbody"></tbody>
+          </table>
+        </div>
+        <div id="wf-query" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);margin-top:12px;padding:10px 14px;background:var(--code-bg);border-radius:6px;line-height:1.8;"></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — Window functions</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Rank employees by salary within their department</span><br>
+<span class="kw">SELECT</span><br>
+&nbsp;&nbsp;name, department, salary,<br>
+&nbsp;&nbsp;<span class="fn">RANK</span>() <span class="kw">OVER</span> (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">PARTITION BY</span> department<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">ORDER BY</span> salary <span class="kw">DESC</span><br>
+&nbsp;&nbsp;) <span class="kw">AS</span> rank_in_dept<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span>;<br><br>
+<span class="com">-- ROW_NUMBER: unique number per row (no ties)</span><br>
+<span class="com">-- RANK: ties share same rank, next rank skips</span><br>
+<span class="com">-- DENSE_RANK: ties share same rank, no gaps</span><br><br>
+<span class="com">-- Running total of salary</span><br>
+<span class="kw">SELECT</span> name, salary,<br>
+&nbsp;&nbsp;<span class="fn">SUM</span>(salary) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> id) <span class="kw">AS</span> running_total<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span>;<br><br>
+<span class="com">-- Compare to previous row (previous employee's salary)</span><br>
+<span class="kw">SELECT</span> name, salary,<br>
+&nbsp;&nbsp;<span class="fn">LAG</span>(salary, <span class="num">1</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> salary) <span class="kw">AS</span> prev_salary,<br>
+&nbsp;&nbsp;<span class="fn">LEAD</span>(salary, <span class="num">1</span>) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> salary) <span class="kw">AS</span> next_salary<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span>;<br><br>
+<span class="com">-- Average salary within each department (keeps all rows)</span><br>
+<span class="kw">SELECT</span> name, salary,<br>
+&nbsp;&nbsp;<span class="fn">AVG</span>(salary) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> department) <span class="kw">AS</span> dept_avg<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span>;
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 13: CTEs ===== -->
+  <div class="section" id="cte">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <h2 class="section-title">CTEs — WITH clause</h2>
+    </div>
+
+    <p class="section-intro">CTE stands for Common Table Expression. It's a named temporary result set you define at the top of your query using WITH, then reference by name. It makes complex queries dramatically easier to read and write. Think of it as giving a subquery a proper name.</p>
+
+    <!-- CTE flow -->
+    <div class="demo-box">
+      <div class="demo-header">
+        <span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span>
+        <span class="demo-label">CTE execution flow</span>
+      </div>
+      <div class="demo-body">
+        <div class="cte-flow">
+          <div class="cte-box">
+            <div class="cte-name">dept_averages</div>
+            <div class="cte-desc">AVG salary per dept</div>
+          </div>
+          <div class="cte-arrow">→</div>
+          <div class="cte-box">
+            <div class="cte-name">top_depts</div>
+            <div class="cte-desc">Departments above 80k avg</div>
+          </div>
+          <div class="cte-arrow">→</div>
+          <div class="cte-box">
+            <div class="cte-name">Final SELECT</div>
+            <div class="cte-desc">Employees in top depts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — CTEs</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Single CTE</span><br>
+<span class="kw">WITH</span> dept_averages <span class="kw">AS</span> (<br>
+&nbsp;&nbsp;<span class="kw">SELECT</span> department, <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_sal<br>
+&nbsp;&nbsp;<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+&nbsp;&nbsp;<span class="kw">GROUP BY</span> department<br>
+)<br>
+<span class="kw">SELECT</span> e.name, e.salary, d.avg_sal<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span> e<br>
+<span class="kw">JOIN</span> dept_averages d <span class="kw">ON</span> e.department = d.department<br>
+<span class="kw">WHERE</span> e.salary <span class="kw">></span> d.avg_sal;<br><br>
+<span class="com">-- Multiple CTEs (chain them with a comma)</span><br>
+<span class="kw">WITH</span><br>
+dept_avgs <span class="kw">AS</span> (<br>
+&nbsp;&nbsp;<span class="kw">SELECT</span> department, <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_sal<br>
+&nbsp;&nbsp;<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+&nbsp;&nbsp;<span class="kw">GROUP BY</span> department<br>
+),<br>
+top_depts <span class="kw">AS</span> (<br>
+&nbsp;&nbsp;<span class="kw">SELECT</span> department<br>
+&nbsp;&nbsp;<span class="kw">FROM</span> dept_avgs<br>
+&nbsp;&nbsp;<span class="kw">WHERE</span> avg_sal <span class="kw">></span> <span class="num">80000</span><br>
+)<br>
+<span class="kw">SELECT</span> e.name, e.salary<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span> e<br>
+<span class="kw">WHERE</span> e.department <span class="kw">IN</span> (<span class="kw">SELECT</span> department <span class="kw">FROM</span> top_depts);
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">✅</span>
+      <p>CTEs don't make queries faster — they make them readable. Use them whenever a subquery is getting complex or you find yourself writing the same subquery twice. At a certain level of complexity, CTEs are the difference between code anyone can understand and code only you can.</p>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 14: INDEXES ===== -->
+  <div class="section" id="indexes">
+    <div class="section-header">
+      <span class="section-num">14</span>
+      <h2 class="section-title">Indexes</h2>
+      <span class="section-badge badge-adv" style="background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.3);">Advanced</span>
+    </div>
+
+    <p class="section-intro">An index is a separate data structure the database maintains to speed up lookups. Without an index, every query scans every row in the table (full table scan). With an index on the column you're searching, the database jumps directly to the right rows.</p>
+
+    <div class="card">
+      <div class="card-title">📚 The Book Analogy</div>
+      <p>Imagine a 500-page textbook. Finding the word "recursion" without an index means reading every page. With an index at the back of the book, you jump straight to page 312. Same idea. Indexes are a sorted lookup structure — typically a B-tree — maintained automatically by the database.</p>
+    </div>
+
+    <!-- Scan animation -->
+    <div class="demo-box">
+      <div class="demo-header">
+        <span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span>
+        <span class="demo-label">Full Scan vs Index Lookup — click to simulate</span>
+      </div>
+      <div class="demo-body">
+        <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+          <button class="run-btn" onclick="runScan('full')" style="background:var(--red);">▶ Full Table Scan</button>
+          <button class="run-btn" onclick="runScan('index')">▶ Index Lookup</button>
+        </div>
+        <div class="index-demo">
+          <div class="index-side">
+            <div class="index-side-title" style="color:var(--red);">Without Index</div>
+            <div id="full-scan-rows"></div>
+          </div>
+          <div class="index-side">
+            <div class="index-side-title" style="color:var(--accent3);">With Index</div>
+            <div id="index-scan-rows"></div>
+          </div>
+        </div>
+        <div id="scan-result" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-muted);margin-top:8px;min-height:20px;"></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — Creating Indexes</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Basic index on a column you frequently filter by</span><br>
+<span class="kw">CREATE INDEX</span> idx_department<br>
+<span class="kw">ON</span> <span class="tbl">employees</span> (department);<br><br>
+<span class="com">-- Unique index: enforces uniqueness + speeds up lookup</span><br>
+<span class="kw">CREATE UNIQUE INDEX</span> idx_email<br>
+<span class="kw">ON</span> <span class="tbl">employees</span> (email);<br><br>
+<span class="com">-- Composite index: speeds up queries filtering by both</span><br>
+<span class="kw">CREATE INDEX</span> idx_dept_salary<br>
+<span class="kw">ON</span> <span class="tbl">employees</span> (department, salary);<br><br>
+<span class="com">-- Drop an index</span><br>
+<span class="kw">DROP INDEX</span> idx_department;
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <p>More indexes isn't always better. Each index takes storage space and slows down INSERT/UPDATE/DELETE (the database has to update the index too). Index columns you actually filter or join on. Don't index everything blindly.</p>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 15: VIEWS ===== -->
+  <div class="section" id="views">
+    <div class="section-header">
+      <span class="section-num">15</span>
+      <h2 class="section-title">Views</h2>
+    </div>
+
+    <p class="section-intro">A view is a saved SQL query that you can treat like a table. Every time you query the view, it runs the underlying query and returns fresh results. Views don't store data — they store the query definition.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">🔭 Why Use Views?</div>
+        <p>They simplify complex queries so other people (or your future self) don't have to remember all the joins and conditions. They also add a security layer — you can let someone query a view without giving them access to the raw table.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">⚡ View vs CTE</div>
+        <p>A CTE exists only within one query — gone when the query ends. A view is saved permanently in the database and reusable across many different queries and sessions.</p>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — Views</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- Create a view</span><br>
+<span class="kw">CREATE VIEW</span> engineering_team <span class="kw">AS</span><br>
+<span class="kw">SELECT</span> name, salary, hire_date<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">WHERE</span> department = <span class="str">'Engineering'</span>;<br><br>
+<span class="com">-- Now query it just like a table</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> engineering_team<br>
+<span class="kw">WHERE</span> salary <span class="kw">></span> <span class="num">90000</span>;<br><br>
+<span class="com">-- Update a view definition</span><br>
+<span class="kw">CREATE OR REPLACE VIEW</span> engineering_team <span class="kw">AS</span><br>
+<span class="kw">SELECT</span> name, salary, hire_date, id<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">WHERE</span> department = <span class="str">'Engineering'</span>;<br><br>
+<span class="com">-- Remove a view</span><br>
+<span class="kw">DROP VIEW</span> engineering_team;
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 16: TRANSACTIONS ===== -->
+  <div class="section" id="transactions">
+    <div class="section-header">
+      <span class="section-num">16</span>
+      <h2 class="section-title">Transactions & ACID</h2>
+      <span class="section-badge badge-adv" style="background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.3);">Advanced</span>
+    </div>
+
+    <p class="section-intro">A transaction is a group of SQL operations that either all succeed or all fail together. Transactions protect your data from ending up in a broken half-updated state — especially critical when multiple operations need to happen as one atomic action.</p>
+
+    <div class="acid-grid">
+      <div class="acid-card acid-a">
+        <div class="acid-letter">A</div>
+        <div class="acid-word">Atomicity</div>
+        <p>All operations in the transaction succeed, or none of them do. No partial results. If step 3 of 5 fails, steps 1 and 2 get rolled back.</p>
+      </div>
+      <div class="acid-card acid-c">
+        <div class="acid-letter">C</div>
+        <div class="acid-word">Consistency</div>
+        <p>The database always moves from one valid state to another. No constraints get violated. The data stays meaningful before and after.</p>
+      </div>
+      <div class="acid-card acid-i">
+        <div class="acid-letter">I</div>
+        <div class="acid-word">Isolation</div>
+        <p>Concurrent transactions don't interfere with each other. One transaction doesn't see another's incomplete changes.</p>
+      </div>
+      <div class="acid-card acid-d">
+        <div class="acid-letter">D</div>
+        <div class="acid-word">Durability</div>
+        <p>Once committed, the changes are permanent. Even if the server crashes right after, the committed data survives.</p>
+      </div>
+    </div>
+
+    <!-- Transaction flow demo -->
+    <div class="demo-box" style="margin-top:20px;">
+      <div class="demo-header">
+        <span class="demo-dot d1"></span><span class="demo-dot d2"></span><span class="demo-dot d3"></span>
+        <span class="demo-label">Bank transfer simulation — run success or failure</span>
+      </div>
+      <div class="demo-body">
+        <div class="txn-controls">
+          <button class="txn-btn" onclick="runTxn('success')">▶ Successful Transfer</button>
+          <button class="txn-btn" onclick="runTxn('fail')" style="border-color:rgba(248,113,113,0.3);color:var(--red);">▶ Simulate Failure + Rollback</button>
+          <button class="txn-btn" onclick="resetTxn()">↺ Reset</button>
+        </div>
+        <div class="txn-steps" id="txn-steps">
+          <div class="txn-step" id="ts1">
+            <div class="txn-icon" style="background:rgba(56,189,248,0.1);">🔒</div>
+            <div><div class="txn-label">BEGIN TRANSACTION</div><div class="txn-desc">Start the transaction block — all changes are temporary until committed</div></div>
+          </div>
+          <div class="txn-step" id="ts2">
+            <div class="txn-icon" style="background:rgba(251,146,60,0.1);">💸</div>
+            <div><div class="txn-label">Debit sender $500</div><div class="txn-desc">UPDATE accounts SET balance = balance - 500 WHERE id = 1</div></div>
+          </div>
+          <div class="txn-step" id="ts3">
+            <div class="txn-icon" style="background:rgba(52,211,153,0.1);">💰</div>
+            <div><div class="txn-label">Credit receiver $500</div><div class="txn-desc">UPDATE accounts SET balance = balance + 500 WHERE id = 2</div></div>
+          </div>
+          <div class="txn-step" id="ts4">
+            <div class="txn-icon" style="background:rgba(129,140,248,0.1);">✅</div>
+            <div><div class="txn-label">COMMIT</div><div class="txn-desc">Make all changes permanent — both accounts updated successfully</div></div>
+          </div>
+        </div>
+        <div id="txn-status" style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:13px;min-height:20px;"></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — Transactions</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="kw">BEGIN</span>;&nbsp;&nbsp;<span class="com">-- or BEGIN TRANSACTION; or START TRANSACTION;</span><br><br>
+&nbsp;&nbsp;<span class="kw">UPDATE</span> <span class="tbl">accounts</span><br>
+&nbsp;&nbsp;<span class="kw">SET</span> balance = balance - <span class="num">500</span><br>
+&nbsp;&nbsp;<span class="kw">WHERE</span> id = <span class="num">1</span>;<br><br>
+&nbsp;&nbsp;<span class="kw">UPDATE</span> <span class="tbl">accounts</span><br>
+&nbsp;&nbsp;<span class="kw">SET</span> balance = balance + <span class="num">500</span><br>
+&nbsp;&nbsp;<span class="kw">WHERE</span> id = <span class="num">2</span>;<br><br>
+<span class="kw">COMMIT</span>;&nbsp;&nbsp;<span class="com">-- save everything permanently</span><br><br>
+<span class="com">-- If something goes wrong, undo all changes</span><br>
+<span class="kw">ROLLBACK</span>;
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 17: OPTIMIZATION ===== -->
+  <div class="section" id="optimization">
+    <div class="section-header">
+      <span class="section-num">17</span>
+      <h2 class="section-title">Query Optimization</h2>
+      <span class="section-badge badge-adv" style="background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.3);">Advanced</span>
+    </div>
+
+    <p class="section-intro">As tables grow to millions of rows, poorly written queries grind to a halt. Optimization is about knowing why a query is slow and how to fix it without changing what it returns.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — EXPLAIN: see how the database executes your query</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- EXPLAIN shows the query plan without running it</span><br>
+<span class="kw">EXPLAIN</span><br>
+<span class="kw">SELECT</span> name, salary<br>
+<span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">WHERE</span> department = <span class="str">'Engineering'</span>;<br><br>
+<span class="com">-- EXPLAIN ANALYZE actually runs it and shows timing</span><br>
+<span class="kw">EXPLAIN ANALYZE</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">employees</span><br>
+<span class="kw">WHERE</span> salary <span class="kw">BETWEEN</span> <span class="num">80000</span> <span class="kw">AND</span> <span class="num">100000</span>;
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">🚫 What Kills Performance</div>
+        <p style="font-size:13px;line-height:1.9;">Filtering on unindexed columns in large tables. Using functions on indexed columns in WHERE (<span class="inline-code">WHERE LOWER(name) = ...</span> kills the index). Using <span class="inline-code">SELECT *</span> when you only need 2 columns. Fetching millions of rows with no LIMIT when you only need a few. Correlated subqueries that run once per row.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">✅ What Helps</div>
+        <p style="font-size:13px;line-height:1.9;">Add indexes on columns used in WHERE, JOIN ON, and ORDER BY. Only SELECT the columns you actually need. Use CTEs to break complex queries apart. Use JOINs instead of correlated subqueries when possible. Filter early — reduce row count as soon as possible in the query.</p>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">SQL — Anti-patterns & fixes</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <div class="code-body">
+<span class="com">-- BAD: function on column kills index usage</span><br>
+<span class="kw">WHERE</span> <span class="fn">YEAR</span>(hire_date) = <span class="num">2021</span><br><br>
+<span class="com">-- GOOD: use range comparison instead</span><br>
+<span class="kw">WHERE</span> hire_date <span class="kw">BETWEEN</span> <span class="str">'2021-01-01'</span> <span class="kw">AND</span> <span class="str">'2021-12-31'</span><br><br>
+<span class="com">-- BAD: NOT IN with subquery can behave oddly with NULLs</span><br>
+<span class="kw">WHERE</span> id <span class="kw">NOT IN</span> (<span class="kw">SELECT</span> manager_id <span class="kw">FROM</span> <span class="tbl">employees</span>)<br><br>
+<span class="com">-- GOOD: use NOT EXISTS instead</span><br>
+<span class="kw">WHERE NOT EXISTS</span> (<span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> <span class="tbl">employees</span> e2 <span class="kw">WHERE</span> e2.manager_id = e.id)<br><br>
+<span class="com">-- BAD: SELECT * pulls all 30 columns</span><br>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">employees</span><br><br>
+<span class="com">-- GOOD: only the 2 columns you need</span><br>
+<span class="kw">SELECT</span> name, salary <span class="kw">FROM</span> <span class="tbl">employees</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHEAT SHEET ===== -->
+  <div class="section" id="cheatsheet">
+    <div class="section-header">
+      <span class="section-num">⚡</span>
+      <h2 class="section-title">Cheat Sheet</h2>
+    </div>
+
+    <div class="cheat-grid">
+      <div class="cheat-card">
+        <div class="cheat-card-title">Core Queries</div>
+        <div class="cheat-item"><span class="ck">SELECT</span> col <span class="ck">FROM</span> table</div>
+        <div class="cheat-item"><span class="ck">WHERE</span> condition</div>
+        <div class="cheat-item"><span class="ck">ORDER BY</span> col <span class="ck">DESC</span></div>
+        <div class="cheat-item"><span class="ck">LIMIT</span> n <span class="ck">OFFSET</span> m</div>
+        <div class="cheat-item"><span class="ck">SELECT DISTINCT</span> col</div>
+        <div class="cheat-item">col <span class="ck">AS</span> alias_name</div>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-title">WHERE Operators</div>
+        <div class="cheat-item"><span class="ck">=  !=  &gt;  &lt;  &gt;=  &lt;=</span></div>
+        <div class="cheat-item"><span class="ck">BETWEEN</span> a <span class="ck">AND</span> b</div>
+        <div class="cheat-item"><span class="ck">IN</span> (v1, v2, v3)</div>
+        <div class="cheat-item"><span class="ck">LIKE</span> <span class="cs">'A%'</span></div>
+        <div class="cheat-item"><span class="ck">IS NULL / IS NOT NULL</span></div>
+        <div class="cheat-item"><span class="ck">AND / OR / NOT</span></div>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-title">Aggregates</div>
+        <div class="cheat-item"><span class="ck">COUNT</span>(*) / <span class="ck">COUNT</span>(col)</div>
+        <div class="cheat-item"><span class="ck">SUM</span>(col)</div>
+        <div class="cheat-item"><span class="ck">AVG</span>(col)</div>
+        <div class="cheat-item"><span class="ck">MAX</span>(col) / <span class="ck">MIN</span>(col)</div>
+        <div class="cheat-item"><span class="ck">GROUP BY</span> col</div>
+        <div class="cheat-item"><span class="ck">HAVING</span> condition</div>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-title">JOINs</div>
+        <div class="cheat-item"><span class="ck">INNER JOIN</span> t <span class="ck">ON</span> a.id = b.id</div>
+        <div class="cheat-item"><span class="ck">LEFT JOIN</span> — all left rows</div>
+        <div class="cheat-item"><span class="ck">RIGHT JOIN</span> — all right rows</div>
+        <div class="cheat-item"><span class="ck">FULL OUTER JOIN</span> — all rows</div>
+        <div class="cheat-item">Use aliases: <span class="ck">FROM</span> t <span class="ck">AS</span> a</div>
+        <div class="cheat-item">Chain multiple JOINs</div>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-title">Data Modification</div>
+        <div class="cheat-item"><span class="ck">INSERT INTO</span> t (c) <span class="ck">VALUES</span> (v)</div>
+        <div class="cheat-item"><span class="ck">UPDATE</span> t <span class="ck">SET</span> c=v <span class="ck">WHERE</span> ...</div>
+        <div class="cheat-item"><span class="ck">DELETE FROM</span> t <span class="ck">WHERE</span> ...</div>
+        <div class="cheat-item"><span class="ck">TRUNCATE TABLE</span> t</div>
+        <div class="cheat-item">Always test WHERE first!</div>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-title">Window Functions</div>
+        <div class="cheat-item"><span class="ck">RANK() OVER</span> (ORDER BY col)</div>
+        <div class="cheat-item"><span class="ck">ROW_NUMBER() OVER</span> (...)</div>
+        <div class="cheat-item"><span class="ck">PARTITION BY</span> col</div>
+        <div class="cheat-item"><span class="ck">LAG</span>(col,1) / <span class="ck">LEAD</span>(col,1)</div>
+        <div class="cheat-item"><span class="ck">SUM() OVER</span> (running total)</div>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-title">CTEs & Subqueries</div>
+        <div class="cheat-item"><span class="ck">WITH</span> name <span class="ck">AS</span> (SELECT ...)</div>
+        <div class="cheat-item">Multiple CTEs: comma-separated</div>
+        <div class="cheat-item"><span class="ck">WHERE</span> col <span class="ck">IN</span> (SELECT ...)</div>
+        <div class="cheat-item"><span class="ck">WHERE EXISTS</span> (SELECT 1...)</div>
+        <div class="cheat-item">Subquery in FROM needs alias</div>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-title">Transactions</div>
+        <div class="cheat-item"><span class="ck">BEGIN</span> / <span class="ck">START TRANSACTION</span></div>
+        <div class="cheat-item"><span class="ck">COMMIT</span> — save changes</div>
+        <div class="cheat-item"><span class="ck">ROLLBACK</span> — undo changes</div>
+        <div class="cheat-item">ACID: Atomic, Consistent,</div>
+        <div class="cheat-item">Isolated, Durable</div>
+      </div>
+
+      <div class="cheat-card">
+        <div class="cheat-card-title">Execution Order</div>
+        <div class="cheat-item">1. <span class="ck">FROM</span> + JOINs</div>
+        <div class="cheat-item">2. <span class="ck">WHERE</span></div>
+        <div class="cheat-item">3. <span class="ck">GROUP BY</span></div>
+        <div class="cheat-item">4. <span class="ck">HAVING</span></div>
+        <div class="cheat-item">5. <span class="ck">SELECT</span></div>
+        <div class="cheat-item">6. <span class="ck">ORDER BY</span> / <span class="ck">LIMIT</span></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ===== DATA =====
+const employees = [
+  {id:1, name:'Alice Chen', department:'Engineering', salary:92000, hire_date:'2021-03-15'},
+  {id:2, name:'Bob Smith', department:'Marketing', salary:68000, hire_date:'2020-07-22'},
+  {id:3, name:'Carol Wu', department:'Engineering', salary:105000, hire_date:'2019-01-10'},
+  {id:4, name:'David Lee', department:'HR', salary:72000, hire_date:'2022-05-01'},
+  {id:5, name:'Eva Kim', department:'Marketing', salary:64000, hire_date:'2023-02-14'},
+  {id:6, name:'Frank Ray', department:'Engineering', salary:88000, hire_date:'2022-11-30'}
+];
+
+// ===== SIDEBAR ACTIVE STATE =====
+function updateSidebar() {
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.nav-item');
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY + 200 >= s.offsetTop) current = s.id;
+  });
+  navItems.forEach(n => {
+    n.classList.remove('active');
+    if (n.getAttribute('href') === '#' + current) n.classList.add('active');
+  });
+}
+
+// ===== PROGRESS BAR =====
+function updateProgress() {
+  const max = document.body.scrollHeight - window.innerHeight;
+  const pct = (window.scrollY / max) * 100;
+  document.getElementById('reading-progress').style.width = pct + '%';
+}
+
+// ===== SECTION REVEAL =====
+function revealSections() {
+  document.querySelectorAll('.section').forEach(s => {
+    if (s.getBoundingClientRect().top < window.innerHeight - 80) {
+      s.classList.add('visible');
+    }
+  });
+}
+
+window.addEventListener('scroll', () => {
+  updateSidebar();
+  updateProgress();
+  revealSections();
+});
+revealSections();
+
+// ===== COPY BUTTON =====
+function copyCode(btn) {
+  const block = btn.closest('.code-block');
+  const text = block.querySelector('.code-body').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copied!';
+    btn.style.color = 'var(--accent3)';
+    setTimeout(() => { btn.textContent = 'copy'; btn.style.color = ''; }, 2000);
+  });
+}
+
+// ===== MOBILE MENU =====
+function toggleMenu() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ===== TYPE INFO =====
+function showTypeInfo(name, desc, example) {
+  document.getElementById('type-info').style.display = 'block';
+  document.getElementById('type-name').textContent = name;
+  document.getElementById('type-desc').textContent = desc;
+  document.getElementById('type-example').textContent = example;
+}
+
+// ===== EXECUTION ANIMATION =====
+function runExecution() {
+  const canvas = document.getElementById('execution-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 280;
+
+  const W = canvas.width, H = canvas.height;
+  const stages = ['FROM', 'WHERE', 'SELECT', 'ORDER BY', 'Result ✓'];
+  const colors = ['#38bdf8','#34d399','#818cf8','#fb923c','#f472b6'];
+  const stageW = (W - 80) / stages.length;
+  let progress = 0;
+  let particle = { x: 40, y: H/2, trail: [] };
+
+  function draw(p) {
+    ctx.clearRect(0, 0, W, H);
+
+    // Draw pipeline
+    stages.forEach((s, i) => {
+      const x = 40 + i * stageW + stageW/2;
+      const y = H/2;
+      const active = p >= i / (stages.length - 1);
+
+      // Box
+      const bw = stageW - 20, bh = 60;
+      ctx.beginPath();
+      ctx.roundRect(x - bw/2, y - bh/2, bw, bh, 8);
+      ctx.fillStyle = active ? colors[i] + '22' : '#1c2840';
+      ctx.fill();
+      ctx.strokeStyle = active ? colors[i] : '#1e2d45';
+      ctx.lineWidth = active ? 2 : 1;
+      ctx.stroke();
+
+      // Label
+      ctx.fillStyle = active ? colors[i] : '#3d5070';
+      ctx.font = `bold 13px "JetBrains Mono", monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(s, x, y);
+
+      // Arrow
+      if (i < stages.length - 1) {
+        const ax = 40 + (i+1) * stageW;
+        ctx.beginPath();
+        ctx.moveTo(x + bw/2 + 2, y);
+        ctx.lineTo(ax - bw/2 - 2, y);
+        ctx.strokeStyle = active && p >= (i+1)/(stages.length-1) ? colors[i] : '#1e2d45';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    });
+
+    // Particle
+    const px = 40 + p * (W - 80);
+    const py = H/2;
+    particle.trail.push({x: px, y: py});
+    if (particle.trail.length > 20) particle.trail.shift();
+
+    particle.trail.forEach((pt, i) => {
+      const a = i / particle.trail.length;
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 5 * a, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(56,189,248,${a * 0.4})`;
+      ctx.fill();
+    });
+
+    ctx.beginPath();
+    ctx.arc(px, py, 8, 0, Math.PI * 2);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fill();
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = '#38bdf8';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  particle.trail = [];
+  let start = null;
+  const duration = 2500;
+
+  function animate(ts) {
+    if (!start) start = ts;
+    const p = Math.min((ts - start) / duration, 1);
+    progress = p;
+    draw(p);
+    if (p < 1) requestAnimationFrame(animate);
+    else {
+      setTimeout(() => {
+        particle.trail = [];
+        start = null;
+        progress = 0;
+        ctx.clearRect(0, 0, W, H);
+        draw(0);
+      }, 1000);
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+// Draw initial state
+setTimeout(() => {
+  const canvas = document.getElementById('execution-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth || 600;
+  canvas.height = 280;
+  const W = canvas.width, H = canvas.height;
+  const stages = ['FROM', 'WHERE', 'SELECT', 'ORDER BY', 'Result ✓'];
+  const colors = ['#38bdf8','#34d399','#818cf8','#fb923c','#f472b6'];
+  const stageW = (W - 80) / stages.length;
+  stages.forEach((s, i) => {
+    const x = 40 + i * stageW + stageW/2;
+    const y = H/2;
+    const bw = stageW - 20, bh = 60;
+    ctx.beginPath();
+    ctx.roundRect(x - bw/2, y - bh/2, bw, bh, 8);
+    ctx.fillStyle = '#1c2840';
+    ctx.fill();
+    ctx.strokeStyle = '#1e2d45';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = '#3d5070';
+    ctx.font = `bold 13px "JetBrains Mono", monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(s, x, y);
+    if (i < stages.length - 1) {
+      ctx.beginPath();
+      ctx.moveTo(x + bw/2 + 2, y);
+      ctx.lineTo(40 + (i+1) * stageW - bw/2 - 2, y);
+      ctx.strokeStyle = '#1e2d45';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  });
+}, 300);
+
+// ===== WHERE FILTER DEMO =====
+function buildTable(rows) {
+  if (!rows.length) return '<p style="color:var(--text-muted);font-family:\'JetBrains Mono\',monospace;font-size:13px;">No rows matched.</p>';
+  return `<table class="sql-table">
+    <thead><tr><th>id</th><th>name</th><th>department</th><th>salary</th></tr></thead>
+    <tbody>${rows.map(r => `<tr><td>${r.id}</td><td>${r.name}</td><td>${r.department}</td><td>${r.salary.toLocaleString()}</td></tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function runFilter() {
+  const col = document.getElementById('filter-col').value;
+  const op = document.getElementById('filter-op').value;
+  const val = document.getElementById('filter-val').value.trim();
+
+  const numVal = parseFloat(val);
+  const filtered = employees.filter(r => {
+    const cell = r[col];
+    if (col === 'salary') {
+      switch(op) {
+        case '=': return cell == numVal;
+        case '!=': return cell != numVal;
+        case '>': return cell > numVal;
+        case '<': return cell < numVal;
+        case '>=': return cell >= numVal;
+      }
+    } else {
+      switch(op) {
+        case '=': return cell === val;
+        case '!=': return cell !== val;
+        default: return cell === val;
+      }
+    }
+  });
+
+  const colDisplay = col;
+  const valDisplay = col === 'salary' ? val : `'${val}'`;
+  document.getElementById('query-display').innerHTML =
+    `<span style="color:#7dd3fc;">SELECT</span> * <span style="color:#7dd3fc;">FROM</span> <span style="color:#f9a8d4;">employees</span> <span style="color:#7dd3fc;">WHERE</span> ${colDisplay} ${op} <span style="color:#86efac;">${valDisplay}</span>`;
+  document.getElementById('result-count').textContent = `→ ${filtered.length} row${filtered.length !== 1 ? 's' : ''} returned`;
+  document.getElementById('filter-result').innerHTML = buildTable(filtered);
+}
+
+runFilter();
+
+// ===== SORT TABLE =====
+let sortDir = {};
+function populateSortTable() {
+  const tbody = document.getElementById('sort-tbody');
+  tbody.innerHTML = employees.map(r => `<tr><td>${r.name}</td><td>${r.salary.toLocaleString()}</td><td>${r.department}</td></tr>`).join('');
+}
+populateSortTable();
+
+function sortTable(col) {
+  sortDir[col] = !sortDir[col];
+  const sorted = [...employees].sort((a, b) => {
+    const av = a[col], bv = b[col];
+    const dir = sortDir[col] ? 1 : -1;
+    return av > bv ? dir : av < bv ? -dir : 0;
+  });
+  const tbody = document.getElementById('sort-tbody');
+  tbody.innerHTML = sorted.map(r => `<tr><td>${r.name}</td><td>${r.salary.toLocaleString()}</td><td>${r.department}</td></tr>`).join('');
+  document.getElementById('sort-info').textContent = `ORDER BY ${col} ${sortDir[col] ? 'ASC' : 'DESC'}`;
+}
+
+// ===== AGGREGATE CHART =====
+const depts = ['Engineering', 'Marketing', 'HR'];
+const deptColors = { Engineering: '#38bdf8', Marketing: '#818cf8', HR: '#34d399' };
+let currentAgg = 'avg';
+
+function computeAgg(fn) {
+  return depts.map(d => {
+    const rows = employees.filter(e => e.department === d);
+    const salaries = rows.map(e => e.salary);
+    switch(fn) {
+      case 'avg': return Math.round(salaries.reduce((a,b)=>a+b,0)/salaries.length);
+      case 'sum': return salaries.reduce((a,b)=>a+b,0);
+      case 'max': return Math.max(...salaries);
+      case 'min': return Math.min(...salaries);
+      case 'count': return rows.length;
+    }
+  });
+}
+
+function setAgg(fn, btn) {
+  currentAgg = fn;
+  document.querySelectorAll('.agg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAggChart(fn);
+}
+
+function renderAggChart(fn) {
+  const vals = computeAgg(fn);
+  const maxVal = Math.max(...vals);
+  const chartH = 160;
+  const queries = {
+    avg: `SELECT department, AVG(salary) AS avg_salary FROM employees GROUP BY department;`,
+    sum: `SELECT department, SUM(salary) AS total_salary FROM employees GROUP BY department;`,
+    max: `SELECT department, MAX(salary) AS max_salary FROM employees GROUP BY department;`,
+    min: `SELECT department, MIN(salary) AS min_salary FROM employees GROUP BY department;`,
+    count: `SELECT department, COUNT(*) AS headcount FROM employees GROUP BY department;`
+  };
+
+  const chart = document.getElementById('agg-chart');
+  chart.innerHTML = depts.map((d, i) => {
+    const h = Math.max(8, (vals[i] / maxVal) * chartH);
+    const fmt = fn === 'count' ? vals[i] : '$' + (vals[i] >= 1000 ? (vals[i]/1000).toFixed(0) + 'k' : vals[i]);
+    return `<div class="bar-group">
+      <div class="bar-wrap">
+        <div class="bar" id="bar-${i}" style="height:4px;background:${deptColors[d]}22;border:1px solid ${deptColors[d]};">
+          <div class="bar-val" style="color:${deptColors[d]};opacity:0;">${fmt}</div>
+        </div>
+      </div>
+      <div class="bar-label" style="color:${deptColors[d]};">${d.substring(0,5)}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('agg-query').innerHTML =
+    `<span style="color:#7dd3fc;">SELECT</span> department, <span style="color:#c084fc;">${fn.toUpperCase()}</span>(salary) <span style="color:#7dd3fc;">FROM</span> <span style="color:#f9a8d4;">employees</span> <span style="color:#7dd3fc;">GROUP BY</span> department;`;
+
+  requestAnimationFrame(() => {
+    depts.forEach((d, i) => {
+      const h = Math.max(8, (vals[i] / maxVal) * chartH);
+      const bar = document.getElementById('bar-' + i);
+      if (bar) {
+        bar.style.transition = 'height 0.7s cubic-bezier(0.34,1.56,0.64,1), background 0.3s';
+        bar.style.height = h + 'px';
+        bar.style.background = deptColors[d] + '44';
+        const valEl = bar.querySelector('.bar-val');
+        if (valEl) { valEl.style.opacity = '1'; valEl.style.transition = 'opacity 0.5s 0.4s'; }
+      }
+    });
+  });
+}
+renderAggChart('avg');
+
+// ===== JOIN VISUALIZER =====
+const joinData = {
+  inner: {
+    desc: 'Returns only rows where there\'s a match in BOTH tables. Unmatched rows are excluded.',
+    left: 'rgba(56,189,248,0.2)', right: 'rgba(129,140,248,0.2)',
+    overlap: 'rgba(255,255,255,0.15)', leftBorder: '#38bdf8', rightBorder: '#818cf8'
+  },
+  left: {
+    desc: 'Returns ALL rows from the left table. Right table data is included where it matches — NULL where it doesn\'t.',
+    left: 'rgba(56,189,248,0.4)', right: 'rgba(129,140,248,0.1)',
+    overlap: 'rgba(56,189,248,0.25)', leftBorder: '#38bdf8', rightBorder: '#818cf8'
+  },
+  right: {
+    desc: 'Returns ALL rows from the right table. Left table data included where it matches — NULL where it doesn\'t.',
+    left: 'rgba(56,189,248,0.1)', right: 'rgba(129,140,248,0.4)',
+    overlap: 'rgba(129,140,248,0.25)', leftBorder: '#38bdf8', rightBorder: '#818cf8'
+  },
+  full: {
+    desc: 'Returns ALL rows from BOTH tables. NULLs fill in where there\'s no match on either side.',
+    left: 'rgba(56,189,248,0.35)', right: 'rgba(129,140,248,0.35)',
+    overlap: 'rgba(200,200,255,0.2)', leftBorder: '#38bdf8', rightBorder: '#818cf8'
+  },
+  cross: {
+    desc: 'Returns every combination of rows from both tables. 6 employees × 3 departments = 18 rows. Use with caution on large tables.',
+    left: 'rgba(251,146,60,0.2)', right: 'rgba(251,146,60,0.2)',
+    overlap: 'rgba(251,146,60,0.2)', leftBorder: '#fb923c', rightBorder: '#fb923c'
+  }
+};
+
+function showJoin(type, btn) {
+  document.querySelectorAll('.join-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const d = joinData[type];
+  document.getElementById('venn-left').style.background = d.left;
+  document.getElementById('venn-left').style.borderColor = d.leftBorder;
+  document.getElementById('venn-right').style.background = d.right;
+  document.getElementById('venn-right').style.borderColor = d.rightBorder;
+  document.getElementById('venn-mid').style.background = d.overlap;
+  document.getElementById('join-desc').textContent = d.desc;
+}
+
+// ===== WINDOW FUNCTIONS =====
+const wfData = employees.sort((a,b)=>a.department.localeCompare(b.department)||b.salary-a.salary);
+
+function computeWF(type) {
+  return wfData.map((e, i, arr) => {
+    const deptRows = arr.filter(r => r.department === e.department).sort((a,b) => b.salary - a.salary);
+    const deptIdx = deptRows.findIndex(r => r.id === e.id);
+    switch(type) {
+      case 'rank': return deptIdx + 1;
+      case 'rn': return arr.filter((r,j) => r.department === e.department && j < arr.indexOf(e)).length + 1;
+      case 'avg': return Math.round(deptRows.reduce((s,r)=>s+r.salary,0)/deptRows.length).toLocaleString();
+      case 'lag': {
+        const sorted = [...arr].sort((a,b)=>a.salary-b.salary);
+        const idx = sorted.findIndex(r=>r.id===e.id);
+        return idx > 0 ? sorted[idx-1].salary.toLocaleString() : 'NULL';
+      }
+    }
+  });
+}
+
+const wfHeaders = { rank: 'rank_in_dept', rn: 'row_number', avg: 'dept_avg_salary', lag: 'prev_salary_lag' };
+const wfQueries = {
+  rank: `RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rank_in_dept`,
+  rn: `ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS row_number`,
+  avg: `AVG(salary) OVER (PARTITION BY department) AS dept_avg_salary`,
+  lag: `LAG(salary, 1) OVER (ORDER BY salary) AS prev_salary_lag`
+};
+
+function highlightWF(type, btn) {
+  document.querySelectorAll('.agg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('wf-col-header').textContent = wfHeaders[type];
+  document.getElementById('wf-query').innerHTML =
+    `<span style="color:#7dd3fc;">SELECT</span> name, department, salary,<br>&nbsp;&nbsp;<span style="color:#c084fc;">${wfQueries[type]}</span><br><span style="color:#7dd3fc;">FROM</span> <span style="color:#f9a8d4;">employees</span>;`;
+
+  const vals = computeWF(type);
+  const tbody = document.getElementById('wf-tbody');
+  tbody.innerHTML = wfData.map((e,i) => {
+    const partClass = e.department === 'Engineering' ? 'partition-a' : e.department === 'Marketing' ? 'partition-b' : '';
+    const highlight = type === 'rank' && vals[i] === 1 ? 'wf-highlight' : '';
+    return `<tr class="${partClass} ${highlight}">
+      <td>${e.name}</td><td>${e.department}</td>
+      <td>$${e.salary.toLocaleString()}</td>
+      <td style="color:var(--accent2);font-weight:600;">${vals[i]}</td>
+    </tr>`;
+  }).join('');
+}
+
+highlightWF('rank', document.querySelector('.agg-btn'));
+
+// ===== INDEX SCAN DEMO =====
+const scanNames = ['Alice Chen', 'Bob Smith', 'Carol Wu', 'David Lee', 'Eva Kim', 'Frank Ray'];
+const targetName = 'Carol Wu';
+
+function buildScanRows(container) {
+  container.innerHTML = scanNames.map((n,i) =>
+    `<div class="index-row" id="${container.id}-r${i}">${i+1}. ${n}</div>`
+  ).join('');
+}
+
+buildScanRows(document.getElementById('full-scan-rows'));
+buildScanRows(document.getElementById('index-scan-rows'));
+
+function runScan(type) {
+  // Reset
+  scanNames.forEach((_,i) => {
+    const fr = document.getElementById('full-scan-rows-r'+i);
+    const ir = document.getElementById('index-scan-rows-r'+i);
+    if(fr) fr.className = 'index-row';
+    if(ir) ir.className = 'index-row';
+  });
+  document.getElementById('scan-result').textContent = '';
+
+  if (type === 'full') {
+    let i = 0;
+    const interval = setInterval(() => {
+      const el = document.getElementById('full-scan-rows-r'+i);
+      if (!el) { clearInterval(interval); return; }
+      if (scanNames[i] === targetName) {
+        el.className = 'index-row found';
+        clearInterval(interval);
+        document.getElementById('scan-result').innerHTML = `<span style="color:var(--red);">Full scan: checked ${i+1} of ${scanNames.length} rows to find "${targetName}"</span>`;
+      } else {
+        el.className = 'index-row scanning';
+        setTimeout(() => { if(el.className.includes('scanning')) el.className = 'index-row skipped'; }, 200);
+        i++;
+        if (i >= scanNames.length) { clearInterval(interval); }
+      }
+    }, 350);
+  } else {
+    // Index: jump straight
+    document.getElementById('index-scan-rows').innerHTML =
+      `<div class="index-row" style="color:var(--text-muted);font-size:11px;">Index (sorted by name):</div>` +
+      ['Alice Chen→1','Bob Smith→2','Carol Wu→3','David Lee→4','Eva Kim→5','Frank Ray→6'].map((n,i) => {
+        const name = n.split('→')[0];
+        return `<div class="index-row" id="index-scan-rows-r${i}">${n}</div>`;
+      }).join('');
+
+    setTimeout(() => {
+      document.getElementById('index-scan-rows-r2').className = 'index-row found';
+      document.getElementById('scan-result').innerHTML = `<span style="color:var(--accent3);">Index lookup: jumped directly to "${targetName}" in 1 step using B-tree index</span>`;
+    }, 400);
+  }
+}
+
+// ===== TRANSACTION DEMO =====
+function resetTxn() {
+  ['ts1','ts2','ts3','ts4'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'txn-step';
+  });
+  document.getElementById('txn-status').textContent = '';
+}
+
+function runTxn(type) {
+  resetTxn();
+  const steps = ['ts1','ts2','ts3','ts4'];
+  if (type === 'success') {
+    steps.forEach((id, i) => {
+      setTimeout(() => {
+        document.getElementById(id).className = 'txn-step active';
+      }, i * 700);
+    });
+    setTimeout(() => {
+      document.getElementById('txn-status').innerHTML = `<span style="color:var(--accent3);">✓ COMMIT successful — $500 transferred. Both account updates are permanent.</span>`;
+    }, steps.length * 700);
+  } else {
+    ['ts1','ts2'].forEach((id, i) => {
+      setTimeout(() => { document.getElementById(id).className = 'txn-step active'; }, i * 700);
+    });
+    setTimeout(() => {
+      document.getElementById('ts3').className = 'txn-step failed';
+      document.getElementById('txn-status').innerHTML = `<span style="color:var(--red);">✗ Step 3 failed (receiver account not found). Initiating ROLLBACK...</span>`;
+    }, 2 * 700);
+    setTimeout(() => {
+      ['ts1','ts2'].forEach(id => { document.getElementById(id).className = 'txn-step rolled'; });
+      document.getElementById('ts4').className = 'txn-step rolled';
+      document.getElementById('ts4').querySelector('.txn-label').textContent = 'ROLLBACK';
+      document.getElementById('txn-status').innerHTML = `<span style="color:var(--yellow);">↺ ROLLBACK complete — sender account restored. No money was transferred. Database consistent.</span>`;
+    }, 3 * 700);
+  }
+}
+
+// ===== SUBQUERY TOGGLE =====
+function toggleInner(el) {
+  const result = document.getElementById('inner-result-1');
+  result.classList.toggle('show');
+}
+
+// ===== INITIAL SETUP =====
+// Reset txn label if it was changed
+document.getElementById('ts4').querySelector('.txn-label').textContent = 'COMMIT';
+</script>
+</body>
+</html>
