@@ -239,6 +239,346 @@ body.notes-shell-palette-open .notes-shell-overlay {
   pointer-events: auto;
 }
 
+.notes-shell-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 146;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  --glass-origin-x: 50vw;
+  --glass-origin-y: 36vh;
+}
+
+.notes-shell-transition-pane,
+.notes-shell-splinter-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.notes-shell-transition-flash,
+.notes-shell-crack-map {
+  position: absolute;
+}
+
+.notes-shell-transition-pane {
+  background:
+    linear-gradient(180deg, rgba(8, 16, 12, 0.24), rgba(4, 8, 6, 0.82)),
+    radial-gradient(circle at var(--glass-origin-x) var(--glass-origin-y), rgba(216, 255, 224, 0.12), transparent 30%);
+  backdrop-filter: blur(0px) saturate(110%);
+  opacity: 0;
+}
+
+.notes-shell-transition-flash {
+  width: 320px;
+  height: 320px;
+  left: calc(var(--glass-origin-x) - 160px);
+  top: calc(var(--glass-origin-y) - 160px);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.84) 0%, rgba(234, 255, 196, 0.34) 18%, rgba(118, 216, 143, 0.14) 40%, rgba(7, 17, 12, 0) 72%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transform: scale(0.22);
+}
+
+.notes-shell-crack-map {
+  left: var(--glass-origin-x);
+  top: var(--glass-origin-y);
+  width: min(112vmax, 1060px);
+  height: min(112vmax, 1060px);
+  transform: translate(-50%, -50%) scale(0.76) rotate(-4deg);
+  opacity: 0;
+}
+
+.notes-shell-crack-map svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 18px rgba(225, 255, 234, 0.28));
+}
+
+.notes-shell-crack-path {
+  fill: none;
+  stroke: rgba(245, 255, 248, 0.94);
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 280;
+  stroke-dashoffset: 280;
+  opacity: 0;
+}
+
+.notes-shell-splinter {
+  position: absolute;
+  left: var(--glass-origin-x);
+  top: var(--glass-origin-y);
+  width: 14px;
+  height: 58px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(213, 245, 141, 0.42), rgba(118, 216, 143, 0.08));
+  box-shadow: 0 0 20px rgba(218, 255, 230, 0.28);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.18) rotate(0deg);
+  transform-origin: center center;
+}
+
+body.notes-shell-transition-active .notes-shell-transition {
+  opacity: 1;
+  visibility: visible;
+}
+
+body.notes-shell-transition-breaking .notes-shell-transition-pane {
+  animation: notes-shell-pane-break 560ms cubic-bezier(0.18, 0.7, 0.16, 1) forwards;
+}
+
+body.notes-shell-transition-joining .notes-shell-transition-pane {
+  opacity: 1;
+  animation: notes-shell-pane-join 760ms cubic-bezier(0.2, 0.86, 0.18, 1) forwards;
+}
+
+body.notes-shell-transition-breaking .notes-shell-transition-flash {
+  animation: notes-shell-flash-break 460ms ease-out forwards;
+}
+
+body.notes-shell-transition-joining .notes-shell-transition-flash {
+  opacity: 0.4;
+  transform: scale(1.28);
+  animation: notes-shell-flash-join 760ms ease-out forwards;
+}
+
+body.notes-shell-transition-breaking .notes-shell-crack-map {
+  animation: notes-shell-crack-map-break 560ms cubic-bezier(0.18, 0.7, 0.16, 1) forwards;
+}
+
+body.notes-shell-transition-joining .notes-shell-crack-map {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.02) rotate(0deg);
+  animation: notes-shell-crack-map-join 760ms cubic-bezier(0.2, 0.86, 0.18, 1) forwards;
+}
+
+body.notes-shell-transition-breaking .notes-shell-crack-path {
+  animation: notes-shell-crack-break 520ms ease-out forwards;
+}
+
+body.notes-shell-transition-joining .notes-shell-crack-path {
+  opacity: 0.84;
+  stroke-dashoffset: 0;
+  animation: notes-shell-crack-join 720ms ease-out forwards;
+}
+
+body.notes-shell-transition-breaking .notes-shell-crack-path:nth-child(2),
+body.notes-shell-transition-joining .notes-shell-crack-path:nth-child(2) {
+  animation-delay: 24ms;
+}
+
+body.notes-shell-transition-breaking .notes-shell-crack-path:nth-child(3),
+body.notes-shell-transition-joining .notes-shell-crack-path:nth-child(3) {
+  animation-delay: 48ms;
+}
+
+body.notes-shell-transition-breaking .notes-shell-crack-path:nth-child(4),
+body.notes-shell-transition-joining .notes-shell-crack-path:nth-child(4) {
+  animation-delay: 72ms;
+}
+
+body.notes-shell-transition-breaking .notes-shell-crack-path:nth-child(5),
+body.notes-shell-transition-joining .notes-shell-crack-path:nth-child(5) {
+  animation-delay: 96ms;
+}
+
+body.notes-shell-transition-breaking .notes-shell-crack-path:nth-child(6),
+body.notes-shell-transition-joining .notes-shell-crack-path:nth-child(6) {
+  animation-delay: 120ms;
+}
+
+body.notes-shell-transition-breaking .notes-shell-crack-path:nth-child(7),
+body.notes-shell-transition-joining .notes-shell-crack-path:nth-child(7) {
+  animation-delay: 144ms;
+}
+
+body.notes-shell-transition-breaking .notes-shell-crack-path:nth-child(8),
+body.notes-shell-transition-joining .notes-shell-crack-path:nth-child(8) {
+  animation-delay: 168ms;
+}
+
+body.notes-shell-transition-breaking .notes-shell-crack-path:nth-child(9),
+body.notes-shell-transition-joining .notes-shell-crack-path:nth-child(9) {
+  animation-delay: 192ms;
+}
+
+body.notes-shell-transition-breaking .notes-shell-crack-path:nth-child(10),
+body.notes-shell-transition-joining .notes-shell-crack-path:nth-child(10) {
+  animation-delay: 216ms;
+}
+
+body.notes-shell-transition-breaking .notes-shell-splinter {
+  animation: notes-shell-splinter-break 520ms ease-out forwards;
+  animation-delay: var(--sd);
+}
+
+body.notes-shell-transition-joining .notes-shell-splinter {
+  opacity: 0.18;
+  animation: notes-shell-splinter-join 760ms ease-out forwards;
+  animation-delay: var(--sd);
+}
+
+.notes-shell-title-home {
+  color: inherit;
+  display: inline-block;
+  position: relative;
+  text-decoration: none;
+  transition: transform 0.2s ease, text-shadow 0.2s ease;
+}
+
+.notes-shell-title-home:hover,
+.notes-shell-title-home:focus-visible {
+  transform: translateY(-2px);
+  text-shadow: 0 0 22px rgba(213, 245, 141, 0.2);
+  outline: none;
+}
+
+@keyframes notes-shell-pane-break {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px) saturate(110%);
+  }
+
+  18% {
+    opacity: 0.9;
+  }
+
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(10px) saturate(155%);
+  }
+}
+
+@keyframes notes-shell-pane-join {
+  0% {
+    opacity: 1;
+    backdrop-filter: blur(12px) saturate(160%);
+  }
+
+  100% {
+    opacity: 0;
+    backdrop-filter: blur(0px) saturate(110%);
+  }
+}
+
+@keyframes notes-shell-flash-break {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+
+  16% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.86);
+  }
+}
+
+@keyframes notes-shell-flash-join {
+  0% {
+    opacity: 0.58;
+    transform: scale(1.36);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.34);
+  }
+}
+
+@keyframes notes-shell-crack-map-break {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.74) rotate(-6deg);
+  }
+
+  24% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.02) rotate(0deg);
+  }
+}
+
+@keyframes notes-shell-crack-map-join {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.02) rotate(0deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.72) rotate(4deg);
+  }
+}
+
+@keyframes notes-shell-crack-break {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 280;
+  }
+
+  22% {
+    opacity: 0.95;
+  }
+
+  100% {
+    opacity: 0.78;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes notes-shell-crack-join {
+  0% {
+    opacity: 0.84;
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 280;
+  }
+}
+
+@keyframes notes-shell-splinter-break {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
+  }
+
+  26% {
+    opacity: 0.92;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--sx)), calc(-50% + var(--sy))) scale(1.14) rotate(var(--sr));
+  }
+}
+
+@keyframes notes-shell-splinter-join {
+  0% {
+    opacity: 0.28;
+    transform: translate(calc(-50% + var(--sx)), calc(-50% + var(--sy))) scale(1.04) rotate(var(--sr));
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.22) rotate(0deg);
+  }
+}
+
 .notes-shell-drawer {
   position: fixed;
   top: 0;
@@ -492,5 +832,12 @@ body.notes-shell-palette-open .notes-shell-palette {
   .notes-shell-fab {
     right: 12px;
     bottom: 12px;
+  }
+
+  .notes-shell-transition-flash {
+    width: 240px;
+    height: 240px;
+    left: calc(var(--glass-origin-x) - 120px);
+    top: calc(var(--glass-origin-y) - 120px);
   }
 }

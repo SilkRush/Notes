@@ -8,10 +8,19 @@
     ? ".."
     : ".";
   const rootPath = String(requestedRoot || guessedRoot).replace(/\/+$/, "") || ".";
+  const TRANSITION_STORAGE_KEY = "verdant-notes:enter-transition";
+  const BREAK_DURATION = 560;
+  const JOIN_DURATION = 760;
 
   function resolveFromRoot(path) {
     const cleanPath = String(path || "").replace(/^\/+/, "");
     return rootPath === "." ? `./${cleanPath}` : `${rootPath}/${cleanPath}`;
+  }
+
+  function normalizePathname(pathname) {
+    return String(pathname || "/")
+      .replace(/\/index\.html$/i, "/")
+      .replace(/\/{2,}/g, "/");
   }
 
   function ensureStylesheet() {
@@ -98,6 +107,70 @@
     };
   }
 
+  function buildTransitionMarkup() {
+    const crackPaths = [
+      "M50 50 L35 21 L27 0",
+      "M50 50 L62 18 L72 0",
+      "M50 50 L82 26 L100 14",
+      "M50 50 L86 50 L100 50",
+      "M50 50 L82 72 L98 86",
+      "M50 50 L60 84 L66 100",
+      "M50 50 L40 84 L34 100",
+      "M50 50 L18 74 L0 86",
+      "M50 50 L14 50 L0 50",
+      "M50 50 L18 24 L0 12"
+    ];
+
+    const splinters = [
+      { x: "-198px", y: "-136px", r: "-42deg", d: "0ms" },
+      { x: "-162px", y: "-18px", r: "-84deg", d: "30ms" },
+      { x: "-72px", y: "166px", r: "-14deg", d: "60ms" },
+      { x: "74px", y: "-176px", r: "22deg", d: "22ms" },
+      { x: "154px", y: "-12px", r: "76deg", d: "52ms" },
+      { x: "172px", y: "132px", r: "36deg", d: "82ms" }
+    ];
+
+    return `
+      <div class="notes-shell-transition" aria-hidden="true" hidden>
+        <div class="notes-shell-transition-pane"></div>
+        <div class="notes-shell-transition-flash"></div>
+        <div class="notes-shell-crack-map">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            ${crackPaths.map((path) => `<path class="notes-shell-crack-path" d="${path}"></path>`).join("")}
+          </svg>
+        </div>
+        <div class="notes-shell-splinter-layer" aria-hidden="true">
+          ${splinters
+            .map((splinter) => `
+              <span
+                class="notes-shell-splinter"
+                style="--sx:${splinter.x}; --sy:${splinter.y}; --sr:${splinter.r}; --sd:${splinter.d};"
+              ></span>
+            `)
+            .join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function linkPrimaryTitleToHome(homeHref) {
+    const primaryHeading = document.querySelector("main h1");
+    if (!primaryHeading || primaryHeading.querySelector("a")) {
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.className = "notes-shell-title-home";
+    link.href = homeHref;
+    link.setAttribute("aria-label", "Go to homepage");
+
+    while (primaryHeading.firstChild) {
+      link.appendChild(primaryHeading.firstChild);
+    }
+
+    primaryHeading.appendChild(link);
+  }
+
   function createShell(siteName, siteShortName, pageType, primaryLinks) {
     const homeHref = resolveFromRoot("index.html");
     const templateHref = resolveFromRoot("templates/note-starter.html");
@@ -118,7 +191,7 @@
             ${icon('<path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path>')}
             <span>Menu</span>
           </button>
-          <a class="notes-shell-brand" href="${homeHref}">
+          <a class="notes-shell-brand" href="${homeHref}" title="Back to homepage">
             <span class="notes-shell-brand-mark">${siteShortName}</span>
             <span class="notes-shell-brand-copy">
               <strong>${siteName}</strong>
@@ -206,6 +279,8 @@
           ${icon('<path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path>')}
         </button>
       </div>
+
+      ${buildTransitionMarkup()}
     `;
 
     return { shell, navLinks };
@@ -258,6 +333,7 @@
     );
 
     document.body.prepend(shell);
+    linkPrimaryTitleToHome(resolveFromRoot("index.html"));
 
     const overlay = shell.querySelector(".notes-shell-overlay");
     const drawer = shell.querySelector(".notes-shell-drawer");
@@ -269,6 +345,163 @@
     const noteLinksContainer = shell.querySelector("#notes-shell-note-links");
     const menuButton = shell.querySelector('[data-shell-action="menu"]');
     const paletteButtons = shell.querySelectorAll('[data-shell-action="palette"]');
+    const transitionLayer = shell.querySelector(".notes-shell-transition");
+    let transitionTimer = null;
+
+    function getEventPoint(event, element) {
+      if (event && typeof event.clientX === "number" && typeof event.clientY === "number" && (event.clientX !== 0 || event.clientY !== 0)) {
+        return {
+          x: event.clientX,
+          y: event.clientY
+        };
+      }
+
+      const rect = element.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+      };
+    }
+
+    function setTransitionOrigin(point) {
+      const fallback = {
+        x: window.innerWidth / 2,
+        y: window.innerHeight * 0.36
+      };
+      const nextPoint = point || fallback;
+      transitionLayer.style.setProperty("--glass-origin-x", `${Math.round(nextPoint.x)}px`);
+      transitionLayer.style.setProperty("--glass-origin-y", `${Math.round(nextPoint.y)}px`);
+    }
+
+    function clearTransitionState() {
+      window.clearTimeout(transitionTimer);
+      transitionTimer = null;
+      document.body.classList.remove(
+        "notes-shell-transition-active",
+        "notes-shell-transition-breaking",
+        "notes-shell-transition-joining"
+      );
+      transitionLayer.hidden = true;
+    }
+
+    function queueEntryTransition(url, point) {
+      try {
+        sessionStorage.setItem(TRANSITION_STORAGE_KEY, JSON.stringify({
+          url,
+          x: Math.round(point.x),
+          y: Math.round(point.y),
+          time: Date.now()
+        }));
+      } catch (error) {
+        return;
+      }
+    }
+
+    function consumeEntryTransition() {
+      try {
+        const raw = sessionStorage.getItem(TRANSITION_STORAGE_KEY);
+        if (!raw) {
+          return null;
+        }
+
+        sessionStorage.removeItem(TRANSITION_STORAGE_KEY);
+        const parsed = JSON.parse(raw);
+        if (!parsed || Date.now() - parsed.time > 5000) {
+          return null;
+        }
+
+        return parsed;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function playGlassTransition(kind, options) {
+      const settings = options || {};
+      const duration = settings.duration || (kind === "join" ? JOIN_DURATION : BREAK_DURATION);
+
+      setTransitionOrigin(settings.point);
+      window.clearTimeout(transitionTimer);
+      transitionLayer.hidden = false;
+      document.body.classList.remove("notes-shell-transition-breaking", "notes-shell-transition-joining");
+      document.body.classList.add(
+        "notes-shell-transition-active",
+        kind === "join" ? "notes-shell-transition-joining" : "notes-shell-transition-breaking"
+      );
+
+      return new Promise((resolve) => {
+        transitionTimer = window.setTimeout(() => {
+          if (kind === "join" || settings.cleanup) {
+            clearTransitionState();
+          }
+
+          resolve();
+        }, duration);
+      });
+    }
+
+    function playImpact(target, event) {
+      const point = getEventPoint(event, target);
+      playGlassTransition("break", {
+        point,
+        cleanup: true,
+        duration: BREAK_DURATION
+      });
+
+      const scrollTarget = target.getAttribute("data-glass-scroll-target");
+      if (scrollTarget) {
+        window.setTimeout(() => {
+          const nextTarget = document.querySelector(scrollTarget);
+          if (nextTarget) {
+            nextTarget.scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+          }
+        }, 90);
+      }
+    }
+
+    function isSameDocument(url) {
+      return (
+        normalizePathname(url.pathname) === normalizePathname(location.pathname) &&
+        url.search === location.search &&
+        url.hash === location.hash
+      );
+    }
+
+    function shouldAnimateLink(event, link) {
+      if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return false;
+      }
+
+      if (link.hasAttribute("download") || (link.target && link.target.toLowerCase() !== "_self")) {
+        return false;
+      }
+
+      const url = new URL(link.href, location.href);
+      if (url.origin !== location.origin || isSameDocument(url)) {
+        return false;
+      }
+
+      if (
+        normalizePathname(url.pathname) === normalizePathname(location.pathname) &&
+        url.search === location.search &&
+        url.hash
+      ) {
+        return false;
+      }
+
+      return true;
+    }
+
+    function navigateWithGlass(url, point) {
+      closeAll();
+      queueEntryTransition(url, point);
+      playGlassTransition("break", { point }).then(() => {
+        location.href = url;
+      });
+    }
 
     renderLinkCards(
       staticLinksContainer,
@@ -393,7 +626,7 @@
         const noteItems = paletteEntries.filter((entry) => entry.type === "Note");
         if (noteItems.length) {
           const next = noteItems[Math.floor(Math.random() * noteItems.length)];
-          location.href = next.href;
+          navigateWithGlass(next.href, getEventPoint(null, actionTarget));
           return;
         }
 
@@ -428,6 +661,36 @@
         togglePalette(true);
       }
     });
+
+    document.addEventListener("click", (event) => {
+      const impactTarget = event.target.closest("[data-glass-impact]");
+      if (!impactTarget || event.target.closest("a, button, input, select, textarea, label")) {
+        return;
+      }
+
+      playImpact(impactTarget, event);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      const impactTarget = event.target.closest("[data-glass-impact]");
+      if (!impactTarget || (event.key !== "Enter" && event.key !== " ")) {
+        return;
+      }
+
+      event.preventDefault();
+      playImpact(impactTarget);
+    });
+
+    document.addEventListener("click", (event) => {
+      const link = event.target.closest("a[href]");
+      if (!shouldAnimateLink(event, link)) {
+        return;
+      }
+
+      const url = new URL(link.href, location.href);
+      event.preventDefault();
+      navigateWithGlass(url.href, getEventPoint(event, link));
+    }, true);
 
     paletteEntries.push(
       ...navLinks.map((entry) => ({
@@ -469,6 +732,26 @@
         refreshPalette(paletteInput.value);
       });
     }
+
+    const pendingEntry = consumeEntryTransition();
+    if (pendingEntry || (performance.getEntriesByType("navigation")[0] && performance.getEntriesByType("navigation")[0].type === "back_forward")) {
+      playGlassTransition("join", {
+        point: pendingEntry ? { x: pendingEntry.x, y: pendingEntry.y } : null,
+        cleanup: true,
+        duration: JOIN_DURATION
+      });
+    }
+
+    window.addEventListener("pageshow", (event) => {
+      if (!event.persisted) {
+        return;
+      }
+
+      playGlassTransition("join", {
+        cleanup: true,
+        duration: JOIN_DURATION
+      });
+    });
   }
 
   if (document.readyState === "loading") {

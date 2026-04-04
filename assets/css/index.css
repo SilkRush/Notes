@@ -49,6 +49,21 @@
   overflow: hidden;
 }
 
+.hero-card[data-glass-impact] {
+  cursor: pointer;
+  transition: transform 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
+}
+
+.hero-card[data-glass-impact]:hover {
+  transform: translateY(-3px);
+  border-color: var(--shell-border-strong);
+}
+
+.hero-card[data-glass-impact]:focus-visible {
+  outline: 2px solid rgba(213, 245, 141, 0.4);
+  outline-offset: 4px;
+}
+
 .hero-card::after {
   content: "";
   position: absolute;

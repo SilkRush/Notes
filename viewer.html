@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verdant Notes | Viewer</title>
+  <meta
+    name="description"
+    content="A shell-managed note viewer with home navigation, glass transitions, and the original note content loaded intact."
+  >
+  <link rel="stylesheet" href="./assets/css/shell.css">
+  <link rel="stylesheet" href="./assets/css/viewer.css">
+  <script>
+    window.NOTES_SITE_CONFIG = {
+      siteName: "Verdant Notes",
+      siteShortName: "VN",
+      owner: "SilkRush",
+      repo: "Notes",
+      notesFolder: "notes",
+      includeGitHubDiscovery: true
+    };
+  </script>
+  <script src="./assets/js/notes-manifest.js" defer></script>
+  <script src="./assets/js/notes-data.js" defer></script>
+  <script src="./assets/js/site-shell.js" defer data-root="."></script>
+  <script src="./assets/js/viewer.js" defer></script>
+</head>
+<body data-page-type="note">
+  <main id="main-content" class="viewer-page">
+    <section class="viewer-hero" id="overview" data-nav-label="Overview">
+      <div class="viewer-kicker">Note viewer</div>
+      <h1 id="viewerTitle">Loading note...</h1>
+      <p id="viewerSummary">
+        The original note content stays intact in <code>notes/</code>, but it now opens through a shared shell
+        so the homepage transitions and home-title navigation still work.
+      </p>
+
+      <div class="viewer-actions">
+        <a class="viewer-action viewer-action-primary" href="./index.html#library" id="backHomeLink">Back to library</a>
+        <a class="viewer-action viewer-action-secondary" href="#" id="openRawLink">Open raw note</a>
+      </div>
+
+      <div class="viewer-meta" id="viewerMeta"></div>
+    </section>
+
+    <section class="viewer-frame-shell" id="content" data-nav-label="Content">
+      <div class="viewer-frame-topbar">
+        <div>
+          <div class="viewer-label">Embedded note</div>
+          <strong id="frameStatus">Preparing content</strong>
+        </div>
+        <span class="viewer-status-pill" id="framePill">Loading</span>
+      </div>
+
+      <iframe
+        id="noteFrame"
+        class="viewer-frame"
+        title="Selected note content"
+        loading="eager"
+      ></iframe>
+    </section>
+
+    <section class="viewer-related-shell" id="related" data-nav-label="Related">
+      <div class="viewer-label">More notes</div>
+      <h2>Keep exploring from the same hub</h2>
+      <div class="viewer-related-grid" id="relatedNotes"></div>
+    </section>
+  </main>
+</body>
+</html>

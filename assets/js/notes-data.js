@@ -146,7 +146,8 @@
           updated: manifest.updated || (remote.entries.length ? "Repo tracked" : "Manifest"),
           featured: Boolean(manifest.featured),
           order: Number.isFinite(manifest.order) ? manifest.order : 999,
-          href: resolveFromRoot(rootPath, `${config.notesFolder}/${encodeURIComponent(fileName)}`),
+          directHref: resolveFromRoot(rootPath, `${config.notesFolder}/${encodeURIComponent(fileName)}`),
+          href: resolveFromRoot(rootPath, `viewer.html?note=${encodeURIComponent(fileName)}`),
           searchText: [
             fileName,
             title,
