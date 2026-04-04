@@ -6,7 +6,7 @@
   <title>Verdant Notes | Study Hub</title>
   <meta
     name="description"
-    content="A dark green notes hub with reusable navigation, search, favorites, and a future-ready note shell."
+    content="A dark green notes library with fast search, favorites, and a polished reading experience."
   >
   <link rel="stylesheet" href="./assets/css/shell.css">
   <link rel="stylesheet" href="./assets/css/index.css">
@@ -34,19 +34,18 @@
         data-glass-scroll-target="#library"
         tabindex="0"
         role="button"
-        aria-label="Trigger the glass animation and jump to the library"
+        aria-label="Trigger the glass animation and jump to the notes library"
       >
-        <div class="eyebrow">Study workspace</div>
-        <h1>Turn your notes into a complete dark-green knowledge website.</h1>
+        <div class="eyebrow">Notes library</div>
+        <h1>Study notes, all in one clean place.</h1>
         <p class="hero-copy">
-          The core idea stays the same: open HTML notes from the existing
-          <code>notes/</code> folder. Everything around it is now richer, faster,
-          and ready for future pages with a reusable hamburger menu and shared shell.
+          Browse your notes with a cleaner layout, quick search, favorites,
+          smooth mobile navigation, and a more polished reading flow.
         </p>
 
         <div class="hero-actions">
-          <a class="action action-primary" href="#library">Open library</a>
-          <a class="action action-secondary" href="./templates/note-starter.html">Use note starter</a>
+          <a class="action action-primary" href="#library">Browse notes</a>
+          <a class="action action-secondary" href="./viewer.html?note=SQL.html" id="featuredLink">Open featured note</a>
         </div>
 
         <div class="hero-metrics">
@@ -59,38 +58,38 @@
             <strong id="heroFavorites">00</strong>
           </div>
           <div class="metric-chip">
-            <span class="metric-label">Catalog source</span>
+            <span class="metric-label">Library status</span>
             <strong id="heroSource">Loading</strong>
           </div>
         </div>
       </article>
 
       <aside class="desk-card">
-        <div class="panel-topline">Command desk</div>
+        <div class="panel-topline">Library status</div>
         <div class="desk-stat">
           <span>Last sync</span>
           <strong id="lastSync">Starting up</strong>
         </div>
         <div class="desk-stat">
-          <span>Current mode</span>
-          <strong>Reusable shell</strong>
+          <span>Navigation</span>
+          <strong>Fast and mobile-ready</strong>
         </div>
         <div class="desk-stat">
-          <span>Future notes</span>
-          <strong>Ready via template</strong>
+          <span>Reading flow</span>
+          <strong>Viewer + smooth transitions</strong>
         </div>
         <div class="desk-list">
           <div class="desk-item">
             <span class="desk-dot"></span>
-            Search, filter, sort, and favorite notes from one place
+            Search, filter, sort, and save notes from one place
           </div>
           <div class="desk-item">
             <span class="desk-dot"></span>
-            Reusable hamburger and toolbar live outside <code>notes/</code>
+            Open any note from the homepage and keep a consistent reading layout
           </div>
           <div class="desk-item">
             <span class="desk-dot"></span>
-            New notes can inherit the same shell from <code>templates/</code>
+            The menu and search palette stay usable on desktop and mobile
           </div>
         </div>
         <button class="panel-button" id="refreshButton" type="button">Refresh catalog</button>
@@ -104,19 +103,19 @@
         <p>Updates as you search, filter, sort, and favorite notes.</p>
       </article>
       <article class="dashboard-card">
-        <div class="dashboard-label">Categories</div>
+        <div class="dashboard-label">Topics</div>
         <strong id="categoryCount">00</strong>
-        <p>Auto-detected from filenames or enriched by the manifest.</p>
+        <p>Grouped automatically so it is easier to jump between subjects.</p>
       </article>
       <article class="dashboard-card">
-        <div class="dashboard-label">Recent pickup</div>
+        <div class="dashboard-label">Recent note</div>
         <strong id="recentLabel">None yet</strong>
         <p>Your last opened note appears here so you can jump back in quickly.</p>
       </article>
       <article class="dashboard-card dashboard-card-accent">
-        <div class="dashboard-label">Future-ready</div>
-        <strong>Starter template</strong>
-        <p>Copy the reusable note starter from <code>templates/note-starter.html</code>.</p>
+        <div class="dashboard-label">Quick search</div>
+        <strong>Press /</strong>
+        <p>Open the search palette from anywhere in the shared site shell.</p>
       </article>
     </section>
 
@@ -124,10 +123,10 @@
       <div class="section-heading">
         <div>
           <div class="eyebrow">Library</div>
-          <h2>Browse every note from one control center</h2>
+          <h2>Browse the full notes collection</h2>
           <p>
-            The homepage keeps the original note hub idea, but now adds favorites,
-            recent activity, category filters, search, sort options, and cleaner note cards.
+            Find the note you want quickly, save the ones you come back to often,
+            and open everything through one cleaner reading flow.
           </p>
         </div>
         <div class="section-status">
@@ -171,62 +170,6 @@
 
       <div class="notes-grid" id="notesGrid" aria-live="polite"></div>
       <div class="empty-card" id="emptyState" hidden></div>
-    </section>
-
-    <section class="section-shell workflow-shell" id="workflow" data-nav-label="Workflow">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">Workflow</div>
-          <h2>How future notes reuse the same hamburger menu</h2>
-          <p>
-            Nothing inside <code>notes/</code> was changed. The reusable shell lives in shared assets,
-            and the starter file already points to those shared files from outside the notes folder.
-          </p>
-        </div>
-      </div>
-
-      <div class="workflow-grid">
-        <article class="workflow-card">
-          <div class="step-index">01</div>
-          <h3>Start from the template</h3>
-          <p>
-            Copy <code>templates/note-starter.html</code> into <code>notes/</code> when you add a new note.
-          </p>
-        </article>
-        <article class="workflow-card">
-          <div class="step-index">02</div>
-          <h3>Keep the shared shell</h3>
-          <p>
-            The starter already loads the shared menu, toolbar, palette, and note drawer from <code>assets/</code>.
-          </p>
-        </article>
-        <article class="workflow-card">
-          <div class="step-index">03</div>
-          <h3>Optional metadata boost</h3>
-          <p>
-            Add an entry in <code>assets/js/notes-manifest.js</code> if you want richer summaries, tags, or read times.
-          </p>
-        </article>
-      </div>
-
-      <div class="integration-grid">
-        <article class="integration-card">
-          <div class="dashboard-label">Shell includes</div>
-          <pre><code>&lt;script src="../assets/js/notes-manifest.js"&gt;&lt;/script&gt;
-&lt;script src="../assets/js/notes-data.js"&gt;&lt;/script&gt;
-&lt;script src="../assets/js/site-shell.js" data-root=".."&gt;&lt;/script&gt;</code></pre>
-        </article>
-        <article class="integration-card integration-card-highlight">
-          <div class="dashboard-label">Starter file</div>
-          <p>
-            A working future-note example is ready here:
-            <a href="./templates/note-starter.html">templates/note-starter.html</a>
-          </p>
-          <p>
-            Copy it, rename it, add your content, and the shared navigation stays reusable.
-          </p>
-        </article>
-      </div>
     </section>
   </main>
 </body>

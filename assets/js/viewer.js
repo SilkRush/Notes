@@ -105,7 +105,7 @@
       );
 
       if (height > 0) {
-        elements.frame.style.height = `${Math.min(height + 16, 4800)}px`;
+        elements.frame.style.height = `${height + 24}px`;
       }
     } catch (error) {
       return;

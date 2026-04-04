@@ -12,6 +12,7 @@
     heroCount: document.getElementById("heroCount"),
     heroFavorites: document.getElementById("heroFavorites"),
     heroSource: document.getElementById("heroSource"),
+    featuredLink: document.getElementById("featuredLink"),
     lastSync: document.getElementById("lastSync"),
     visibleCount: document.getElementById("visibleCount"),
     categoryCount: document.getElementById("categoryCount"),
@@ -101,6 +102,20 @@
     return ["All"].concat(
       Array.from(new Set(state.notes.map((note) => note.category))).sort((left, right) => left.localeCompare(right))
     );
+  }
+
+  function getPublicSourceLabel(source) {
+    const value = String(source || "");
+
+    if (value.includes("GitHub")) {
+      return "Live";
+    }
+
+    if (value.includes("fallback") || value.includes("Manifest") || value.includes("Starter")) {
+      return "Ready";
+    }
+
+    return "Loading";
   }
 
   function getRecentRank(fileName) {
@@ -243,14 +258,30 @@
   function updateSummaryMetrics(visibleNotes) {
     const favoritesCount = getFavorites().length;
     const categoryCount = new Set(state.notes.map((note) => note.category)).size;
+    const publicSource = getPublicSourceLabel(state.source);
 
     elements.heroCount.textContent = String(state.notes.length).padStart(2, "0");
     elements.heroFavorites.textContent = String(favoritesCount).padStart(2, "0");
-    elements.heroSource.textContent = state.source;
+    elements.heroSource.textContent = publicSource;
     elements.visibleCount.textContent = String(visibleNotes.length).padStart(2, "0");
     elements.categoryCount.textContent = String(categoryCount).padStart(2, "0");
-    elements.helperCopy.textContent = `${visibleNotes.length} result${visibleNotes.length === 1 ? "" : "s"} from ${state.notes.length} total note${state.notes.length === 1 ? "" : "s"}.`;
-    elements.sourcePill.textContent = state.source;
+    elements.helperCopy.textContent = `Showing ${visibleNotes.length} of ${state.notes.length} note${state.notes.length === 1 ? "" : "s"}.`;
+    elements.sourcePill.textContent = publicSource;
+  }
+
+  function updateFeaturedLink() {
+    if (!elements.featuredLink) {
+      return;
+    }
+
+    const featuredNote = state.notes.find((note) => note.featured) || state.notes[0];
+    if (!featuredNote) {
+      elements.featuredLink.href = "#library";
+      return;
+    }
+
+    elements.featuredLink.href = featuredNote.href;
+    elements.featuredLink.textContent = `Open ${featuredNote.title}`;
   }
 
   function renderNotes() {
@@ -289,6 +320,7 @@
     state.source = result.error && result.notes.length ? `${result.source} with fallback` : result.source;
     elements.lastSync.textContent = formatSyncTime();
 
+    updateFeaturedLink();
     renderCategoryFilters();
     renderRecentStrip();
     renderNotes();

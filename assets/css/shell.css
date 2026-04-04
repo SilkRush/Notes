@@ -426,6 +426,7 @@ body.notes-shell-transition-joining .notes-shell-splinter {
 
 .notes-shell-title-home {
   color: inherit;
+  cursor: pointer;
   display: inline-block;
   position: relative;
   text-decoration: none;

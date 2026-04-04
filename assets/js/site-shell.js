@@ -173,13 +173,12 @@
 
   function createShell(siteName, siteShortName, pageType, primaryLinks) {
     const homeHref = resolveFromRoot("index.html");
-    const templateHref = resolveFromRoot("templates/note-starter.html");
     const navLinks = pageType === "home"
-      ? primaryLinks.concat([{ label: "Template", href: templateHref }])
+      ? primaryLinks
       : [
           { label: "Home", href: homeHref },
           { label: "Library", href: `${homeHref}#library` }
-        ].concat(primaryLinks.slice(0, 2)).concat([{ label: "Template", href: templateHref }]);
+        ].concat(primaryLinks.slice(0, 2));
 
     const shell = document.createElement("div");
     shell.id = "notes-shell-root";
@@ -195,7 +194,7 @@
             <span class="notes-shell-brand-mark">${siteShortName}</span>
             <span class="notes-shell-brand-copy">
               <strong>${siteName}</strong>
-              <span>Reusable note shell</span>
+              <span>Notes library</span>
             </span>
           </a>
         </div>
@@ -333,7 +332,9 @@
     );
 
     document.body.prepend(shell);
-    linkPrimaryTitleToHome(resolveFromRoot("index.html"));
+    if (pageType !== "home") {
+      linkPrimaryTitleToHome(resolveFromRoot("index.html"));
+    }
 
     const overlay = shell.querySelector(".notes-shell-overlay");
     const drawer = shell.querySelector(".notes-shell-drawer");
