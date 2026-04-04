@@ -1,0 +1,496 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap");
+
+:root {
+  --shell-bg: #07110c;
+  --shell-bg-deep: #030905;
+  --shell-bg-soft: #0d1812;
+  --shell-surface: rgba(13, 28, 19, 0.76);
+  --shell-surface-strong: rgba(18, 37, 25, 0.94);
+  --shell-surface-alt: rgba(23, 47, 32, 0.92);
+  --shell-border: rgba(122, 180, 135, 0.2);
+  --shell-border-strong: rgba(156, 220, 152, 0.28);
+  --shell-text: #edf7ef;
+  --shell-text-soft: #bdd4c2;
+  --shell-text-dim: #7d9a86;
+  --shell-accent: #76d88f;
+  --shell-accent-strong: #d5f58d;
+  --shell-accent-soft: rgba(118, 216, 143, 0.14);
+  --shell-warning: #ecd97d;
+  --shell-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+  --shell-radius: 26px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body.notes-shell-enabled {
+  margin: 0;
+  min-height: 100vh;
+  padding-top: 112px;
+  background:
+    radial-gradient(circle at top left, rgba(118, 216, 143, 0.14), transparent 28%),
+    radial-gradient(circle at 85% 15%, rgba(213, 245, 141, 0.08), transparent 22%),
+    radial-gradient(circle at 78% 78%, rgba(98, 165, 106, 0.12), transparent 24%),
+    linear-gradient(180deg, #06100b 0%, #08120d 48%, #050b08 100%);
+  color: var(--shell-text);
+  font-family: "Outfit", sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body.notes-shell-enabled::before,
+body.notes-shell-enabled::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.notes-shell-enabled::before {
+  background:
+    radial-gradient(circle at 18% 10%, rgba(118, 216, 143, 0.08), transparent 24%),
+    radial-gradient(circle at 82% 84%, rgba(213, 245, 141, 0.08), transparent 22%);
+}
+
+body.notes-shell-enabled::after {
+  background-image:
+    linear-gradient(rgba(146, 190, 152, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(146, 190, 152, 0.045) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent 76%);
+}
+
+body.notes-shell-enabled a {
+  color: inherit;
+  text-decoration: none;
+}
+
+body.notes-shell-enabled button,
+body.notes-shell-enabled input,
+body.notes-shell-enabled select {
+  font: inherit;
+}
+
+body.notes-shell-enabled main,
+body.notes-shell-enabled footer {
+  position: relative;
+  z-index: 1;
+}
+
+.notes-shell-skip-link {
+  position: fixed;
+  top: -48px;
+  left: 24px;
+  z-index: 150;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--shell-accent-strong);
+  color: #07110c;
+  font-weight: 700;
+  transition: top 0.2s ease;
+}
+
+.notes-shell-skip-link:focus {
+  top: 18px;
+}
+
+.notes-shell-topbar {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1240px, calc(100% - 28px));
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 18px;
+  border: 1px solid var(--shell-border);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(12, 25, 17, 0.92), rgba(8, 18, 13, 0.88));
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shell-shadow);
+  z-index: 110;
+}
+
+.notes-shell-brand-row,
+.notes-shell-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.notes-shell-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.notes-shell-brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(118, 216, 143, 0.2), rgba(213, 245, 141, 0.22));
+  border: 1px solid var(--shell-border-strong);
+  color: var(--shell-accent-strong);
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.notes-shell-brand-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.notes-shell-brand-copy strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.notes-shell-brand-copy span {
+  color: var(--shell-text-dim);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.notes-shell-nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.notes-shell-nav a,
+.notes-shell-btn {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--shell-text-soft);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.notes-shell-nav a:hover,
+.notes-shell-nav a:focus-visible,
+.notes-shell-btn:hover,
+.notes-shell-btn:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--shell-border-strong);
+  background: rgba(118, 216, 143, 0.08);
+  color: var(--shell-text);
+  outline: none;
+}
+
+.notes-shell-btn-primary {
+  background: linear-gradient(135deg, rgba(118, 216, 143, 0.16), rgba(213, 245, 141, 0.14));
+  border-color: rgba(166, 228, 155, 0.2);
+  color: var(--shell-accent-strong);
+}
+
+.notes-shell-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+}
+
+.notes-shell-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.notes-shell-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 6, 0.62);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 108;
+}
+
+body.notes-shell-drawer-open .notes-shell-overlay,
+body.notes-shell-palette-open .notes-shell-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.notes-shell-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(380px, calc(100vw - 32px));
+  padding: 24px;
+  background: linear-gradient(180deg, rgba(8, 16, 12, 0.98), rgba(9, 20, 14, 0.98));
+  border-right: 1px solid var(--shell-border);
+  box-shadow: var(--shell-shadow);
+  transform: translateX(-102%);
+  transition: transform 0.24s ease;
+  z-index: 109;
+  overflow-y: auto;
+}
+
+body.notes-shell-drawer-open .notes-shell-drawer {
+  transform: translateX(0);
+}
+
+.notes-shell-drawer-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+
+.notes-shell-kicker {
+  color: var(--shell-text-dim);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.notes-shell-drawer h2 {
+  margin: 6px 0 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.notes-shell-section {
+  margin-top: 22px;
+}
+
+.notes-shell-section h3 {
+  margin: 0 0 10px;
+  color: var(--shell-text-dim);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.notes-shell-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.notes-shell-link-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--shell-border);
+  background: rgba(14, 27, 20, 0.72);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.notes-shell-link-card:hover,
+.notes-shell-link-card:focus-visible {
+  transform: translateX(4px);
+  border-color: var(--shell-border-strong);
+  background: rgba(21, 40, 29, 0.9);
+  outline: none;
+}
+
+.notes-shell-link-card strong {
+  display: block;
+  font-size: 0.98rem;
+}
+
+.notes-shell-link-card span {
+  color: var(--shell-text-dim);
+  font-size: 0.84rem;
+}
+
+.notes-shell-mini-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(118, 216, 143, 0.12);
+  color: var(--shell-accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.notes-shell-palette {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: start center;
+  padding: 100px 16px 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 111;
+}
+
+body.notes-shell-palette-open .notes-shell-palette {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.notes-shell-palette-card {
+  width: min(760px, 100%);
+  border-radius: 28px;
+  border: 1px solid var(--shell-border);
+  background: linear-gradient(180deg, rgba(12, 24, 17, 0.98), rgba(9, 17, 12, 0.96));
+  box-shadow: var(--shell-shadow);
+  overflow: hidden;
+}
+
+.notes-shell-palette-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  padding: 18px;
+  border-bottom: 1px solid var(--shell-border);
+}
+
+.notes-shell-palette-head input {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: rgba(19, 37, 25, 0.92);
+  color: var(--shell-text);
+  padding: 14px 16px;
+  outline: none;
+}
+
+.notes-shell-palette-head input:focus {
+  border-color: rgba(118, 216, 143, 0.38);
+  box-shadow: 0 0 0 4px rgba(118, 216, 143, 0.12);
+}
+
+.notes-shell-palette-results {
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.notes-shell-palette-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--shell-border);
+  background: rgba(14, 27, 20, 0.8);
+}
+
+.notes-shell-palette-item strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.notes-shell-palette-item span {
+  color: var(--shell-text-dim);
+  font-size: 0.86rem;
+}
+
+.notes-shell-palette-tag {
+  color: var(--shell-accent-strong);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.notes-shell-palette-empty {
+  padding: 18px;
+  color: var(--shell-text-dim);
+}
+
+.notes-shell-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 105;
+}
+
+.notes-shell-fab .notes-shell-btn {
+  min-width: 52px;
+  justify-content: center;
+  padding: 0 16px;
+  border-color: var(--shell-border);
+  background: rgba(12, 22, 17, 0.9);
+  box-shadow: var(--shell-shadow);
+}
+
+@media (max-width: 980px) {
+  .notes-shell-topbar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .notes-shell-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  body.notes-shell-enabled {
+    padding-top: 98px;
+  }
+
+  .notes-shell-topbar {
+    width: min(100% - 18px, 1240px);
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .notes-shell-brand-copy span {
+    display: none;
+  }
+
+  .notes-shell-toolbar .notes-shell-btn span:not(.notes-shell-icon) {
+    display: none;
+  }
+
+  .notes-shell-toolbar .notes-shell-btn {
+    min-width: 42px;
+    justify-content: center;
+    padding: 0 12px;
+  }
+
+  .notes-shell-fab {
+    right: 12px;
+    bottom: 12px;
+  }
+}

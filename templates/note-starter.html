@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verdant Note Starter</title>
+  <meta
+    name="description"
+    content="Starter template for future notes that reuse the shared hamburger menu and toolbar."
+  >
+  <link rel="stylesheet" href="../assets/css/shell.css">
+  <link rel="stylesheet" href="../assets/css/note-template.css">
+  <script src="../assets/js/notes-manifest.js" defer></script>
+  <script src="../assets/js/notes-data.js" defer></script>
+  <script src="../assets/js/site-shell.js" defer data-root=".."></script>
+</head>
+<body data-page-type="note">
+  <main id="main-content" class="template-page">
+    <section class="template-hero" id="intro" data-nav-label="Intro">
+      <div class="template-kicker">Starter template</div>
+      <h1>Use this as the base for future note pages.</h1>
+      <p>
+        This file lives outside the <code>notes/</code> folder on purpose. Copy it into
+        <code>notes/</code>, rename it, replace the content, and keep the shared shell scripts
+        so the same hamburger menu, toolbar, and quick-search UI stay reusable.
+      </p>
+
+      <div class="template-stat-row">
+        <div class="template-stat">
+          <span>Hamburger menu</span>
+          <strong>Shared</strong>
+        </div>
+        <div class="template-stat">
+          <span>Toolbar actions</span>
+          <strong>Search + random + share</strong>
+        </div>
+        <div class="template-stat">
+          <span>Future usage</span>
+          <strong>Copy into notes/</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="template-section" id="structure" data-nav-label="Structure">
+      <h2>Suggested structure</h2>
+      <p>
+        Keep sections with ids and clear headings. The shared shell reads those sections and
+        automatically builds the drawer navigation and command palette entries for the page.
+      </p>
+
+      <div class="template-grid">
+        <article class="template-card">
+          <h3>Hero</h3>
+          <p>Start with a short page summary so the note feels complete from the top.</p>
+        </article>
+        <article class="template-card">
+          <h3>Sections</h3>
+          <p>Use section ids like <code>overview</code>, <code>examples</code>, or <code>summary</code>.</p>
+        </article>
+        <article class="template-card">
+          <h3>Code blocks</h3>
+          <p>Use readable examples. The dark-green shell styling already supports them well.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="template-section" id="snippet" data-nav-label="Snippet">
+      <h2>Shell snippet to keep</h2>
+      <p>
+        When you copy this template into <code>notes/</code>, these relative paths still work,
+        because <code>notes/</code> and <code>templates/</code> are both siblings of <code>assets/</code>.
+      </p>
+
+      <pre><code>&lt;link rel="stylesheet" href="../assets/css/shell.css"&gt;
+&lt;link rel="stylesheet" href="../assets/css/note-template.css"&gt;
+
+&lt;script src="../assets/js/notes-manifest.js" defer&gt;&lt;/script&gt;
+&lt;script src="../assets/js/notes-data.js" defer&gt;&lt;/script&gt;
+&lt;script src="../assets/js/site-shell.js" defer data-root=".."&gt;&lt;/script&gt;</code></pre>
+    </section>
+
+    <section class="template-callout" id="checklist" data-nav-label="Checklist">
+      <h2>Quick checklist</h2>
+      <p>Before you add a new note, this is the easiest path:</p>
+
+      <div class="template-checklist">
+        <div>Copy this file into <code>notes/</code> and rename it.</div>
+        <div>Replace the demo sections with your actual note content.</div>
+        <div>Add a manifest entry later if you want richer homepage metadata.</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
