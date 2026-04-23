@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binary Search Tree — Complete Visual Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #080c14;
+    --bg2: #0d1220;
+    --bg3: #111827;
+    --surface: #141d2e;
+    --surface2: #1a2540;
+    --border: #1e2d47;
+    --accent: #38bdf8;
+    --accent2: #818cf8;
+    --accent3: #34d399;
+    --accent4: #f59e0b;
+    --accent5: #f87171;
+    --accent6: #c084fc;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #475569;
+    --node-default: #1e3a5f;
+    --node-stroke: #38bdf8;
+    --node-highlight: #0ea5e9;
+    --node-found: #059669;
+    --node-visiting: #d97706;
+    --node-deleted: #dc2626;
+    --node-inserted: #7c3aed;
+    --node-compare: #ea580c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── HEADER ─────────────────────────────── */
+  header {
+    background: linear-gradient(135deg, #080c14 0%, #0d1a2e 50%, #080c14 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: 0;
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(129,140,248,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent3);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e2e8f0 0%, #38bdf8 50%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 14px;
+  }
+  .header-sub {
+    color: var(--text2);
+    font-size: 1rem;
+    max-width: 600px;
+    font-weight: 400;
+  }
+
+  /* ─── LAYOUT ─────────────────────────────── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+
+  /* ─── TOC ────────────────────────────────── */
+  nav.toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin: 40px auto;
+    max-width: 1100px;
+    margin-left: 28px;
+    margin-right: 28px;
+  }
+  nav.toc h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px;
+  }
+  .toc-grid a {
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 0.875rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toc-grid a:hover { background: var(--surface2); border-color: var(--border); color: var(--accent); }
+  .toc-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent3); min-width: 20px; }
+
+  /* ─── SECTION ────────────────────────────── */
+  section {
+    max-width: 1100px;
+    margin: 0 auto 60px;
+    padding: 0 28px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent3);
+    background: rgba(52,211,153,0.1);
+    border: 1px solid rgba(52,211,153,0.25);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 12px;
+    margin-top: 24px;
+  }
+  p { color: var(--text2); margin-bottom: 14px; font-size: 0.95rem; }
+  strong { color: var(--text); }
+
+  /* ─── CARDS ──────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  @media(max-width: 700px) { .card-row { grid-template-columns: 1fr; } }
+
+  /* ─── CODE ───────────────────────────────── */
+  .code-block {
+    background: #050810;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin: 16px 0;
+    color: #c9d1d9;
+  }
+  .kw { color: #818cf8; }
+  .ty { color: #38bdf8; }
+  .fn { color: #f59e0b; }
+  .cm { color: #475569; }
+  .st { color: #34d399; }
+  .nm { color: #f87171; }
+
+  /* ─── CANVAS WRAPPERS ────────────────────── */
+  .canvas-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+    position: relative;
+  }
+  canvas { display: block; border-radius: 8px; }
+
+  /* ─── CONTROLS ───────────────────────────── */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 14px 0;
+  }
+  .btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .btn.danger:hover { background: var(--accent5); border-color: var(--accent5); }
+  .btn.success:hover { background: var(--accent3); color: var(--bg); border-color: var(--accent3); }
+
+  input[type=number], input[type=text] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    width: 90px;
+  }
+  input[type=number]:focus, input[type=text]:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  /* ─── STATUS LOG ─────────────────────────── */
+  .log {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent3);
+    min-height: 36px;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  /* ─── TRAVERSAL DISPLAY ──────────────────── */
+  .traversal-output {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+    min-height: 36px;
+  }
+  .tval {
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s;
+  }
+  .tval.show { opacity: 1; transform: scale(1); }
+
+  /* ─── COMPLEXITY TABLE ───────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    margin: 16px 0;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--accent);
+    padding: 10px 14px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(30,45,71,0.6);
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ─── PILL BADGE ─────────────────────────── */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+  }
+  .badge-blue { background: rgba(56,189,248,0.15); color: var(--accent); border: 1px solid rgba(56,189,248,0.3); }
+  .badge-green { background: rgba(52,211,153,0.15); color: var(--accent3); border: 1px solid rgba(52,211,153,0.3); }
+  .badge-red { background: rgba(248,113,113,0.15); color: var(--accent5); border: 1px solid rgba(248,113,113,0.3); }
+  .badge-yellow { background: rgba(245,158,11,0.15); color: var(--accent4); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-purple { background: rgba(192,132,252,0.15); color: var(--accent6); border: 1px solid rgba(192,132,252,0.3); }
+
+  /* ─── LEGEND ─────────────────────────────── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text2);
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 2px solid;
+    flex-shrink: 0;
+  }
+
+  /* ─── SPEED SLIDER ───────────────────────── */
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 120px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  /* ─── PROPERTY BOX ───────────────────────── */
+  .prop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .prop-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .prop-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .prop-value {
+    font-size: 0.9rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* playground */
+  .playground-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 16px;
+  }
+  @media(max-width: 800px) { .playground-grid { grid-template-columns: 1fr; } }
+  .sidebar-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .sidebar-panel h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+  .op-row { display: flex; gap: 6px; align-items: center; }
+  .op-row input { flex: 1; }
+  .tree-info {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text2);
+    line-height: 1.8;
+  }
+  .tree-info span { color: var(--accent3); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════ -->
+<header>
+  <div class="container">
+    <div class="header-tag">CSCI — Data Structures</div>
+    <h1>Binary Search Tree</h1>
+    <p class="header-sub">Complete visual guide to every fundamental BST algorithm — insert, delete, search, all traversals, validation, and more. Fully interactive.</p>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     TABLE OF CONTENTS
+═══════════════════════════════════════════════════════ -->
+<nav class="toc">
+  <h3>// Contents</h3>
+  <div class="toc-grid">
+    <a href="#s1"><span class="toc-num">01</span>What is a BST?</a>
+    <a href="#s2"><span class="toc-num">02</span>Node Structure &amp; Anatomy</a>
+    <a href="#s3"><span class="toc-num">03</span>Insert</a>
+    <a href="#s4"><span class="toc-num">04</span>Search</a>
+    <a href="#s5"><span class="toc-num">05</span>Delete (3 Cases)</a>
+    <a href="#s6"><span class="toc-num">06</span>Inorder Traversal</a>
+    <a href="#s7"><span class="toc-num">07</span>Preorder Traversal</a>
+    <a href="#s8"><span class="toc-num">08</span>Postorder Traversal</a>
+    <a href="#s9"><span class="toc-num">09</span>Level-Order (BFS)</a>
+    <a href="#s10"><span class="toc-num">10</span>Min &amp; Max</a>
+    <a href="#s11"><span class="toc-num">11</span>Height &amp; Depth</a>
+    <a href="#s12"><span class="toc-num">12</span>Predecessor &amp; Successor</a>
+    <a href="#s13"><span class="toc-num">13</span>Validate BST</a>
+    <a href="#s14"><span class="toc-num">14</span>Interactive Playground</a>
+    <a href="#s15"><span class="toc-num">15</span>Complexity Cheat Sheet</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     S1 — WHAT IS A BST
+═══════════════════════════════════════════════════════ -->
+<section id="s1">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2>What is a BST?</h2>
+  </div>
+  <p>A <strong>Binary Search Tree</strong> is a binary tree where every node obeys one rule: all values in the left subtree are strictly less than the node, and all values in the right subtree are strictly greater. That single constraint is what makes everything efficient.</p>
+  <p>Because of it, you can make a binary decision at every node — go left or go right — and eliminate half the remaining tree each time. That's why search works in O(log n) on a balanced tree. It's the same reason binary search on a sorted array works. The BST just encodes that sorted structure into a tree shape.</p>
+
+  <div class="card">
+    <h3>The Core Property</h3>
+    <div style="text-align:center; padding: 20px 0;">
+      <canvas id="c_property" width="700" height="220" style="max-width:100%;"></canvas>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#38bdf8;border-color:#38bdf8;"></div>Root node</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#34d399;border-color:#34d399;"></div>Left child (smaller)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;border-color:#f59e0b;"></div>Right child (larger)</div>
+    </div>
+  </div>
+
+  <div class="card-row">
+    <div class="card" style="margin:0">
+      <h3>✓ Valid BST</h3>
+      <p>Every node's left subtree contains only values &lt; node. Every node's right subtree contains only values &gt; node. This applies recursively at every level, not just between parent and child.</p>
+    </div>
+    <div class="card" style="margin:0">
+      <h3>✗ Common Mistake</h3>
+      <p>Checking only parent-child pairs isn't enough. A node must be less than ALL ancestors on its right path and greater than ALL ancestors on its left path — that's what the validation algorithm checks.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S2 — NODE STRUCTURE
+═══════════════════════════════════════════════════════ -->
+<section id="s2">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2>Node Structure &amp; Tree Anatomy</h2>
+  </div>
+  <p>Each node holds a value and two pointers — left and right. That's it. The tree itself is often represented by just a pointer to the root node. Everything else is a property that emerges from the shape of the connections.</p>
+
+  <div class="card-row">
+    <div class="card" style="margin:0">
+      <div class="code-block">
+<span class="kw">struct</span> <span class="ty">Node</span> {<br>
+&nbsp;&nbsp;<span class="kw">int</span> <span class="nm">data</span>;<br>
+&nbsp;&nbsp;<span class="ty">Node</span>* <span class="nm">left</span>;<br>
+&nbsp;&nbsp;<span class="ty">Node</span>* <span class="nm">right</span>;<br><br>
+&nbsp;&nbsp;<span class="fn">Node</span>(<span class="kw">int</span> val)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;: <span class="nm">data</span>(val), <span class="nm">left</span>(<span class="kw">nullptr</span>),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">right</span>(<span class="kw">nullptr</span>) {}<br>
+};</span>
+      </div>
+    </div>
+    <div class="card" style="margin:0">
+      <div class="prop-grid">
+        <div class="prop-box">
+          <div class="prop-label">Root</div>
+          <div class="prop-value" style="color:var(--accent)">Top node, no parent</div>
+        </div>
+        <div class="prop-box">
+          <div class="prop-label">Leaf</div>
+          <div class="prop-value" style="color:var(--accent3)">No children</div>
+        </div>
+        <div class="prop-box">
+          <div class="prop-label">Height</div>
+          <div class="prop-value" style="color:var(--accent4)">Max depth of tree</div>
+        </div>
+        <div class="prop-box">
+          <div class="prop-label">Depth</div>
+          <div class="prop-value" style="color:var(--accent6)">Distance from root</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="c_anatomy" width="900" height="280" style="max-width:100%;"></canvas>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent);border-color:var(--accent);"></div>Root (depth 0)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent2);border-color:var(--accent2);"></div>Internal nodes</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent3);border-color:var(--accent3);"></div>Leaf nodes</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S3 — INSERT
+═══════════════════════════════════════════════════════ -->
+<section id="s3">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2>Insert</h2>
+  </div>
+  <p>Inserting is just a guided descent. Start at the root. At each node, compare your value — if it's less, go left; if it's greater, go right. Keep going until you fall off the tree. That's where your new node goes.</p>
+  <p>The key insight: the path you take determines the exact position where the node must land to preserve the BST property. You don't choose the position — the tree tells you where it goes.</p>
+
+  <div class="code-block">
+<span class="ty">Node</span>* <span class="fn">insert</span>(<span class="ty">Node</span>* <span class="nm">root</span>, <span class="kw">int</span> <span class="nm">val</span>) {<br>
+&nbsp;&nbsp;<span class="kw">if</span> (<span class="nm">root</span> == <span class="kw">nullptr</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return new</span> <span class="ty">Node</span>(<span class="nm">val</span>); <span class="cm">// found the spot</span><br><br>
+&nbsp;&nbsp;<span class="kw">if</span> (<span class="nm">val</span> &lt; <span class="nm">root</span>-&gt;<span class="nm">data</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">root</span>-&gt;<span class="nm">left</span> = <span class="fn">insert</span>(<span class="nm">root</span>-&gt;<span class="nm">left</span>, <span class="nm">val</span>);<br>
+&nbsp;&nbsp;<span class="kw">else if</span> (<span class="nm">val</span> &gt; <span class="nm">root</span>-&gt;<span class="nm">data</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">root</span>-&gt;<span class="nm">right</span> = <span class="fn">insert</span>(<span class="nm">root</span>-&gt;<span class="nm">right</span>, <span class="nm">val</span>);<br>
+&nbsp;&nbsp;<span class="cm">// duplicates ignored</span><br>
+&nbsp;&nbsp;<span class="kw">return</span> <span class="nm">root</span>;<br>
+}
+  </div>
+
+  <div class="card">
+    <h3>Step-by-step Animated Insert</h3>
+    <div class="controls">
+      <input type="number" id="ins_val" value="15" min="1" max="99">
+      <button class="btn success" onclick="animateInsert()">Insert Value</button>
+      <button class="btn" onclick="resetInsertTree()">Reset Tree</button>
+      <label style="font-family:monospace;font-size:0.75rem;color:var(--text2)">Speed: <input type="range" id="ins_speed" min="300" max="1500" value="800" style="width:90px"></label>
+    </div>
+    <div class="canvas-wrap" style="padding:12px;">
+      <canvas id="c_insert" width="860" height="310" style="max-width:100%;"></canvas>
+    </div>
+    <div class="log" id="ins_log">Enter a value and click Insert to animate the path.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S4 — SEARCH
+═══════════════════════════════════════════════════════ -->
+<section id="s4">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2>Search</h2>
+  </div>
+  <p>Search mirrors insert exactly — you follow the same comparison logic down the tree. The difference is you're not placing anything; you're asking "is this value here?" If you reach null, the answer is no.</p>
+  <p>On a balanced tree, each comparison cuts the remaining candidates in half. That's O(log n). On a degenerate tree (like inserting values in sorted order), every node has only one child and it degrades to O(n) — essentially a linked list.</p>
+
+  <div class="code-block">
+<span class="ty">Node</span>* <span class="fn">search</span>(<span class="ty">Node</span>* <span class="nm">root</span>, <span class="kw">int</span> <span class="nm">val</span>) {<br>
+&nbsp;&nbsp;<span class="kw">if</span> (<span class="nm">root</span> == <span class="kw">nullptr</span> || <span class="nm">root</span>-&gt;<span class="nm">data</span> == <span class="nm">val</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> <span class="nm">root</span>; <span class="cm">// null = not found, non-null = found</span><br><br>
+&nbsp;&nbsp;<span class="kw">if</span> (<span class="nm">val</span> &lt; <span class="nm">root</span>-&gt;<span class="nm">data</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> <span class="fn">search</span>(<span class="nm">root</span>-&gt;<span class="nm">left</span>, <span class="nm">val</span>);<br>
+&nbsp;&nbsp;<span class="kw">return</span> <span class="fn">search</span>(<span class="nm">root</span>-&gt;<span class="nm">right</span>, <span class="nm">val</span>);<br>
+}
+  </div>
+
+  <div class="card">
+    <h3>Animate a Search</h3>
+    <div class="controls">
+      <input type="number" id="srch_val" value="35" min="1" max="99">
+      <button class="btn" onclick="animateSearch()">Search Value</button>
+      <button class="btn danger" onclick="resetSearchTree()">Reset Tree</button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c_search" width="860" height="310" style="max-width:100%;"></canvas>
+    </div>
+    <div class="log" id="srch_log">Enter a value and click Search to trace the path.</div>
+    <div class="legend" style="margin-top:10px;">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--node-visiting);border-color:var(--node-visiting);"></div>Currently comparing</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--node-found);border-color:var(--node-found);"></div>Found!</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent5);border-color:var(--accent5);"></div>Not in tree</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S5 — DELETE
+═══════════════════════════════════════════════════════ -->
+<section id="s5">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2>Delete (3 Cases)</h2>
+  </div>
+  <p>Deletion is the trickiest operation. First you search for the node. Then you handle one of three cases depending on how many children it has. Get the case wrong and you either lose part of the tree or break the BST property.</p>
+
+  <div class="card-row">
+    <div class="card" style="margin:0;border-color:rgba(52,211,153,0.3);">
+      <h3 style="color:var(--accent3)">Case 1 — Leaf node</h3>
+      <p>Node has no children. Just remove it. Set the parent's pointer to null. Simplest case.</p>
+    </div>
+    <div class="card" style="margin:0;border-color:rgba(245,158,11,0.3);">
+      <h3 style="color:var(--accent4)">Case 2 — One child</h3>
+      <p>Node has one child. Bypass the node — connect the parent directly to its one grandchild. The subtree slides up by one level.</p>
+    </div>
+  </div>
+  <div class="card" style="border-color:rgba(192,132,252,0.3);margin-top:16px;">
+    <h3 style="color:var(--accent6)">Case 3 — Two children (hardest)</h3>
+    <p>You can't just remove it — the node is holding two subtrees together. The solution: replace the node's value with its <strong>inorder successor</strong> (the smallest value in the right subtree), then delete that successor from the right subtree. The successor either has no children or one right child, so deleting it is Case 1 or 2. The BST property is preserved because the successor was the smallest value greater than the deleted node.</p>
+  </div>
+
+  <div class="code-block">
+<span class="ty">Node</span>* <span class="fn">deleteNode</span>(<span class="ty">Node</span>* <span class="nm">root</span>, <span class="kw">int</span> <span class="nm">val</span>) {<br>
+&nbsp;&nbsp;<span class="kw">if</span> (!<span class="nm">root</span>) <span class="kw">return</span> <span class="kw">nullptr</span>;<br>
+&nbsp;&nbsp;<span class="kw">if</span> (<span class="nm">val</span> &lt; <span class="nm">root</span>-&gt;<span class="nm">data</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">root</span>-&gt;<span class="nm">left</span> = <span class="fn">deleteNode</span>(<span class="nm">root</span>-&gt;<span class="nm">left</span>, <span class="nm">val</span>);<br>
+&nbsp;&nbsp;<span class="kw">else if</span> (<span class="nm">val</span> &gt; <span class="nm">root</span>-&gt;<span class="nm">data</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">root</span>-&gt;<span class="nm">right</span> = <span class="fn">deleteNode</span>(<span class="nm">root</span>-&gt;<span class="nm">right</span>, <span class="nm">val</span>);<br>
+&nbsp;&nbsp;<span class="kw">else</span> {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (!<span class="nm">root</span>-&gt;<span class="nm">left</span>) { <span class="cm">// Case 1 or 2 (no left)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ty">Node</span>* <span class="nm">tmp</span> = <span class="nm">root</span>-&gt;<span class="nm">right</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">delete</span> <span class="nm">root</span>; <span class="kw">return</span> <span class="nm">tmp</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (!<span class="nm">root</span>-&gt;<span class="nm">right</span>) { <span class="cm">// Case 2 (no right)</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ty">Node</span>* <span class="nm">tmp</span> = <span class="nm">root</span>-&gt;<span class="nm">left</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">delete</span> <span class="nm">root</span>; <span class="kw">return</span> <span class="nm">tmp</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// Case 3: find inorder successor</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ty">Node</span>* <span class="nm">succ</span> = <span class="fn">findMin</span>(<span class="nm">root</span>-&gt;<span class="nm">right</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">root</span>-&gt;<span class="nm">data</span> = <span class="nm">succ</span>-&gt;<span class="nm">data</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">root</span>-&gt;<span class="nm">right</span> = <span class="fn">deleteNode</span>(<span class="nm">root</span>-&gt;<span class="nm">right</span>, <span class="nm">succ</span>-&gt;<span class="nm">data</span>);<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<span class="kw">return</span> <span class="nm">root</span>;<br>
+}
+  </div>
+
+  <div class="card">
+    <h3>Animate Deletion</h3>
+    <div class="controls">
+      <input type="number" id="del_val" value="30" min="1" max="99">
+      <button class="btn danger" onclick="animateDelete()">Delete Value</button>
+      <button class="btn" onclick="resetDeleteTree()">Reset Tree</button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c_delete" width="860" height="310" style="max-width:100%;"></canvas>
+    </div>
+    <div class="log" id="del_log">Enter a value and click Delete to animate the 3-case process.</div>
+    <div class="legend" style="margin-top:10px;">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--node-visiting);border-color:var(--node-visiting);"></div>Searching</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#dc2626;border-color:#dc2626;"></div>Target found</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent6);border-color:var(--accent6);"></div>Inorder successor</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S6 — INORDER
+═══════════════════════════════════════════════════════ -->
+<section id="s6">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2>Inorder Traversal</h2>
+  </div>
+  <p>Inorder visits nodes in the pattern: <strong>Left → Root → Right</strong>. For a BST, this always produces values in sorted ascending order. That's not a coincidence — it's a direct consequence of the BST property. If you want to extract all values sorted, inorder is how you do it.</p>
+
+  <div class="code-block">
+<span class="kw">void</span> <span class="fn">inorder</span>(<span class="ty">Node</span>* <span class="nm">root</span>) {<br>
+&nbsp;&nbsp;<span class="kw">if</span> (!<span class="nm">root</span>) <span class="kw">return</span>;<br>
+&nbsp;&nbsp;<span class="fn">inorder</span>(<span class="nm">root</span>-&gt;<span class="nm">left</span>);   <span class="cm">// 1. Left</span><br>
+&nbsp;&nbsp;cout &lt;&lt; <span class="nm">root</span>-&gt;<span class="nm">data</span>;      <span class="cm">// 2. Root</span><br>
+&nbsp;&nbsp;<span class="fn">inorder</span>(<span class="nm">root</span>-&gt;<span class="nm">right</span>);  <span class="cm">// 3. Right</span><br>
+}
+  </div>
+
+  <div class="card">
+    <h3>Animate Inorder</h3>
+    <div class="controls">
+      <button class="btn" onclick="animateTraversal('inorder')">▶ Run Inorder</button>
+      <button class="btn" onclick="resetTraversal()">Reset</button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c_trav" width="860" height="280" style="max-width:100%;"></canvas>
+    </div>
+    <div style="margin-top:10px;">
+      <div style="font-family:monospace;font-size:0.75rem;color:var(--text3);margin-bottom:6px;">Visit order:</div>
+      <div class="traversal-output" id="trav_output"></div>
+    </div>
+    <div class="log" id="trav_log">Click Run to animate. Output appears in sorted order.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S7 — PREORDER
+═══════════════════════════════════════════════════════ -->
+<section id="s7">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2>Preorder Traversal</h2>
+  </div>
+  <p>Preorder visits: <strong>Root → Left → Right</strong>. The root comes first, hence "pre." Useful for serializing a tree — if you save nodes in preorder and re-insert them, you get the same tree structure back. Also used for copying trees and printing expression trees.</p>
+
+  <div class="code-block">
+<span class="kw">void</span> <span class="fn">preorder</span>(<span class="ty">Node</span>* <span class="nm">root</span>) {<br>
+&nbsp;&nbsp;<span class="kw">if</span> (!<span class="nm">root</span>) <span class="kw">return</span>;<br>
+&nbsp;&nbsp;cout &lt;&lt; <span class="nm">root</span>-&gt;<span class="nm">data</span>;      <span class="cm">// 1. Root (first!)</span><br>
+&nbsp;&nbsp;<span class="fn">preorder</span>(<span class="nm">root</span>-&gt;<span class="nm">left</span>);  <span class="cm">// 2. Left</span><br>
+&nbsp;&nbsp;<span class="fn">preorder</span>(<span class="nm">root</span>-&gt;<span class="nm">right</span>); <span class="cm">// 3. Right</span><br>
+}
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="animateTraversal('preorder')">▶ Run Preorder</button>
+    <button class="btn" onclick="resetTraversal()">Reset</button>
+  </div>
+  <div class="canvas-wrap">
+    <canvas id="c_pre" width="860" height="280" style="max-width:100%;"></canvas>
+  </div>
+  <div style="margin-top:10px;">
+    <div style="font-family:monospace;font-size:0.75rem;color:var(--text3);margin-bottom:6px;">Visit order:</div>
+    <div class="traversal-output" id="pre_output"></div>
+  </div>
+  <div class="log" id="pre_log">Run preorder — root appears first in the output.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S8 — POSTORDER
+═══════════════════════════════════════════════════════ -->
+<section id="s8">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2>Postorder Traversal</h2>
+  </div>
+  <p>Postorder visits: <strong>Left → Right → Root</strong>. Root comes last. This is the right order for deleting a tree — you delete children before their parent, so you never lose a reference to something you still need. Also used for evaluating expression trees bottom-up.</p>
+
+  <div class="code-block">
+<span class="kw">void</span> <span class="fn">postorder</span>(<span class="ty">Node</span>* <span class="nm">root</span>) {<br>
+&nbsp;&nbsp;<span class="kw">if</span> (!<span class="nm">root</span>) <span class="kw">return</span>;<br>
+&nbsp;&nbsp;<span class="fn">postorder</span>(<span class="nm">root</span>-&gt;<span class="nm">left</span>);  <span class="cm">// 1. Left</span><br>
+&nbsp;&nbsp;<span class="fn">postorder</span>(<span class="nm">root</span>-&gt;<span class="nm">right</span>); <span class="cm">// 2. Right</span><br>
+&nbsp;&nbsp;cout &lt;&lt; <span class="nm">root</span>-&gt;<span class="nm">data</span>;      <span class="cm">// 3. Root (last!)</span><br>
+}
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="animateTraversal('postorder')">▶ Run Postorder</button>
+    <button class="btn" onclick="resetTraversal()">Reset</button>
+  </div>
+  <div class="canvas-wrap">
+    <canvas id="c_post" width="860" height="280" style="max-width:100%;"></canvas>
+  </div>
+  <div style="margin-top:10px;">
+    <div style="font-family:monospace;font-size:0.75rem;color:var(--text3);margin-bottom:6px;">Visit order:</div>
+    <div class="traversal-output" id="post_output"></div>
+  </div>
+  <div class="log" id="post_log">Run postorder — root appears last in the output.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S9 — LEVEL ORDER
+═══════════════════════════════════════════════════════ -->
+<section id="s9">
+  <div class="section-header">
+    <span class="section-num">09</span>
+    <h2>Level-Order Traversal (BFS)</h2>
+  </div>
+  <p>Level-order visits all nodes level by level, left to right. It uses a queue instead of recursion. You add the root, then process it, adding its children. Those children get processed next, adding their children. Width before depth.</p>
+  <p>This is breadth-first search applied to trees. It's used when you need the shortest path, or when you want to print a tree level by level, or when you need to find the minimum depth to a leaf.</p>
+
+  <div class="code-block">
+<span class="kw">void</span> <span class="fn">levelOrder</span>(<span class="ty">Node</span>* <span class="nm">root</span>) {<br>
+&nbsp;&nbsp;<span class="kw">if</span> (!<span class="nm">root</span>) <span class="kw">return</span>;<br>
+&nbsp;&nbsp;queue&lt;<span class="ty">Node</span>*&gt; <span class="nm">q</span>;<br>
+&nbsp;&nbsp;<span class="nm">q</span>.<span class="fn">push</span>(<span class="nm">root</span>);<br>
+&nbsp;&nbsp;<span class="kw">while</span> (!<span class="nm">q</span>.<span class="fn">empty</span>()) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ty">Node</span>* <span class="nm">cur</span> = <span class="nm">q</span>.<span class="fn">front</span>(); <span class="nm">q</span>.<span class="fn">pop</span>();<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cout &lt;&lt; <span class="nm">cur</span>-&gt;<span class="nm">data</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (<span class="nm">cur</span>-&gt;<span class="nm">left</span>)  <span class="nm">q</span>.<span class="fn">push</span>(<span class="nm">cur</span>-&gt;<span class="nm">left</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (<span class="nm">cur</span>-&gt;<span class="nm">right</span>) <span class="nm">q</span>.<span class="fn">push</span>(<span class="nm">cur</span>-&gt;<span class="nm">right</span>);<br>
+&nbsp;&nbsp;}<br>
+}
+  </div>
+
+  <div class="card">
+    <h3>Animate Level-Order</h3>
+    <div class="controls">
+      <button class="btn" onclick="animateLevelOrder()">▶ Run Level-Order</button>
+      <button class="btn" onclick="resetLevelOrder()">Reset</button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c_bfs" width="860" height="300" style="max-width:100%;"></canvas>
+    </div>
+    <div style="margin-top:10px;">
+      <div style="font-family:monospace;font-size:0.75rem;color:var(--text3);margin-bottom:6px;">Visit order:</div>
+      <div class="traversal-output" id="bfs_output"></div>
+    </div>
+    <div class="log" id="bfs_log">Level-order visits one full level before moving to the next.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S10 — MIN & MAX
+═══════════════════════════════════════════════════════ -->
+<section id="s10">
+  <div class="section-header">
+    <span class="section-num">10</span>
+    <h2>Min &amp; Max</h2>
+  </div>
+  <p>The minimum is always the leftmost node. The maximum is always the rightmost. You don't search — you just follow pointers in one direction until you can't go any further. Both are O(h) where h is height.</p>
+
+  <div class="card-row">
+    <div class="card" style="margin:0">
+      <h3 style="color:var(--accent3)">findMin</h3>
+      <div class="code-block" style="margin-top:10px;">
+<span class="ty">Node</span>* <span class="fn">findMin</span>(<span class="ty">Node</span>* <span class="nm">root</span>) {<br>
+&nbsp;&nbsp;<span class="kw">while</span> (<span class="nm">root</span>-&gt;<span class="nm">left</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">root</span> = <span class="nm">root</span>-&gt;<span class="nm">left</span>;<br>
+&nbsp;&nbsp;<span class="kw">return</span> <span class="nm">root</span>;<br>
+}
+      </div>
+    </div>
+    <div class="card" style="margin:0">
+      <h3 style="color:var(--accent4)">findMax</h3>
+      <div class="code-block" style="margin-top:10px;">
+<span class="ty">Node</span>* <span class="fn">findMax</span>(<span class="ty">Node</span>* <span class="nm">root</span>) {<br>
+&nbsp;&nbsp;<span class="kw">while</span> (<span class="nm">root</span>-&gt;<span class="nm">right</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">root</span> = <span class="nm">root</span>-&gt;<span class="nm">right</span>;<br>
+&nbsp;&nbsp;<span class="kw">return</span> <span class="nm">root</span>;<br>
+}
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3>Visualize Min &amp; Max Path</h3>
+    <div class="controls">
+      <button class="btn success" onclick="animateMinMax('min')">Find Min</button>
+      <button class="btn" onclick="animateMinMax('max')">Find Max</button>
+      <button class="btn" onclick="resetMinMax()">Reset</button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c_minmax" width="860" height="280" style="max-width:100%;"></canvas>
+    </div>
+    <div class="log" id="mm_log">Click Find Min or Find Max to trace the path.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S11 — HEIGHT & DEPTH
+═══════════════════════════════════════════════════════ -->
+<section id="s11">
+  <div class="section-header">
+    <span class="section-num">11</span>
+    <h2>Height &amp; Depth</h2>
+  </div>
+  <p><strong>Height</strong> is measured from a node downward — the number of edges on the longest path to a leaf. The height of the entire tree is the height of the root. An empty tree has height -1. A single node has height 0.</p>
+  <p><strong>Depth</strong> is measured from a node upward to the root. Root has depth 0. Every child's depth is parent depth + 1.</p>
+
+  <div class="code-block">
+<span class="kw">int</span> <span class="fn">height</span>(<span class="ty">Node</span>* <span class="nm">root</span>) {<br>
+&nbsp;&nbsp;<span class="kw">if</span> (!<span class="nm">root</span>) <span class="kw">return</span> -1; <span class="cm">// empty tree</span><br>
+&nbsp;&nbsp;<span class="kw">int</span> <span class="nm">lh</span> = <span class="fn">height</span>(<span class="nm">root</span>-&gt;<span class="nm">left</span>);<br>
+&nbsp;&nbsp;<span class="kw">int</span> <span class="nm">rh</span> = <span class="fn">height</span>(<span class="nm">root</span>-&gt;<span class="nm">right</span>);<br>
+&nbsp;&nbsp;<span class="kw">return</span> 1 + max(<span class="nm">lh</span>, <span class="nm">rh</span>);<br>
+}
+  </div>
+
+  <div class="card">
+    <h3>Interactive Height &amp; Depth Explorer</h3>
+    <div class="controls">
+      <button class="btn" onclick="showHeights()">Show Heights</button>
+      <button class="btn" onclick="showDepths()">Show Depths</button>
+      <button class="btn" onclick="resetHeightTree()">Reset</button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c_height" width="860" height="290" style="max-width:100%;"></canvas>
+    </div>
+    <div class="log" id="ht_log">Click Show Heights or Show Depths. Each node label updates to show the value.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S12 — PREDECESSOR & SUCCESSOR
+═══════════════════════════════════════════════════════ -->
+<section id="s12">
+  <div class="section-header">
+    <span class="section-num">12</span>
+    <h2>Predecessor &amp; Successor</h2>
+  </div>
+  <p>The <strong>inorder successor</strong> of a node is the next value in sorted order — the smallest value greater than it. The <strong>inorder predecessor</strong> is the previous — the largest value less than it.</p>
+
+  <div class="card-row">
+    <div class="card" style="margin:0;">
+      <h3 style="color:var(--accent2)">Successor Logic</h3>
+      <p style="font-size:0.85rem;">If the node has a right subtree, successor = minimum of that subtree. If no right subtree, the successor is the deepest ancestor for which you went left on the path from root.</p>
+      <div class="code-block" style="margin-top:8px;font-size:0.72rem;">
+<span class="ty">Node</span>* <span class="fn">successor</span>(<span class="ty">Node</span>* <span class="nm">root</span>, <span class="kw">int</span> <span class="nm">val</span>) {<br>
+&nbsp;&nbsp;<span class="ty">Node</span>* <span class="nm">succ</span> = <span class="kw">nullptr</span>;<br>
+&nbsp;&nbsp;<span class="kw">while</span> (<span class="nm">root</span>) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (<span class="nm">val</span> &lt; <span class="nm">root</span>-&gt;<span class="nm">data</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="nm">succ</span> = <span class="nm">root</span>; <span class="nm">root</span> = <span class="nm">root</span>-&gt;<span class="nm">left</span>; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else if</span> (<span class="nm">val</span> &gt; <span class="nm">root</span>-&gt;<span class="nm">data</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">root</span> = <span class="nm">root</span>-&gt;<span class="nm">right</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else</span> {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (<span class="nm">root</span>-&gt;<span class="nm">right</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">succ</span> = <span class="fn">findMin</span>(<span class="nm">root</span>-&gt;<span class="nm">right</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">break</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<span class="kw">return</span> <span class="nm">succ</span>;<br>
+}
+      </div>
+    </div>
+    <div class="card" style="margin:0;">
+      <h3 style="color:var(--accent4)">Predecessor Logic</h3>
+      <p style="font-size:0.85rem;">Mirror of successor. If node has a left subtree, predecessor = maximum of that subtree. Otherwise, it's the deepest ancestor for which you went right.</p>
+      <div class="code-block" style="margin-top:8px;font-size:0.72rem;">
+<span class="ty">Node</span>* <span class="fn">predecessor</span>(<span class="ty">Node</span>* <span class="nm">root</span>, <span class="kw">int</span> <span class="nm">val</span>) {<br>
+&nbsp;&nbsp;<span class="ty">Node</span>* <span class="nm">pred</span> = <span class="kw">nullptr</span>;<br>
+&nbsp;&nbsp;<span class="kw">while</span> (<span class="nm">root</span>) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (<span class="nm">val</span> &gt; <span class="nm">root</span>-&gt;<span class="nm">data</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="nm">pred</span> = <span class="nm">root</span>; <span class="nm">root</span> = <span class="nm">root</span>-&gt;<span class="nm">right</span>; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else if</span> (<span class="nm">val</span> &lt; <span class="nm">root</span>-&gt;<span class="nm">data</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">root</span> = <span class="nm">root</span>-&gt;<span class="nm">left</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else</span> {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (<span class="nm">root</span>-&gt;<span class="nm">left</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">pred</span> = <span class="fn">findMax</span>(<span class="nm">root</span>-&gt;<span class="nm">left</span>);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">break</span>;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<span class="kw">return</span> <span class="nm">pred</span>;<br>
+}
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3>Find Predecessor &amp; Successor</h3>
+    <div class="controls">
+      <input type="number" id="ps_val" value="40" min="1" max="99">
+      <button class="btn" style="border-color:var(--accent4);color:var(--accent4);" onclick="animatePred()">Find Predecessor</button>
+      <button class="btn" style="border-color:var(--accent2);color:var(--accent2);" onclick="animateSucc()">Find Successor</button>
+      <button class="btn" onclick="resetPS()">Reset</button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c_ps" width="860" height="290" style="max-width:100%;"></canvas>
+    </div>
+    <div class="log" id="ps_log">Select a value and find its predecessor or successor.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S13 — VALIDATE BST
+═══════════════════════════════════════════════════════ -->
+<section id="s13">
+  <div class="section-header">
+    <span class="section-num">13</span>
+    <h2>Validate BST</h2>
+  </div>
+  <p>The naive approach — checking each node is greater than its left child and less than its right child — doesn't work. It misses violations that span multiple levels. The correct approach tracks a valid range [min, max] for each node. When you go right, the minimum bound becomes the parent's value. When you go left, the maximum bound becomes the parent's value.</p>
+
+  <div class="code-block">
+<span class="kw">bool</span> <span class="fn">isValidBST</span>(<span class="ty">Node</span>* <span class="nm">root</span>,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">int</span> <span class="nm">minVal</span> = INT_MIN,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">int</span> <span class="nm">maxVal</span> = INT_MAX) {<br>
+&nbsp;&nbsp;<span class="kw">if</span> (!<span class="nm">root</span>) <span class="kw">return true</span>;<br>
+&nbsp;&nbsp;<span class="kw">if</span> (<span class="nm">root</span>-&gt;<span class="nm">data</span> &lt;= <span class="nm">minVal</span> ||<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nm">root</span>-&gt;<span class="nm">data</span> &gt;= <span class="nm">maxVal</span>)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return false</span>; <span class="cm">// out of valid range</span><br>
+&nbsp;&nbsp;<span class="kw">return</span> <span class="fn">isValidBST</span>(<span class="nm">root</span>-&gt;<span class="nm">left</span>, <span class="nm">minVal</span>, <span class="nm">root</span>-&gt;<span class="nm">data</span>) &amp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">isValidBST</span>(<span class="nm">root</span>-&gt;<span class="nm">right</span>, <span class="nm">root</span>-&gt;<span class="nm">data</span>, <span class="nm">maxVal</span>);<br>
+}
+  </div>
+
+  <div class="card">
+    <h3>Valid vs Invalid BST — Interactive</h3>
+    <div class="controls">
+      <button class="btn success" onclick="showValidBST()">Valid BST</button>
+      <button class="btn danger" onclick="showInvalidBST()">Invalid BST</button>
+      <button class="btn" onclick="runValidation()">Validate</button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="c_valid" width="860" height="290" style="max-width:100%;"></canvas>
+    </div>
+    <div class="log" id="valid_log">Select a tree then click Validate to animate the range-checking process.</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S14 — INTERACTIVE PLAYGROUND
+═══════════════════════════════════════════════════════ -->
+<section id="s14">
+  <div class="section-header">
+    <span class="section-num">14</span>
+    <h2>Interactive Playground</h2>
+  </div>
+  <p>Build your own BST. Insert and delete values, run any traversal, find min/max, and see the tree update live.</p>
+
+  <div class="playground-grid">
+    <div>
+      <div class="canvas-wrap" style="padding:10px;">
+        <canvas id="c_play" width="680" height="400" style="max-width:100%;cursor:pointer;"></canvas>
+      </div>
+    </div>
+    <div class="sidebar-panel">
+      <h4>// Build Tree</h4>
+      <div class="op-row">
+        <input type="number" id="play_val" placeholder="Value" min="1" max="999">
+        <button class="btn success" onclick="playInsert()">Insert</button>
+      </div>
+      <div class="op-row">
+        <input type="number" id="play_del" placeholder="Value" min="1" max="999">
+        <button class="btn danger" onclick="playDelete()">Delete</button>
+      </div>
+      <div class="op-row">
+        <input type="number" id="play_srch" placeholder="Value" min="1" max="999">
+        <button class="btn" onclick="playSearch()">Search</button>
+      </div>
+      <button class="btn" style="width:100%" onclick="playClear()">Clear Tree</button>
+      <button class="btn" style="width:100%" onclick="playRandom()">Random Tree</button>
+
+      <h4>// Traversals</h4>
+      <button class="btn" style="width:100%" onclick="playTraverse('inorder')">Inorder</button>
+      <button class="btn" style="width:100%" onclick="playTraverse('preorder')">Preorder</button>
+      <button class="btn" style="width:100%" onclick="playTraverse('postorder')">Postorder</button>
+      <button class="btn" style="width:100%" onclick="playTraverse('levelorder')">Level-Order</button>
+
+      <h4>// Info</h4>
+      <div class="tree-info" id="play_info">
+        Height: <span id="pi_h">–</span><br>
+        Nodes: <span id="pi_n">–</span><br>
+        Min: <span id="pi_min">–</span><br>
+        Max: <span id="pi_max">–</span><br>
+        Valid BST: <span id="pi_valid">–</span>
+      </div>
+      <div class="log" id="play_log" style="min-height:50px;">Insert values to begin.</div>
+    </div>
+  </div>
+  <div style="margin-top:12px;">
+    <div style="font-family:monospace;font-size:0.75rem;color:var(--text3);margin-bottom:6px;">Traversal output:</div>
+    <div class="traversal-output" id="play_output"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     S15 — CHEAT SHEET
+═══════════════════════════════════════════════════════ -->
+<section id="s15">
+  <div class="section-header">
+    <span class="section-num">15</span>
+    <h2>Complexity Cheat Sheet</h2>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Operation</th>
+          <th>Average Case</th>
+          <th>Worst Case (Skewed)</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Insert</td><td><span class="badge badge-green">O(log n)</span></td><td><span class="badge badge-red">O(n)</span></td><td>Worst when sorted input</td></tr>
+        <tr><td>Search</td><td><span class="badge badge-green">O(log n)</span></td><td><span class="badge badge-red">O(n)</span></td><td>Same traversal as insert</td></tr>
+        <tr><td>Delete</td><td><span class="badge badge-green">O(log n)</span></td><td><span class="badge badge-red">O(n)</span></td><td>Must find successor too</td></tr>
+        <tr><td>Find Min / Max</td><td><span class="badge badge-green">O(log n)</span></td><td><span class="badge badge-red">O(n)</span></td><td>Follow leftmost / rightmost</td></tr>
+        <tr><td>Inorder Traversal</td><td><span class="badge badge-blue">O(n)</span></td><td><span class="badge badge-blue">O(n)</span></td><td>Always visits every node</td></tr>
+        <tr><td>Preorder Traversal</td><td><span class="badge badge-blue">O(n)</span></td><td><span class="badge badge-blue">O(n)</span></td><td>Always visits every node</td></tr>
+        <tr><td>Postorder Traversal</td><td><span class="badge badge-blue">O(n)</span></td><td><span class="badge badge-blue">O(n)</span></td><td>Always visits every node</td></tr>
+        <tr><td>Level-Order</td><td><span class="badge badge-blue">O(n)</span></td><td><span class="badge badge-blue">O(n)</span></td><td>Queue holds up to O(n) nodes</td></tr>
+        <tr><td>Height</td><td><span class="badge badge-blue">O(n)</span></td><td><span class="badge badge-blue">O(n)</span></td><td>Must visit all nodes</td></tr>
+        <tr><td>Validate BST</td><td><span class="badge badge-blue">O(n)</span></td><td><span class="badge badge-blue">O(n)</span></td><td>Every node checked once</td></tr>
+        <tr><td>Space (recursive)</td><td><span class="badge badge-yellow">O(h)</span></td><td><span class="badge badge-yellow">O(n)</span></td><td>Call stack depth = height</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card-row" style="margin-top:0;">
+    <div class="card" style="margin:0;">
+      <h3>Traversal Summary</h3>
+      <table style="margin:0;">
+        <thead><tr><th>Traversal</th><th>Order</th><th>Output on BST</th></tr></thead>
+        <tbody>
+          <tr><td>Inorder</td><td>L → N → R</td><td>Sorted ascending</td></tr>
+          <tr><td>Preorder</td><td>N → L → R</td><td>Root first (good for copying)</td></tr>
+          <tr><td>Postorder</td><td>L → R → N</td><td>Root last (good for deleting)</td></tr>
+          <tr><td>Level-Order</td><td>BFS</td><td>Breadth first</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card" style="margin:0;">
+      <h3>Delete Case Summary</h3>
+      <table style="margin:0;">
+        <thead><tr><th>Case</th><th>Condition</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-green">1</span></td><td>No children</td><td>Remove node</td></tr>
+          <tr><td><span class="badge badge-yellow">2</span></td><td>One child</td><td>Bypass node</td></tr>
+          <tr><td><span class="badge badge-purple">3</span></td><td>Two children</td><td>Replace with inorder successor</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div style="height:80px;"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════ -->
+<script>
+// ════════════════════════════════════════════════════
+//  BST DATA STRUCTURE
+// ════════════════════════════════════════════════════
+class BST {
+  constructor() { this.root = null; }
+
+  insert(val, node = this.root) {
+    const newNode = { val, left: null, right: null };
+    if (!this.root) { this.root = newNode; return; }
+    let cur = this.root, parent = null;
+    while (cur) {
+      parent = cur;
+      if (val < cur.val) cur = cur.left;
+      else if (val > cur.val) cur = cur.right;
+      else return; // duplicate
+    }
+    if (val < parent.val) parent.left = newNode;
+    else parent.right = newNode;
+  }
+
+  delete(val) { this.root = this._del(this.root, val); }
+  _del(node, val) {
+    if (!node) return null;
+    if (val < node.val) { node.left = this._del(node.left, val); }
+    else if (val > node.val) { node.right = this._del(node.right, val); }
+    else {
+      if (!node.left) return node.right;
+      if (!node.right) return node.left;
+      let succ = node.right;
+      while (succ.left) succ = succ.left;
+      node.val = succ.val;
+      node.right = this._del(node.right, succ.val);
+    }
+    return node;
+  }
+
+  search(val) {
+    let cur = this.root;
+    while (cur) {
+      if (val === cur.val) return cur;
+      cur = val < cur.val ? cur.left : cur.right;
+    }
+    return null;
+  }
+
+  inorder(node = this.root, out = []) {
+    if (!node) return out;
+    this.inorder(node.left, out);
+    out.push(node.val);
+    this.inorder(node.right, out);
+    return out;
+  }
+
+  preorder(node = this.root, out = []) {
+    if (!node) return out;
+    out.push(node.val);
+    this.preorder(node.left, out);
+    this.preorder(node.right, out);
+    return out;
+  }
+
+  postorder(node = this.root, out = []) {
+    if (!node) return out;
+    this.postorder(node.left, out);
+    this.postorder(node.right, out);
+    out.push(node.val);
+    return out;
+  }
+
+  levelorder() {
+    if (!this.root) return [];
+    const q = [this.root], out = [];
+    while (q.length) {
+      const cur = q.shift();
+      out.push(cur.val);
+      if (cur.left) q.push(cur.left);
+      if (cur.right) q.push(cur.right);
+    }
+    return out;
+  }
+
+  height(node = this.root) {
+    if (!node) return -1;
+    return 1 + Math.max(this.height(node.left), this.height(node.right));
+  }
+
+  size(node = this.root) {
+    if (!node) return 0;
+    return 1 + this.size(node.left) + this.size(node.right);
+  }
+
+  min(node = this.root) {
+    if (!node) return null;
+    while (node.left) node = node.left;
+    return node.val;
+  }
+
+  max(node = this.root) {
+    if (!node) return null;
+    while (node.right) node = node.right;
+    return node.val;
+  }
+
+  isValid(node = this.root, lo = -Infinity, hi = Infinity) {
+    if (!node) return true;
+    if (node.val <= lo || node.val >= hi) return false;
+    return this.isValid(node.left, lo, node.val) && this.isValid(node.right, node.val, hi);
+  }
+
+  successor(val) {
+    let cur = this.root, succ = null;
+    while (cur) {
+      if (val < cur.val) { succ = cur; cur = cur.left; }
+      else if (val > cur.val) cur = cur.right;
+      else {
+        if (cur.right) { let s = cur.right; while (s.left) s = s.left; succ = s; }
+        break;
+      }
+    }
+    return succ ? succ.val : null;
+  }
+
+  predecessor(val) {
+    let cur = this.root, pred = null;
+    while (cur) {
+      if (val > cur.val) { pred = cur; cur = cur.right; }
+      else if (val < cur.val) cur = cur.left;
+      else {
+        if (cur.left) { let p = cur.left; while (p.right) p = p.right; pred = p; }
+        break;
+      }
+    }
+    return pred ? pred.val : null;
+  }
+}
+
+// ════════════════════════════════════════════════════
+//  DRAWING UTILITIES
+// ════════════════════════════════════════════════════
+const NODE_R = 22;
+const COLORS = {
+  default: { fill: '#1e3a5f', stroke: '#38bdf8', text: '#e2e8f0' },
+  highlight: { fill: '#0c4a6e', stroke: '#0ea5e9', text: '#38bdf8' },
+  visiting: { fill: '#451a03', stroke: '#f59e0b', text: '#fde68a' },
+  found: { fill: '#064e3b', stroke: '#34d399', text: '#6ee7b7' },
+  deleted: { fill: '#450a0a', stroke: '#f87171', text: '#fca5a5' },
+  inserted: { fill: '#3b0764', stroke: '#c084fc', text: '#e9d5ff' },
+  successor: { fill: '#2d1b69', stroke: '#818cf8', text: '#c7d2fe' },
+  predecessor: { fill: '#431407', stroke: '#fb923c', text: '#fed7aa' },
+  invalid: { fill: '#450a0a', stroke: '#f87171', text: '#fca5a5' },
+  valid_check: { fill: '#052e16', stroke: '#86efac', text: '#bbf7d0' },
+};
+
+function getNodePositions(root, canvasW, canvasH) {
+  const positions = new Map();
+  if (!root) return positions;
+  
+  function getH(node) {
+    if (!node) return -1;
+    return 1 + Math.max(getH(node.left), getH(node.right));
+  }
+  const h = getH(root);
+  const levels = Math.min(h + 1, 6);
+  const topY = 44;
+  const levelH = Math.min((canvasH - topY - 20) / Math.max(levels, 1), 70);
+
+  function assign(node, depth, lo, hi) {
+    if (!node || depth >= 6) return;
+    const x = (lo + hi) / 2;
+    const y = topY + depth * levelH;
+    positions.set(node, { x, y });
+    if (node.left) assign(node.left, depth + 1, lo, x);
+    if (node.right) assign(node.right, depth + 1, x, hi);
+  }
+  assign(root, 0, NODE_R + 10, canvasW - NODE_R - 10);
+  return positions;
+}
+
+function drawTree(ctx, root, positions, highlights = {}, labels = {}) {
+  if (!root) return;
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+  // draw edges first
+  function drawEdges(node) {
+    if (!node) return;
+    const pos = positions.get(node);
+    if (!pos) return;
+    if (node.left) {
+      const lpos = positions.get(node.left);
+      if (lpos) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#1e2d47';
+        ctx.lineWidth = 2;
+        ctx.moveTo(pos.x, pos.y);
+        ctx.lineTo(lpos.x, lpos.y);
+        ctx.stroke();
+      }
+      drawEdges(node.left);
+    }
+    if (node.right) {
+      const rpos = positions.get(node.right);
+      if (rpos) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#1e2d47';
+        ctx.lineWidth = 2;
+        ctx.moveTo(pos.x, pos.y);
+        ctx.lineTo(rpos.x, rpos.y);
+        ctx.stroke();
+      }
+      drawEdges(node.right);
+    }
+  }
+  drawEdges(root);
+
+  // draw nodes
+  function drawNodes(node) {
+    if (!node) return;
+    const pos = positions.get(node);
+    if (!pos) return;
+    const scheme = highlights[node.val] || COLORS.default;
+
+    // glow
+    if (highlights[node.val]) {
+      ctx.shadowColor = scheme.stroke;
+      ctx.shadowBlur = 14;
+    }
+
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, NODE_R, 0, Math.PI * 2);
+    ctx.fillStyle = scheme.fill;
+    ctx.fill();
+    ctx.strokeStyle = scheme.stroke;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = scheme.text;
+    ctx.font = 'bold 13px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(labels[node.val] !== undefined ? labels[node.val] : node.val, pos.x, pos.y);
+
+    drawNodes(node.left);
+    drawNodes(node.right);
+  }
+  drawNodes(root);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ════════════════════════════════════════════════════
+//  SECTION 1 — PROPERTY DIAGRAM
+// ════════════════════════════════════════════════════
+(function drawProperty() {
+  const c = document.getElementById('c_property');
+  const ctx = c.getContext('2d');
+  const W = c.offsetWidth || 700;
+  c.width = W;
+  c.height = 220;
+
+  const nodes = [
+    { val: 50, x: W/2, y: 50, color: '#38bdf8' },
+    { val: 30, x: W/2 - 150, y: 130, color: '#34d399' },
+    { val: 70, x: W/2 + 150, y: 130, color: '#f59e0b' },
+    { val: 20, x: W/2 - 220, y: 200, color: '#34d399' },
+    { val: 40, x: W/2 - 80, y: 200, color: '#34d399' },
+    { val: 60, x: W/2 + 80, y: 200, color: '#f59e0b' },
+    { val: 80, x: W/2 + 220, y: 200, color: '#f59e0b' },
+  ];
+  const edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]];
+
+  ctx.clearRect(0,0,W,220);
+  edges.forEach(([a,b]) => {
+    ctx.beginPath();
+    ctx.strokeStyle = '#1e2d47';
+    ctx.lineWidth = 2;
+    ctx.moveTo(nodes[a].x, nodes[a].y);
+    ctx.lineTo(nodes[b].x, nodes[b].y);
+    ctx.stroke();
+  });
+
+  nodes.forEach(n => {
+    ctx.shadowColor = n.color;
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, 22, 0, Math.PI*2);
+    ctx.fillStyle = '#111827';
+    ctx.fill();
+    ctx.strokeStyle = n.color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = n.color;
+    ctx.font = 'bold 13px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(n.val, n.x, n.y);
+  });
+
+  // label < >
+  ctx.font = '11px Syne, sans-serif';
+  ctx.fillStyle = '#475569';
+  ctx.textAlign = 'center';
+  ctx.fillText('< 50 (all left)', W/2 - 130, 96);
+  ctx.fillText('> 50 (all right)', W/2 + 130, 96);
+})();
+
+// ════════════════════════════════════════════════════
+//  SECTION 2 — ANATOMY
+// ════════════════════════════════════════════════════
+(function drawAnatomy() {
+  const c = document.getElementById('c_anatomy');
+  const ctx = c.getContext('2d');
+  const W = c.offsetWidth || 900;
+  c.width = W; c.height = 280;
+
+  const tree = new BST();
+  [40, 20, 60, 10, 30, 50, 80, 5, 15, 25, 70].forEach(v => tree.insert(v));
+  const pos = getNodePositions(tree.root, W, 280);
+
+  const leafColor = COLORS.found;
+  const internalColor = COLORS.highlight;
+  const rootColor = { fill: '#0c2a4a', stroke: '#38bdf8', text: '#38bdf8' };
+
+  const highlights = {};
+  function markLeaves(node) {
+    if (!node) return;
+    if (!node.left && !node.right) highlights[node.val] = leafColor;
+    else if (node === tree.root) highlights[node.val] = rootColor;
+    else highlights[node.val] = internalColor;
+    markLeaves(node.left);
+    markLeaves(node.right);
+  }
+  markLeaves(tree.root);
+
+  drawTree(ctx, tree.root, pos, highlights);
+
+  // depth labels
+  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.fillStyle = '#475569';
+  ctx.textAlign = 'left';
+  const depthY = [44, 114, 184, 254];
+  ['depth 0 (root)','depth 1','depth 2','depth 3 (leaves)'].forEach((l, i) => {
+    if (depthY[i] < 280) {
+      ctx.fillStyle = '#1e3a5f';
+      ctx.fillRect(4, depthY[i] - 8, 110, 16);
+      ctx.fillStyle = '#475569';
+      ctx.fillText(l, 6, depthY[i] + 2);
+    }
+  });
+})();
+
+// ════════════════════════════════════════════════════
+//  SHARED INSERT/SEARCH/DELETE TREES
+// ════════════════════════════════════════════════════
+const defaultVals = [50, 30, 70, 20, 40, 60, 80, 10, 45];
+
+let insTree = new BST(); defaultVals.forEach(v => insTree.insert(v));
+let srchTree = new BST(); defaultVals.forEach(v => srchTree.insert(v));
+let delTree = new BST(); defaultVals.forEach(v => delTree.insert(v));
+
+function getCtxW(id) {
+  const c = document.getElementById(id);
+  const W = c.parentElement.clientWidth - 24;
+  c.width = Math.max(W, 300);
+  return c;
+}
+
+function drawInsTree(highlights = {}) {
+  const c = document.getElementById('c_insert');
+  const ctx = c.getContext('2d');
+  c.width = c.parentElement.clientWidth - 24;
+  const pos = getNodePositions(insTree.root, c.width, c.height);
+  drawTree(ctx, insTree.root, pos, highlights);
+}
+
+function drawSrchTree(highlights = {}) {
+  const c = document.getElementById('c_search');
+  const ctx = c.getContext('2d');
+  c.width = c.parentElement.clientWidth - 24;
+  const pos = getNodePositions(srchTree.root, c.width, c.height);
+  drawTree(ctx, srchTree.root, pos, highlights);
+}
+
+function drawDelTree(highlights = {}) {
+  const c = document.getElementById('c_delete');
+  const ctx = c.getContext('2d');
+  c.width = c.parentElement.clientWidth - 24;
+  const pos = getNodePositions(delTree.root, c.width, c.height);
+  drawTree(ctx, delTree.root, pos, highlights);
+}
+
+drawInsTree(); drawSrchTree(); drawDelTree();
+
+function resetInsertTree() {
+  insTree = new BST(); defaultVals.forEach(v => insTree.insert(v));
+  drawInsTree();
+  document.getElementById('ins_log').textContent = 'Tree reset.';
+}
+function resetSearchTree() {
+  srchTree = new BST(); defaultVals.forEach(v => srchTree.insert(v));
+  drawSrchTree();
+  document.getElementById('srch_log').textContent = 'Tree reset.';
+}
+function resetDeleteTree() {
+  delTree = new BST(); defaultVals.forEach(v => delTree.insert(v));
+  drawDelTree();
+  document.getElementById('del_log').textContent = 'Tree reset.';
+}
+
+// ════════════════════════════════════════════════════
+//  S3 — ANIMATE INSERT
+// ════════════════════════════════════════════════════
+let insRunning = false;
+async function animateInsert() {
+  if (insRunning) return;
+  insRunning = true;
+  const val = parseInt(document.getElementById('ins_val').value);
+  const speed = parseInt(document.getElementById('ins_speed').value);
+  const log = document.getElementById('ins_log');
+  if (isNaN(val)) { log.textContent = 'Enter a valid number.'; insRunning = false; return; }
+
+  const path = [];
+  let cur = insTree.root;
+  while (cur) {
+    path.push(cur.val);
+    if (val === cur.val) { log.textContent = `${val} already exists in the tree.`; insRunning = false; return; }
+    cur = val < cur.val ? cur.left : cur.right;
+  }
+
+  const visited = {};
+  for (let i = 0; i < path.length; i++) {
+    visited[path[i]] = COLORS.visiting;
+    log.textContent = `Comparing ${val} with ${path[i]}: go ${val < path[i] ? 'LEFT' : 'RIGHT'}`;
+    drawInsTree(Object.assign({}, visited));
+    await sleep(speed);
+    visited[path[i]] = { fill: '#1a2030', stroke: '#334155', text: '#64748b' };
+  }
+
+  insTree.insert(val);
+  const newH = {};
+  newH[val] = COLORS.inserted;
+  log.textContent = `Inserted ${val}! ✓ (highlighted in purple)`;
+  drawInsTree(newH);
+  await sleep(1200);
+  drawInsTree();
+  insRunning = false;
+}
+
+// ════════════════════════════════════════════════════
+//  S4 — ANIMATE SEARCH
+// ════════════════════════════════════════════════════
+let srchRunning = false;
+async function animateSearch() {
+  if (srchRunning) return;
+  srchRunning = true;
+  const val = parseInt(document.getElementById('srch_val').value);
+  const log = document.getElementById('srch_log');
+  if (isNaN(val)) { log.textContent = 'Enter a valid number.'; srchRunning = false; return; }
+
+  const path = [];
+  let cur = srchTree.root;
+  while (cur) {
+    path.push(cur.val);
+    if (cur.val === val) break;
+    cur = val < cur.val ? cur.left : cur.right;
+  }
+
+  const visited = {};
+  for (let i = 0; i < path.length; i++) {
+    const isLast = i === path.length - 1;
+    visited[path[i]] = COLORS.visiting;
+    const found = isLast && path[i] === val;
+    if (!found) log.textContent = `Comparing: ${val} ${val < path[i] ? '<' : '>'} ${path[i]} → go ${val < path[i] ? 'LEFT' : 'RIGHT'}`;
+    drawSrchTree(Object.assign({}, visited));
+    await sleep(700);
+    if (i < path.length - 1) {
+      visited[path[i]] = { fill: '#0f1a2e', stroke: '#1e3a5f', text: '#475569' };
+    }
+  }
+
+  const finalH = {};
+  path.slice(0, -1).forEach(v => finalH[v] = { fill: '#0f1a2e', stroke: '#1e3a5f', text: '#475569' });
+  const found = path[path.length-1] === val;
+  finalH[path[path.length-1]] = found ? COLORS.found : COLORS.deleted;
+  log.textContent = found ? `Found ${val}! ✓` : `${val} not in tree. ✗`;
+  drawSrchTree(finalH);
+  srchRunning = false;
+}
+
+// ════════════════════════════════════════════════════
+//  S5 — ANIMATE DELETE
+// ════════════════════════════════════════════════════
+let delRunning = false;
+async function animateDelete() {
+  if (delRunning) return;
+  delRunning = true;
+  const val = parseInt(document.getElementById('del_val').value);
+  const log = document.getElementById('del_log');
+  if (isNaN(val)) { log.textContent = 'Enter a valid number.'; delRunning = false; return; }
+
+  // find path to node
+  const path = [];
+  let cur = delTree.root;
+  while (cur) {
+    path.push(cur.val);
+    if (cur.val === val) break;
+    cur = val < cur.val ? cur.left : cur.right;
+  }
+
+  if (!path.length || path[path.length-1] !== val) {
+    log.textContent = `${val} not found in tree.`;
+    delRunning = false; return;
+  }
+
+  // animate path
+  const visited = {};
+  for (let i = 0; i < path.length - 1; i++) {
+    visited[path[i]] = COLORS.visiting;
+    log.textContent = `Searching... at ${path[i]}`;
+    drawDelTree(Object.assign({}, visited));
+    await sleep(500);
+    visited[path[i]] = { fill: '#0f1a2e', stroke: '#1e3a5f', text: '#475569' };
+  }
+
+  // find the node and determine case
+  let target = delTree.root;
+  while (target && target.val !== val) target = val < target.val ? target.left : target.right;
+
+  const hasLeft = !!target.left, hasRight = !!target.right;
+  const H = {};
+  H[val] = COLORS.deleted;
+
+  if (!hasLeft && !hasRight) {
+    log.textContent = `${val} is a LEAF (Case 1) — simply remove it.`;
+    drawDelTree(H);
+    await sleep(1200);
+  } else if (!hasLeft || !hasRight) {
+    log.textContent = `${val} has ONE child (Case 2) — bypass it.`;
+    drawDelTree(H);
+    await sleep(1200);
+  } else {
+    // find inorder successor
+    let succ = target.right;
+    while (succ.left) succ = succ.left;
+    H[succ.val] = COLORS.successor;
+    log.textContent = `${val} has TWO children (Case 3) — inorder successor is ${succ.val}.`;
+    drawDelTree(H);
+    await sleep(1200);
+    log.textContent = `Replacing ${val} with ${succ.val}, then deleting ${succ.val} from right subtree.`;
+    await sleep(1000);
+  }
+
+  delTree.delete(val);
+  log.textContent = `Deleted ${val} successfully ✓`;
+  drawDelTree();
+  delRunning = false;
+}
+
+// ════════════════════════════════════════════════════
+//  S6/7/8 — TRAVERSAL CANVASES
+// ════════════════════════════════════════════════════
+const travTree = new BST();
+[40, 20, 60, 10, 30, 50, 80].forEach(v => travTree.insert(v));
+
+function initTravCanvas(id) {
+  const c = document.getElementById(id);
+  c.width = c.parentElement.clientWidth - 24;
+  const ctx = c.getContext('2d');
+  const pos = getNodePositions(travTree.root, c.width, c.height);
+  drawTree(ctx, travTree.root, pos);
+}
+initTravCanvas('c_trav');
+initTravCanvas('c_pre');
+initTravCanvas('c_post');
+
+function resetTraversal() {
+  initTravCanvas('c_trav'); initTravCanvas('c_pre'); initTravCanvas('c_post');
+  ['trav_output','pre_output','post_output'].forEach(id => document.getElementById(id).innerHTML = '');
+  ['trav_log','pre_log','post_log'].forEach(id => document.getElementById(id).textContent = 'Click Run to animate.');
+}
+
+let travRunning = false;
+async function animateTraversal(type) {
+  if (travRunning) return;
+  travRunning = true;
+
+  let canvasId, outputId, logId, order;
+  if (type === 'inorder') { canvasId = 'c_trav'; outputId = 'trav_output'; logId = 'trav_log'; }
+  else if (type === 'preorder') { canvasId = 'c_pre'; outputId = 'pre_output'; logId = 'pre_log'; }
+  else { canvasId = 'c_post'; outputId = 'post_output'; logId = 'post_log'; }
+
+  const c = document.getElementById(canvasId);
+  c.width = c.parentElement.clientWidth - 24;
+  const ctx = c.getContext('2d');
+  const pos = getNodePositions(travTree.root, c.width, c.height);
+  const outDiv = document.getElementById(outputId);
+  const log = document.getElementById(logId);
+  outDiv.innerHTML = '';
+
+  const sequence = [];
+  function inorder(n) { if(!n)return; inorder(n.left); sequence.push(n.val); inorder(n.right); }
+  function preorder(n) { if(!n)return; sequence.push(n.val); preorder(n.left); preorder(n.right); }
+  function postorder(n) { if(!n)return; postorder(n.left); postorder(n.right); sequence.push(n.val); }
+  if (type === 'inorder') inorder(travTree.root);
+  else if (type === 'preorder') preorder(travTree.root);
+  else postorder(travTree.root);
+
+  const visited = {};
+  for (const val of sequence) {
+    visited[val] = COLORS.visiting;
+    log.textContent = `Visiting node ${val}`;
+    drawTree(ctx, travTree.root, pos, Object.assign({}, visited));
+    await sleep(600);
+    visited[val] = COLORS.found;
+    drawTree(ctx, travTree.root, pos, Object.assign({}, visited));
+
+    const span = document.createElement('div');
+    span.className = 'tval';
+    span.textContent = val;
+    outDiv.appendChild(span);
+    requestAnimationFrame(() => requestAnimationFrame(() => span.classList.add('show')));
+    await sleep(200);
+  }
+  log.textContent = `Done! Visited ${sequence.length} nodes in ${type} order.`;
+  travRunning = false;
+}
+
+// ════════════════════════════════════════════════════
+//  S9 — LEVEL ORDER
+// ════════════════════════════════════════════════════
+const bfsTree = new BST();
+[40, 20, 60, 10, 30, 50, 80, 5, 70].forEach(v => bfsTree.insert(v));
+
+function initBFS() {
+  const c = document.getElementById('c_bfs');
+  c.width = c.parentElement.clientWidth - 24;
+  const ctx = c.getContext('2d');
+  const pos = getNodePositions(bfsTree.root, c.width, c.height);
+  drawTree(ctx, bfsTree.root, pos);
+}
+initBFS();
+
+function resetLevelOrder() {
+  initBFS();
+  document.getElementById('bfs_output').innerHTML = '';
+  document.getElementById('bfs_log').textContent = 'Level-order visits one full level before moving to the next.';
+}
+
+let bfsRunning = false;
+async function animateLevelOrder() {
+  if (bfsRunning) return;
+  bfsRunning = true;
+  const c = document.getElementById('c_bfs');
+  c.width = c.parentElement.clientWidth - 24;
+  const ctx = c.getContext('2d');
+  const pos = getNodePositions(bfsTree.root, c.width, c.height);
+  const outDiv = document.getElementById('bfs_output');
+  const log = document.getElementById('bfs_log');
+  outDiv.innerHTML = '';
+
+  const levelColors = [COLORS.visiting, COLORS.found, COLORS.inserted, COLORS.successor, COLORS.deleted];
+  const q = [{node: bfsTree.root, level: 0}];
+  const visited = {};
+  let step = 0;
+
+  while (q.length) {
+    const {node, level} = q.shift();
+    if (!node) continue;
+    visited[node.val] = levelColors[level % levelColors.length];
+    log.textContent = `Level ${level}: visiting ${node.val}`;
+    drawTree(ctx, bfsTree.root, pos, Object.assign({}, visited));
+
+    const span = document.createElement('div');
+    span.className = 'tval';
+    span.textContent = node.val;
+    span.style.borderColor = levelColors[level % levelColors.length].stroke;
+    span.style.color = levelColors[level % levelColors.length].stroke;
+    outDiv.appendChild(span);
+    requestAnimationFrame(() => requestAnimationFrame(() => span.classList.add('show')));
+
+    if (node.left) q.push({node: node.left, level: level+1});
+    if (node.right) q.push({node: node.right, level: level+1});
+    await sleep(550);
+    step++;
+  }
+  log.textContent = `Level-order complete. ${step} nodes visited.`;
+  bfsRunning = false;
+}
+
+// ════════════════════════════════════════════════════
+//  S10 — MIN MAX
+// ════════════════════════════════════════════════════
+const mmTree = new BST();
+[40, 20, 60, 10, 30, 50, 80, 5, 25].forEach(v => mmTree.insert(v));
+
+function initMM() {
+  const c = document.getElementById('c_minmax');
+  c.width = c.parentElement.clientWidth - 24;
+  const ctx = c.getContext('2d');
+  const pos = getNodePositions(mmTree.root, c.width, c.height);
+  drawTree(ctx, mmTree.root, pos);
+}
+initMM();
+
+function resetMinMax() { initMM(); document.getElementById('mm_log').textContent = 'Click Find Min or Find Max to trace the path.'; }
+
+let mmRunning = false;
+async function animateMinMax(type) {
+  if (mmRunning) return;
+  mmRunning = true;
+  const c = document.getElementById('c_minmax');
+  c.width = c.parentElement.clientWidth - 24;
+  const ctx = c.getContext('2d');
+  const pos = getNodePositions(mmTree.root, c.width, c.height);
+  const log = document.getElementById('mm_log');
+
+  const path = [];
+  let cur = mmTree.root;
+  while (cur) {
+    path.push(cur.val);
+    cur = type === 'min' ? cur.left : cur.right;
+  }
+
+  const visited = {};
+  for (let i = 0; i < path.length; i++) {
+    visited[path[i]] = i === path.length - 1 ? COLORS.found : COLORS.visiting;
+    log.textContent = i === path.length-1
+      ? `${type === 'min' ? 'Minimum' : 'Maximum'} found: ${path[i]} ✓`
+      : `Going ${type === 'min' ? 'left' : 'right'}... at ${path[i]}`;
+    drawTree(ctx, mmTree.root, pos, Object.assign({}, visited));
+    await sleep(600);
+    if (i < path.length - 1) visited[path[i]] = { fill: '#0f1a2e', stroke: '#1e3a5f', text: '#475569' };
+  }
+  mmRunning = false;
+}
+
+// ════════════════════════════════════════════════════
+//  S11 — HEIGHT & DEPTH
+// ════════════════════════════════════════════════════
+const htTree = new BST();
+[40, 20, 60, 10, 30, 50, 80, 5].forEach(v => htTree.insert(v));
+
+function initHT(labels = {}) {
+  const c = document.getElementById('c_height');
+  c.width = c.parentElement.clientWidth - 24;
+  const ctx = c.getContext('2d');
+  const pos = getNodePositions(htTree.root, c.width, c.height);
+  drawTree(ctx, htTree.root, pos, {}, labels);
+}
+initHT();
+
+function resetHeightTree() { initHT(); document.getElementById('ht_log').textContent = 'Click Show Heights or Show Depths.'; }
+
+function calcHeights(node) {
+  if (!node) return -1;
+  const l = calcHeights(node.left), r = calcHeights(node.right);
+  node._h = 1 + Math.max(l, r);
+  return node._h;
+}
+function calcDepths(node, d = 0) {
+  if (!node) return;
+  node._d = d;
+  calcDepths(node.left, d + 1);
+  calcDepths(node.right, d + 1);
+}
+
+function showHeights() {
+  calcHeights(htTree.root);
+  const labels = {};
+  function collect(n) { if (!n) return; labels[n.val] = `h=${n._h}`; collect(n.left); collect(n.right); }
+  collect(htTree.root);
+  initHT(labels);
+  document.getElementById('ht_log').textContent = `Tree height = ${htTree.height()} (root's h value). Each label shows that node's subtree height.`;
+}
+
+function showDepths() {
+  calcDepths(htTree.root);
+  const labels = {};
+  function collect(n) { if (!n) return; labels[n.val] = `d=${n._d}`; collect(n.left); collect(n.right); }
+  collect(htTree.root);
+  initHT(labels);
+  document.getElementById('ht_log').textContent = 'Each label shows that node\'s depth (distance from root). Root = depth 0.';
+}
+
+// ════════════════════════════════════════════════════
+//  S12 — PREDECESSOR & SUCCESSOR
+// ════════════════════════════════════════════════════
+const psTree = new BST();
+[50, 30, 70, 20, 40, 60, 80, 35, 45].forEach(v => psTree.insert(v));
+
+function initPS(highlights = {}) {
+  const c = document.getElementById('c_ps');
+  c.width = c.parentElement.clientWidth - 24;
+  const ctx = c.getContext('2d');
+  const pos = getNodePositions(psTree.root, c.width, c.height);
+  drawTree(ctx, psTree.root, pos, highlights);
+}
+initPS();
+
+function resetPS() { initPS(); document.getElementById('ps_log').textContent = 'Select a value and find its predecessor or successor.'; }
+
+let psRunning = false;
+async function animatePred() {
+  if (psRunning) return;
+  psRunning = true;
+  const val = parseInt(document.getElementById('ps_val').value);
+  const log = document.getElementById('ps_log');
+  const pred = psTree.predecessor(val);
+  const H = {};
+  H[val] = COLORS.visiting;
+  if (pred !== null) H[pred] = COLORS.predecessor;
+  initPS(H);
+  log.textContent = pred !== null ? `Predecessor of ${val} is ${pred} (largest value less than ${val})` : `${val} has no predecessor (it is the minimum).`;
+  psRunning = false;
+}
+
+async function animateSucc() {
+  if (psRunning) return;
+  psRunning = true;
+  const val = parseInt(document.getElementById('ps_val').value);
+  const log = document.getElementById('ps_log');
+  const succ = psTree.successor(val);
+  const H = {};
+  H[val] = COLORS.visiting;
+  if (succ !== null) H[succ] = COLORS.successor;
+  initPS(H);
+  log.textContent = succ !== null ? `Successor of ${val} is ${succ} (smallest value greater than ${val})` : `${val} has no successor (it is the maximum).`;
+  psRunning = false;
+}
+
+// ════════════════════════════════════════════════════
+//  S13 — VALIDATE BST
+// ════════════════════════════════════════════════════
+let validTree = new BST();
+[40, 20, 60, 10, 30, 50, 80].forEach(v => validTree.insert(v));
+let validIsValid = true;
+
+function initValid(highlights = {}) {
+  const c = document.getElementById('c_valid');
+  c.width = c.parentElement.clientWidth - 24;
+  const ctx = c.getContext('2d');
+  const pos = getNodePositions(validTree.root, c.width, c.height);
+  drawTree(ctx, validTree.root, pos, highlights);
+}
+initValid();
+
+function showValidBST() {
+  validTree = new BST();
+  [40, 20, 60, 10, 30, 50, 80].forEach(v => validTree.insert(v));
+  validIsValid = true;
+  initValid();
+  document.getElementById('valid_log').textContent = 'Valid BST loaded. Click Validate to check it.';
+}
+
+function showInvalidBST() {
+  // Build an invalid tree manually
+  validTree = new BST();
+  validTree.root = { val: 40, left: { val: 20, left: { val: 10, left: null, right: null }, right: { val: 55, left: null, right: null } }, right: { val: 60, left: { val: 50, left: null, right: null }, right: { val: 80, left: null, right: null } } };
+  validIsValid = false;
+  initValid();
+  document.getElementById('valid_log').textContent = 'Invalid BST loaded (node 55 violates the constraint — it\'s in left subtree of 40 but 55 > 40). Click Validate.';
+}
+
+let validRunning = false;
+async function runValidation() {
+  if (validRunning) return;
+  validRunning = true;
+  const c = document.getElementById('c_valid');
+  c.width = c.parentElement.clientWidth - 24;
+  const ctx = c.getContext('2d');
+  const pos = getNodePositions(validTree.root, c.width, c.height);
+  const log = document.getElementById('valid_log');
+
+  const visited = {};
+  const violators = {};
+
+  function findViolations(node, lo, hi) {
+    if (!node) return true;
+    const valid = node.val > lo && node.val < hi;
+    if (!valid) violators[node.val] = true;
+    findViolations(node.left, lo, node.val);
+    findViolations(node.right, node.val, hi);
+  }
+  findViolations(validTree.root, -Infinity, Infinity);
+
+  async function visitNode(node) {
+    if (!node) return;
+    visited[node.val] = violators[node.val] ? COLORS.deleted : COLORS.valid_check;
+    log.textContent = violators[node.val]
+      ? `Node ${node.val} VIOLATES the BST range constraint! ✗`
+      : `Node ${node.val} is valid ✓`;
+    drawTree(ctx, validTree.root, pos, Object.assign({}, visited));
+    await sleep(500);
+    await visitNode(node.left);
+    await visitNode(node.right);
+  }
+
+  await visitNode(validTree.root);
+  const isV = Object.keys(violators).length === 0;
+  log.textContent = isV ? 'Result: VALID BST ✓ — all nodes satisfy range constraints.' : `Result: INVALID BST ✗ — ${Object.keys(violators).length} violation(s) found.`;
+  validRunning = false;
+}
+
+// ════════════════════════════════════════════════════
+//  S14 — PLAYGROUND
+// ════════════════════════════════════════════════════
+const playTree = new BST();
+let playHighlights = {};
+let playTravRunning = false;
+
+function initPlayCanvas() {
+  const c = document.getElementById('c_play');
+  c.width = c.parentElement.clientWidth - 20;
+  const ctx = c.getContext('2d');
+  const pos = getNodePositions(playTree.root, c.width, c.height);
+  drawTree(ctx, playTree.root, pos, playHighlights);
+  updatePlayInfo();
+}
+
+function updatePlayInfo() {
+  const n = playTree.size();
+  document.getElementById('pi_h').textContent = n ? playTree.height() : '–';
+  document.getElementById('pi_n').textContent = n || '–';
+  document.getElementById('pi_min').textContent = n ? playTree.min() : '–';
+  document.getElementById('pi_max').textContent = n ? playTree.max() : '–';
+  document.getElementById('pi_valid').textContent = n ? (playTree.isValid() ? 'Yes ✓' : 'No ✗') : '–';
+}
+
+function playInsert() {
+  const val = parseInt(document.getElementById('play_val').value);
+  if (isNaN(val)) return;
+  playTree.insert(val);
+  playHighlights = {}; playHighlights[val] = COLORS.inserted;
+  initPlayCanvas();
+  document.getElementById('play_log').textContent = `Inserted ${val}.`;
+  document.getElementById('play_output').innerHTML = '';
+  setTimeout(() => { playHighlights = {}; initPlayCanvas(); }, 1200);
+}
+
+function playDelete() {
+  const val = parseInt(document.getElementById('play_del').value);
+  if (isNaN(val)) return;
+  if (!playTree.search(val)) { document.getElementById('play_log').textContent = `${val} not found.`; return; }
+  playTree.delete(val);
+  playHighlights = {};
+  initPlayCanvas();
+  document.getElementById('play_log').textContent = `Deleted ${val}.`;
+  document.getElementById('play_output').innerHTML = '';
+}
+
+function playSearch() {
+  const val = parseInt(document.getElementById('play_srch').value);
+  if (isNaN(val)) return;
+  const found = playTree.search(val);
+  playHighlights = {};
+  playHighlights[val] = found ? COLORS.found : COLORS.deleted;
+  initPlayCanvas();
+  document.getElementById('play_log').textContent = found ? `Found ${val} ✓` : `${val} not in tree ✗`;
+}
+
+function playClear() {
+  while (playTree.root) playTree.root = null;
+  playHighlights = {};
+  initPlayCanvas();
+  document.getElementById('play_log').textContent = 'Tree cleared.';
+  document.getElementById('play_output').innerHTML = '';
+}
+
+function playRandom() {
+  while (playTree.root) playTree.root = null;
+  const vals = Array.from({length: 9}, () => Math.floor(Math.random()*90)+5);
+  vals.forEach(v => playTree.insert(v));
+  playHighlights = {};
+  initPlayCanvas();
+  document.getElementById('play_log').textContent = `Random tree: [${[...new Set(vals)].sort((a,b)=>a-b).join(', ')}]`;
+  document.getElementById('play_output').innerHTML = '';
+}
+
+async function playTraverse(type) {
+  if (playTravRunning || !playTree.root) return;
+  playTravRunning = true;
+  const c = document.getElementById('c_play');
+  const ctx = c.getContext('2d');
+  const pos = getNodePositions(playTree.root, c.width, c.height);
+  const outDiv = document.getElementById('play_output');
+  outDiv.innerHTML = '';
+
+  let seq = [];
+  if (type === 'inorder') seq = playTree.inorder();
+  else if (type === 'preorder') seq = playTree.preorder();
+  else if (type === 'postorder') seq = playTree.postorder();
+  else seq = playTree.levelorder();
+
+  const visited = {};
+  for (const val of seq) {
+    visited[val] = COLORS.visiting;
+    document.getElementById('play_log').textContent = `Visiting ${val}`;
+    drawTree(ctx, playTree.root, pos, Object.assign({}, visited));
+    await sleep(400);
+    visited[val] = COLORS.found;
+    drawTree(ctx, playTree.root, pos, Object.assign({}, visited));
+    const span = document.createElement('div');
+    span.className = 'tval';
+    span.textContent = val;
+    outDiv.appendChild(span);
+    requestAnimationFrame(() => requestAnimationFrame(() => span.classList.add('show')));
+    await sleep(150);
+  }
+  document.getElementById('play_log').textContent = `${type} complete — ${seq.length} nodes visited.`;
+  playTravRunning = false;
+}
+
+// Init playground with a default tree
+[50, 30, 70, 20, 40, 60, 80].forEach(v => playTree.insert(v));
+initPlayCanvas();
+
+// ════════════════════════════════════════════════════
+//  RESIZE HANDLER
+// ════════════════════════════════════════════════════
+window.addEventListener('resize', () => {
+  drawProperty && drawProperty;
+  drawInsTree(); drawSrchTree(); drawDelTree();
+  initTravCanvas('c_trav'); initTravCanvas('c_pre'); initTravCanvas('c_post');
+  initBFS(); initMM(); initHT(); initPS(); initValid();
+  initPlayCanvas();
+});
+
+// Draw property diagram on load if not already done
+window.addEventListener('load', () => {
+  // Re-run property diagram with correct width
+  const c = document.getElementById('c_property');
+  const W = c.parentElement.clientWidth - 48;
+  c.width = W;
+  const ctx = c.getContext('2d');
+  const cx = W/2;
+  const nodes = [
+    { val: 50, x: cx, y: 50, color: '#38bdf8' },
+    { val: 30, x: cx - Math.min(150, W*0.22), y: 130, color: '#34d399' },
+    { val: 70, x: cx + Math.min(150, W*0.22), y: 130, color: '#f59e0b' },
+    { val: 20, x: cx - Math.min(220, W*0.32), y: 200, color: '#34d399' },
+    { val: 40, x: cx - Math.min(80, W*0.11), y: 200, color: '#34d399' },
+    { val: 60, x: cx + Math.min(80, W*0.11), y: 200, color: '#f59e0b' },
+    { val: 80, x: cx + Math.min(220, W*0.32), y: 200, color: '#f59e0b' },
+  ];
+  const edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]];
+  ctx.clearRect(0,0,W,220);
+  edges.forEach(([a,b]) => {
+    ctx.beginPath(); ctx.strokeStyle='#1e2d47'; ctx.lineWidth=2;
+    ctx.moveTo(nodes[a].x, nodes[a].y); ctx.lineTo(nodes[b].x, nodes[b].y); ctx.stroke();
+  });
+  nodes.forEach(n => {
+    ctx.shadowColor=n.color; ctx.shadowBlur=10;
+    ctx.beginPath(); ctx.arc(n.x, n.y, 22, 0, Math.PI*2);
+    ctx.fillStyle='#111827'; ctx.fill();
+    ctx.strokeStyle=n.color; ctx.lineWidth=2; ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.fillStyle=n.color; ctx.font='bold 13px JetBrains Mono, monospace';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(n.val, n.x, n.y);
+  });
+  ctx.font='11px Syne, sans-serif'; ctx.fillStyle='#475569'; ctx.textAlign='center';
+  ctx.fillText('< 50 (all left)', cx - Math.min(130,W*0.19), 96);
+  ctx.fillText('> 50 (all right)', cx + Math.min(130,W*0.19), 96);
+});
+</script>
+</body>
+</html>
