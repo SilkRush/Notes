@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSCI 2124 Exam Simulator</title>
+<style>
+  :root {
+    --bg: #0d0d1a;
+    --surface: #13132a;
+    --surface2: #1a1a35;
+    --border: #2a2a55;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --accent3: #ff6b6b;
+    --accent4: #ffd166;
+    --text: #e8e8f0;
+    --muted: #7070a0;
+    --green: #00c896;
+    --red: #ff5566;
+    --yellow: #ffd166;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* START SCREEN */
+  #start-screen {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 40px 20px; text-align: center;
+  }
+  .start-logo { font-size: 3rem; margin-bottom: 20px; }
+  .start-title { font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+  .start-sub { color: var(--muted); font-size: 1.1rem; margin-bottom: 40px; }
+  .start-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 600px; margin-bottom: 40px; }
+  .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .info-card .num { font-size: 2rem; font-weight: 700; color: var(--accent2); }
+  .info-card .lbl { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+  .btn-start {
+    background: linear-gradient(135deg, var(--accent), #9b59b6);
+    border: none; color: white; padding: 16px 48px; font-size: 1.2rem;
+    font-weight: 600; border-radius: 50px; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 24px rgba(108,99,255,0.4);
+  }
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(108,99,255,0.5); }
+
+  /* EXAM SCREEN */
+  #exam-screen { display: none; min-height: 100vh; }
+
+  /* TOP BAR */
+  .top-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; display: flex; align-items: center; gap: 16px;
+  }
+  .q-progress { font-size: 0.9rem; color: var(--muted); }
+  .q-label { font-weight: 700; font-size: 1rem; color: var(--text); }
+  .spacer { flex: 1; }
+  .timer-box {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 16px; font-size: 1.1rem; font-weight: 700;
+    font-family: monospace; color: var(--accent2); min-width: 90px; text-align: center;
+    transition: color 0.3s, border-color 0.3s;
+  }
+  .timer-box.warn { color: var(--yellow); border-color: var(--yellow); }
+  .timer-box.danger { color: var(--red); border-color: var(--red); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+  /* NAV DOTS */
+  .nav-dots { display: flex; gap: 6px; flex-wrap: wrap; padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .nav-dot {
+    width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--muted); font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center;
+  }
+  .nav-dot:hover { border-color: var(--accent); color: var(--accent); }
+  .nav-dot.current { background: var(--accent); border-color: var(--accent); color: white; }
+  .nav-dot.answered { background: var(--surface2); border-color: var(--green); color: var(--green); }
+  .nav-dot.current.answered { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* QUESTION AREA */
+  .q-area { max-width: 900px; margin: 0 auto; padding: 32px 24px 120px; }
+  .q-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; }
+  .q-num { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+  .q-tag { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 3px 12px; font-size: 0.8rem; color: var(--muted); }
+  .q-body { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; line-height: 1.7; }
+  .q-body pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 0.85rem; overflow-x: auto; color: var(--accent2); margin: 12px 0; font-family: 'Courier New', monospace; line-height: 1.5; }
+  .q-body code { font-family: 'Courier New', monospace; background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent2); }
+  .sub-q { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .sub-q-label { font-weight: 700; color: var(--accent4); margin-bottom: 8px; }
+
+  /* ANSWER INPUTS */
+  .answer-section { margin-top: 8px; }
+  .answer-label { font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  textarea.answer-box {
+    width: 100%; min-height: 160px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); padding: 14px; font-size: 0.95rem; font-family: inherit;
+    resize: vertical; transition: border-color 0.2s; line-height: 1.6;
+  }
+  textarea.answer-box:focus { outline: none; border-color: var(--accent); }
+  textarea.code-box { font-family: 'Courier New', monospace; font-size: 0.9rem; min-height: 220px; }
+  .parsons-area { display: flex; gap: 16px; flex-wrap: wrap; }
+  .parsons-bank { flex: 1; min-width: 250px; }
+  .parsons-title { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
+  .parsons-item {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 14px; margin-bottom: 6px; cursor: grab; font-family: monospace; font-size: 0.88rem;
+    color: var(--accent2); transition: border-color 0.15s, transform 0.1s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .parsons-item:hover { border-color: var(--accent); }
+  .parsons-item.dragging { opacity: 0.5; border-color: var(--accent); }
+  .parsons-item .line-badge { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 0.75rem; color: var(--muted); font-family: monospace; }
+  .drop-zone {
+    min-height: 300px; background: var(--surface2); border: 2px dashed var(--border);
+    border-radius: 8px; padding: 12px; transition: border-color 0.2s;
+  }
+  .drop-zone.drag-over { border-color: var(--accent); background: rgba(108,99,255,0.05); }
+  .drop-zone .parsons-item { cursor: grab; }
+  .drop-hint { color: var(--muted); text-align: center; padding: 40px 0; font-size: 0.9rem; }
+
+  /* BST DRAWER */
+  .bst-area { position: relative; }
+  .bst-canvas { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; cursor: crosshair; display: block; }
+  .bst-controls { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+  .bst-controls input { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 6px 10px; width: 80px; font-size: 0.9rem; }
+  .bst-node-input { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .bst-node-input input { flex: 1; min-width: 120px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 8px 12px; font-size: 0.9rem; }
+
+  /* HEAP ARRAY INPUT */
+  .heap-array { display: flex; gap: 4px; flex-wrap: wrap; margin: 12px 0; }
+  .heap-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .heap-idx { font-size: 0.7rem; color: var(--muted); font-family: monospace; }
+  .heap-cell input { width: 52px; height: 44px; text-align: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 0.95rem; font-weight: 700; }
+  .heap-cell input:focus { outline: none; border-color: var(--accent); }
+
+  /* RADIO / SELECT */
+  .radio-group { display: flex; flex-direction: column; gap: 10px; }
+  .radio-item { display: flex; align-items: flex-start; gap: 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; cursor: pointer; transition: border-color 0.15s; }
+  .radio-item:hover { border-color: var(--accent); }
+  .radio-item input[type=radio] { margin-top: 2px; accent-color: var(--accent); }
+  .radio-item.selected { border-color: var(--accent); background: rgba(108,99,255,0.08); }
+  select.ds-select { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 8px 12px; font-size: 0.95rem; width: 100%; }
+  select.ds-select:focus { outline: none; border-color: var(--accent); }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 14px 24px; display: flex; gap: 12px; align-items: center;
+  }
+  .btn { border: none; border-radius: 8px; padding: 10px 22px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .btn-prev { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+  .btn-prev:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-next { background: var(--accent); color: white; }
+  .btn-next:hover { background: #7b73ff; }
+  .btn-submit-final { background: var(--green); color: #0d0d1a; font-weight: 700; }
+  .btn-submit-final:hover { background: #00f0b5; }
+  .btn-reveal { background: var(--surface2); border: 1px solid var(--accent4); color: var(--accent4); font-size: 0.85rem; padding: 8px 14px; }
+  .btn-reveal:hover { background: rgba(255,209,102,0.1); }
+
+  /* SOLUTION PANEL */
+  .solution-panel {
+    background: var(--surface2); border: 1px solid var(--green); border-radius: 10px;
+    padding: 20px; margin-top: 20px; display: none;
+  }
+  .solution-panel.visible { display: block; }
+  .solution-title { color: var(--green); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+  .solution-body { line-height: 1.7; }
+  .solution-body pre { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 14px; font-size: 0.85rem; overflow-x: auto; color: var(--accent2); margin: 10px 0; font-family: 'Courier New', monospace; }
+  .solution-body code { font-family: 'Courier New', monospace; background: var(--bg); padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: var(--accent2); }
+  .highlight-box { background: rgba(0,200,150,0.1); border-left: 3px solid var(--green); padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 10px 0; }
+
+  /* RESULTS SCREEN */
+  #results-screen { display: none; min-height: 100vh; padding: 40px 24px; max-width: 900px; margin: 0 auto; }
+  .results-title { font-size: 2rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
+  .results-sub { color: var(--muted); margin-bottom: 32px; }
+  .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 32px; }
+  .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .result-card .rq { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+  .result-card .rs { font-size: 0.9rem; color: var(--text); }
+  .result-card.answered { border-color: var(--green); }
+  .result-card.skipped { border-color: var(--red); }
+  .restart-btn { background: var(--accent); color: white; border: none; border-radius: 8px; padding: 12px 32px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+
+  /* Utility */
+  .mt8 { margin-top: 8px; }
+  .mt16 { margin-top: 16px; }
+  .flex-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .tag { display: inline-block; background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.3); border-radius: 4px; padding: 2px 8px; font-size: 0.8rem; color: var(--accent); margin: 2px; }
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div id="start-screen">
+  <div class="start-logo">📚</div>
+  <div class="start-title">CSCI 2124 Exam Simulator</div>
+  <div class="start-sub">Data Structures & Algorithms — Timed Practice</div>
+  <div class="start-info">
+    <div class="info-card"><div class="num">15</div><div class="lbl">Questions</div></div>
+    <div class="info-card"><div class="num">2h</div><div class="lbl">Time Limit</div></div>
+    <div class="info-card"><div class="num">No</div><div class="lbl">Notes / Electronics</div></div>
+  </div>
+  <div style="color:var(--muted);font-size:0.9rem;margin-bottom:24px;max-width:500px;">
+    Answer each question in the input provided. Use "Reveal Solution" only after attempting. The timer starts when you click Begin.
+  </div>
+  <button class="btn-start" onclick="startExam()">Begin Exam</button>
+</div>
+
+<!-- EXAM SCREEN -->
+<div id="exam-screen">
+  <div class="top-bar">
+    <div>
+      <div class="q-progress" id="q-progress">Question 1 of 15</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="timer-box" id="timer">2:00:00</div>
+  </div>
+  <div class="nav-dots" id="nav-dots"></div>
+  <div class="q-area" id="q-area"></div>
+  <div class="bottom-nav">
+    <button class="btn btn-prev" id="btn-prev" onclick="navigate(-1)">← Prev</button>
+    <div class="spacer"></div>
+    <button class="btn btn-reveal" id="btn-reveal" onclick="toggleSolution()">💡 Reveal Solution</button>
+    <button class="btn btn-next" id="btn-next" onclick="navigate(1)">Next →</button>
+    <button class="btn btn-submit-final" id="btn-submit" onclick="submitExam()" style="display:none;">Submit Exam</button>
+  </div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div id="results-screen">
+  <div class="results-title">Exam Complete</div>
+  <div class="results-sub" id="results-sub"></div>
+  <div class="results-grid" id="results-grid"></div>
+  <button class="restart-btn" onclick="location.reload()">Retake Exam</button>
+</div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentQ = 0;
+let timerInterval = null;
+let secondsLeft = 7200; // 2 hours
+let answers = {};
+let solutionVisible = false;
+let bstNodes = []; // for q10
+let bstEdges = []; // for q10
+let parsonsOrder = []; // for q4
+let parsonsBank = []; // for q4
+
+// ─── QUESTIONS DATA ───────────────────────────────────────────────────────────
+const questions = [
+  // Q1
+  {
+    id: 1, tag: "Amortized Analysis",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q1</div><div class="q-tag">Amortized Analysis</div></div>
+      <div class="q-body">
+        When <code>size == capacity</code> in an <code>ElasticArray</code>, calling <code>push_back</code> requires allocating a new array, copying every existing element into it, and freeing the old array. This is an <strong>O(n)</strong> operation. Yet we say <code>push_back</code> runs in <strong>amortized O(1)</strong> time.
+        <br><br>
+        Explain what <strong>"amortized"</strong> means in this context, and why <strong>doubling the capacity</strong> (rather than adding a fixed amount of space) is essential to achieving the amortized O(1) bound.
+      </div>
+      <div class="answer-section">
+        <div class="answer-label">Your Answer</div>
+        <textarea class="answer-box" id="ans-1" placeholder="Explain amortized analysis and why doubling is necessary..."></textarea>
+      </div>
+      <div class="solution-panel" id="sol-1">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+          <strong>Amortized O(1)</strong> means that even though a single <code>push_back</code> can cost O(n) in the worst case, when you average that cost across all n operations, each operation comes out to O(1) on average. You spread the expensive resize cost over many cheap insertions.
+          <div class="highlight-box">
+            <strong>Why doubling?</strong> After a resize to capacity n, you need at least n more insertions before the next resize. The resize cost is O(n) to copy. Spread over those n insertions, each pays O(n)/n = O(1) extra. If you added a fixed amount k instead, you'd resize every k insertions — O(n) cost every k steps — giving O(n/k) per insertion, which is Θ(n) total, not O(n log n) amortized. Only geometric growth (doubling) guarantees the total resize work is proportional to n, giving true amortized O(1).
+          </div>
+          <strong>Proof sketch:</strong> Starting from capacity 1, after n insertions the resizes happen at sizes 1, 2, 4, 8, ..., n. Total copy work = 1 + 2 + 4 + ... + n = 2n − 1 = O(n). Divided by n insertions = O(1) each.
+        </div>
+      </div>`,
+    solution: 'sol-1'
+  },
+  // Q2
+  {
+    id: 2, tag: "Rule of Three",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q2</div><div class="q-tag">Rule of Three</div></div>
+      <div class="q-body">
+        You write a class with a destructor that calls <code>delete[]</code> on a member pointer. The <strong>Rule of Three</strong> says this class must also have a custom copy constructor and a custom copy assignment operator.
+        <br><br>
+        Explain why the Rule of Three exists. What specifically goes wrong if you write only the destructor and let the compiler generate the copy operations?
+      </div>
+      <div class="answer-section">
+        <div class="answer-label">Your Answer</div>
+        <textarea class="answer-box" id="ans-2" placeholder="Explain what the compiler-generated copy does and what goes wrong..."></textarea>
+      </div>
+      <div class="solution-panel" id="sol-2">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+          The compiler-generated copy constructor and copy assignment operator perform a <strong>shallow copy</strong> — they copy the pointer value, not the memory it points to. Two objects end up pointing to the same heap array.
+          <div class="highlight-box">
+            <strong>What goes wrong:</strong>
+            <br>1. <strong>Double free:</strong> When both objects are destroyed, both destructors call <code>delete[]</code> on the same address. This is undefined behavior — usually a crash.
+            <br>2. <strong>Dangling pointer:</strong> If one object is destroyed first, the other now holds a pointer to freed memory. Any access through it is UB.
+            <br>3. <strong>Unintended aliasing:</strong> Modifying data through one object silently modifies the other, because they share the same underlying array.
+          </div>
+          The Rule of Three exists because: if you need to manually manage a resource in any one of (destructor, copy ctor, copy assignment), you almost certainly need to manage it in all three — the default compiler behavior is unsafe for any class owning heap memory.
+        </div>
+      </div>`,
+    solution: 'sol-2'
+  },
+  // Q3 — multiple sub-questions
+  {
+    id: 3, tag: "Object Slicing & Virtual Dispatch",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q3</div><div class="q-tag">Object Slicing · Virtual Dispatch</div></div>
+      <div class="q-body">
+<pre>class Minigame {
+public:
+    void play() {
+        std::cout << "Loading minigame..." << std::endl;
+    }
+};
+
+class TicTacToe : public Minigame {
+public:
+    void play() {
+        std::cout << "Starting Tic-Tac-Toe! X goes first." << std::endl;
+    }
+};
+
+void startGame(Minigame game) {
+    game.play();
+}
+
+int main() {
+    TicTacToe ttt;
+    startGame(ttt);
+}</pre>
+        Output is: <code>Loading minigame...</code>
+        <div class="sub-q">
+          <div class="sub-q-label">(a) Object Slicing</div>
+          What happens to <code>ttt</code> when it is passed to <code>startGame</code>? What part survives, and what is lost? Reference the parameter type.
+        </div>
+        <div class="sub-q">
+          <div class="sub-q-label">(b) Static Dispatch</div>
+          Even if slicing were fixed, the program would still print <code>Loading minigame...</code>. Why? Reference the keyword <code>virtual</code> and current dispatch behavior.
+        </div>
+        <div class="sub-q">
+          <div class="sub-q-label">(c) The Fix</div>
+          State the two changes (one to <code>Minigame</code>, one to <code>startGame</code>) that together make the program print the TicTacToe output. Explain why both are required.
+        </div>
+      </div>
+      <div class="answer-section">
+        <div class="answer-label">(a) Your Answer</div>
+        <textarea class="answer-box" id="ans-3a" placeholder="Explain object slicing..."></textarea>
+        <div class="answer-label mt16">(b) Your Answer</div>
+        <textarea class="answer-box" id="ans-3b" placeholder="Explain static dispatch and virtual..."></textarea>
+        <div class="answer-label mt16">(c) Your Answer</div>
+        <textarea class="answer-box" id="ans-3c" placeholder="State the two changes and why both are needed..."></textarea>
+      </div>
+      <div class="solution-panel" id="sol-3">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+          <strong>(a) Object Slicing:</strong> <code>startGame</code> takes a <code>Minigame</code> by value. When <code>ttt</code> (a <code>TicTacToe</code>) is passed, C++ constructs a new <code>Minigame</code> object — only the <code>Minigame</code> portion of <code>ttt</code> is copied. The <code>TicTacToe</code>-specific data and identity are lost. The parameter <em>is</em> a <code>Minigame</code>, not a <code>TicTacToe</code>.
+          <hr class="divider">
+          <strong>(b) Static Dispatch:</strong> Even if you fix slicing (e.g. by reference), <code>play()</code> is not declared <code>virtual</code> in <code>Minigame</code>. Without <code>virtual</code>, method calls are resolved at <strong>compile time</strong> based on the static type of the variable — which is <code>Minigame</code>. So <code>Minigame::play()</code> is always called, regardless of the actual runtime type. This is called <em>static dispatch</em>.
+          <hr class="divider">
+          <strong>(c) The Two Changes:</strong>
+          <div class="highlight-box">
+            1. Add <code>virtual</code> to <code>Minigame::play()</code>: <code>virtual void play() { ... }</code><br>
+            2. Change <code>startGame</code> to take a <strong>reference or pointer</strong>: <code>void startGame(Minigame& game)</code>
+          </div>
+          Both are required. <code>virtual</code> alone doesn't help because slicing destroys the derived object — there's nothing left to dispatch to. The reference/pointer alone doesn't help because without <code>virtual</code>, dispatch is still static. You need the reference to preserve the runtime object identity, <em>and</em> you need <code>virtual</code> to enable dynamic dispatch at runtime.
+        </div>
+      </div>`,
+    solution: 'sol-3',
+    getAnswer: () => {
+      const a = document.getElementById('ans-3a')?.value || '';
+      const b = document.getElementById('ans-3b')?.value || '';
+      const c = document.getElementById('ans-3c')?.value || '';
+      return a + b + c;
+    }
+  },
+  // Q4 — Parsons
+  {
+    id: 4, tag: "Parsons Problem — BST Inorder",
+    render: () => {
+      parsonsBank = [
+        { id: 'A', code: 'inorder(root->left);' },
+        { id: 'B', code: 'if (root == nullptr)' },
+        { id: 'C', code: 'void inorder(Node* root)' },
+        { id: 'D', code: 'inorder(root->right);' },
+        { id: 'E', code: '{' },
+        { id: 'F', code: 'return;' },
+        { id: 'G', code: '}' },
+        { id: 'H', code: '}' },
+        { id: 'I', code: "std::cout << root->value << ' ';" },
+        { id: 'J', code: '{' },
+      ];
+      parsonsOrder = [];
+      return `
+      <div class="q-header"><div class="q-num">Q4</div><div class="q-tag">Parsons Problem</div></div>
+      <div class="q-body">
+        The lines below implement an <strong>inorder traversal</strong> of a BST. The lines are scrambled. Drag them into the correct order in the right panel.
+      </div>
+      <div class="parsons-area">
+        <div class="parsons-bank">
+          <div class="parsons-title">Available Lines (drag to order →)</div>
+          <div id="parsons-source" style="min-height:200px;"></div>
+        </div>
+        <div class="parsons-bank">
+          <div class="parsons-title">Your Order</div>
+          <div class="drop-zone" id="parsons-target">
+            <div class="drop-hint" id="parsons-hint">Drag lines here</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;">
+        <button class="btn btn-prev" onclick="parsonsReset()" style="font-size:0.85rem;padding:6px 14px;">↺ Reset</button>
+      </div>
+      <div class="solution-panel" id="sol-4">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+          Correct order: <strong>C, J, B, E, F, G, A, I, D, H</strong>
+<pre>void inorder(Node* root)          // C
+{                                  // J
+    if (root == nullptr)           // B
+    {                              // E
+        return;                    // F
+    }                              // G
+    inorder(root->left);           // A
+    std::cout &lt;&lt; root->value &lt;&lt; ' '; // I
+    inorder(root->right);          // D
+}                                  // H</pre>
+          <div class="highlight-box">Pattern: Base case check → left subtree → process current node → right subtree. The two braces for the if-block (E, G) wrap only the return. The outer closing brace (H) closes the function.</div>
+        </div>
+      </div>`;
+    },
+    afterRender: () => { initParsons(); },
+    solution: 'sol-4',
+    getAnswer: () => parsonsOrder.map(id => id).join(',')
+  },
+  // Q5
+  {
+    id: 5, tag: "Uncaught Exceptions",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q5</div><div class="q-tag">Exceptions</div></div>
+      <div class="q-body">
+        What happens if a C++ program throws an exception that is never caught by any <code>try/catch</code> block? Describe what the program does before terminating, and what the operating system observes when the program ends.
+      </div>
+      <div class="answer-section">
+        <div class="answer-label">Your Answer</div>
+        <textarea class="answer-box" id="ans-5" placeholder="Describe the program behavior and what the OS sees..."></textarea>
+      </div>
+      <div class="solution-panel" id="sol-5">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+          When an exception propagates all the way up the call stack without being caught, the C++ runtime calls <code>std::terminate()</code>.
+          <div class="highlight-box">
+            <strong>Before termination:</strong> <code>std::terminate()</code> by default calls <code>std::abort()</code>. Stack unwinding (destructor calls) is <em>implementation-defined</em> at this point — destructors may or may not be called. Typically they are <strong>not</strong> called in a <code>terminate</code> scenario (no guaranteed cleanup).
+            <br><br>
+            <strong>What the OS sees:</strong> The process exits with a non-zero exit code (abnormal termination). On POSIX systems, <code>abort()</code> sends <code>SIGABRT</code> to the process. The OS may generate a core dump. From the OS's perspective, the program crashed — it did not call <code>exit(0)</code> cleanly.
+          </div>
+          Key distinction: an uncaught exception is not like a normal <code>return</code>. The program is terminated abnormally, resources are cleaned up by the OS (file handles, memory), but C++ destructors have no guarantee of running.
+        </div>
+      </div>`,
+    solution: 'sol-5'
+  },
+  // Q6
+  {
+    id: 6, tag: "Write a Class",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q6</div><div class="q-tag">Class Implementation</div></div>
+      <div class="q-body">
+        Write a complete <strong>Book</strong> class with:
+        <ul style="margin:10px 0 0 20px;line-height:2;">
+          <li>Private data members: <code>title</code> (string), <code>author</code> (string), <code>pages</code> (int)</li>
+          <li>A constructor taking all three values, initializing via <strong>member initializer list</strong></li>
+          <li>A <code>const</code> accessor (getter) for <code>pages</code> only</li>
+          <li>A <code>const print()</code> method that prints <code>Title by Author (N pages)</code> followed by a newline</li>
+        </ul>
+      </div>
+      <div class="answer-section">
+        <div class="answer-label">Your Code</div>
+        <textarea class="answer-box code-box" id="ans-6" placeholder="class Book { ... };"></textarea>
+      </div>
+      <div class="solution-panel" id="sol-6">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+<pre>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+class Book {
+public:
+    Book(const std::string& title, const std::string& author, int pages)
+        : _title{title}, _author{author}, _pages{pages} {}
+
+    int getPages() const { return _pages; }
+
+    void print() const {
+        std::cout &lt;&lt; _title &lt;&lt; " by " &lt;&lt; _author
+                  &lt;&lt; " (" &lt;&lt; _pages &lt;&lt; " pages)" &lt;&lt; std::endl;
+    }
+
+private:
+    std::string _title;
+    std::string _author;
+    int _pages;
+};</pre>
+          <div class="highlight-box">
+            Key points: member initializer list uses <code>: _title{title}, ...</code> syntax. Both methods are <code>const</code> — they don't modify any member. Only <code>pages</code> has a getter, not <code>title</code> or <code>author</code> per the spec.
+          </div>
+        </div>
+      </div>`,
+    solution: 'sol-6'
+  },
+  // Q7
+  {
+    id: 7, tag: "Class Invariants",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q7</div><div class="q-tag">Class Invariants</div></div>
+      <div class="q-body">
+        The <code>RecentReadings</code> class uses these data members:
+<pre>double* _data;     // heap array of capacity _capacity
+size_t _capacity;  // max readings the object can hold
+size_t _count;     // readings currently held (0 to _capacity)
+size_t _next;      // index where the NEXT reading will be written</pre>
+        State the <strong>class invariants</strong> — the conditions that must be true at the start and end of every public member function — using these variable names.
+      </div>
+      <div class="answer-section">
+        <div class="answer-label">Your Answer</div>
+        <textarea class="answer-box" id="ans-7" placeholder="List the invariants as precise conditions..."></textarea>
+      </div>
+      <div class="solution-panel" id="sol-7">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+          <div class="highlight-box">
+            1. <code>_data != nullptr</code> (always points to a valid heap array)<br>
+            2. <code>_capacity > 0</code> (constructed with n > 0, never shrinks to 0)<br>
+            3. <code>0 &lt;= _count &lt;= _capacity</code><br>
+            4. <code>0 &lt;= _next &lt; _capacity</code> (valid write index, wraps around)<br>
+            5. <code>_data</code> points to an array of at least <code>_capacity</code> doubles<br>
+            6. The <code>_count</code> most recent readings are stored in the circular buffer starting from index <code>(_next - _count + _capacity) % _capacity</code> (oldest) up to <code>(_next - 1 + _capacity) % _capacity</code> (most recent)
+          </div>
+          The circular buffer invariant (6) is the subtle one. <code>_next</code> is always the slot where the <em>next</em> write will go, so the most recently written slot is <code>(_next - 1 + _capacity) % _capacity</code>.
+        </div>
+      </div>`,
+    solution: 'sol-7'
+  },
+  // Q8
+  {
+    id: 8, tag: "Implement addReading",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q8</div><div class="q-tag">Implement addReading</div></div>
+      <div class="q-body">
+        Implement <code>RecentReadings::addReading(double value)</code>. It must:
+        <ol style="margin:10px 0 0 20px;line-height:2;">
+          <li>Record <code>value</code> as the most recent reading</li>
+          <li>If at capacity, discard the oldest reading to make room</li>
+          <li>Preserve the class invariants from Q7</li>
+        </ol>
+<pre>// Data members:
+double* _data;
+size_t _capacity;
+size_t _count;
+size_t _next; // index where the next reading will be written</pre>
+      </div>
+      <div class="answer-section">
+        <div class="answer-label">Your Code</div>
+        <textarea class="answer-box code-box" id="ans-8" placeholder="void RecentReadings::addReading(double value)&#10;{&#10;&#10;}"></textarea>
+      </div>
+      <div class="solution-panel" id="sol-8">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+<pre>void RecentReadings::addReading(double value)
+{
+    _data[_next] = value;
+    _next = (_next + 1) % _capacity;
+    if (_count < _capacity) {
+        _count++;
+    }
+    // If _count == _capacity, the oldest is naturally
+    // overwritten because _next wraps around.
+}</pre>
+          <div class="highlight-box">
+            <strong>Why this works:</strong> <code>_next</code> always points to the next write slot. After writing, it advances modulo <code>_capacity</code> — so it wraps around circularly. <code>_count</code> only increments until it reaches <code>_capacity</code>; after that it stays at <code>_capacity</code> because each new write overwrites the oldest slot (which is exactly where <code>_next</code> points in a full buffer).
+          </div>
+          The oldest reading is implicitly discarded when the buffer is full — no extra logic needed because <code>_next</code> wraps over it.
+        </div>
+      </div>`,
+    solution: 'sol-8'
+  },
+  // Q9
+  {
+    id: 9, tag: "Heapsort Complexity",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q9</div><div class="q-tag">Heapsort · O(n log n)</div></div>
+      <div class="q-body">
+        Heapsort first builds a heap from n unsorted elements, then repeatedly removes the maximum and sifts down the remaining heap until the array is sorted.
+        <br><br>
+        Explain why heapsort runs in <strong>O(n log n)</strong> in the worst case. Your answer should reference the height of the heap and the cost of a single sift-down operation.
+      </div>
+      <div class="answer-section">
+        <div class="answer-label">Your Answer</div>
+        <textarea class="answer-box" id="ans-9" placeholder="Reference heap height and sift-down cost..."></textarea>
+      </div>
+      <div class="solution-panel" id="sol-9">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+          A binary heap with n elements has height ⌊log₂ n⌋. A single <strong>sift-down</strong> operation traverses at most one path from a node to a leaf, so its cost is <strong>O(log n)</strong>.
+          <div class="highlight-box">
+            <strong>Heapsort has two phases:</strong><br>
+            1. <strong>Build heap:</strong> Heapify from the bottom up. This is actually O(n) (not O(n log n)) because most nodes are near the leaves and do little work.<br>
+            2. <strong>Extract-max phase:</strong> Repeat n times — swap root with last element, reduce heap size by 1, sift-down. Each sift-down is O(log n) because the heap height shrinks by at most log n steps. Total: n × O(log n) = <strong>O(n log n)</strong>.
+          </div>
+          The extract-max phase dominates. Since it always performs Θ(n log n) work regardless of input, heapsort is O(n log n) in <em>all</em> cases — best, average, and worst.
+        </div>
+      </div>`,
+    solution: 'sol-9'
+  },
+  // Q10 — BST draw
+  {
+    id: 10, tag: "BST Insertion",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q10</div><div class="q-tag">BST Construction</div></div>
+      <div class="q-body">
+        Starting from an empty BST, insert the following values in order:<br>
+        <strong style="color:var(--accent2);font-size:1.1rem;">50, 30, 70, 20, 40, 60, 80, 10, 35, 45</strong>
+        <br><br>
+        Draw the resulting BST below. Click "Add Node" to place nodes, or use the Auto-Build button.
+      </div>
+      <div class="bst-area">
+        <canvas class="bst-canvas" id="bst-canvas" width="820" height="360"></canvas>
+        <div class="bst-controls">
+          <button class="btn btn-prev" onclick="bstAutoBuild()" style="font-size:0.85rem;padding:8px 14px;">⚡ Auto-Build BST</button>
+          <button class="btn btn-prev" onclick="bstReset()" style="font-size:0.85rem;padding:8px 14px;">↺ Reset</button>
+        </div>
+      </div>
+      <div class="solution-panel" id="sol-10">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+          <div class="highlight-box">
+            <strong>Insertion trace:</strong><br>
+            50 → root<br>
+            30 → left of 50<br>
+            70 → right of 50<br>
+            20 → left of 30<br>
+            40 → right of 30<br>
+            60 → left of 70<br>
+            80 → right of 70<br>
+            10 → left of 20<br>
+            35 → left of 40<br>
+            45 → right of 40
+          </div>
+          The Auto-Build button above draws the correct tree. Use it to check your drawing.
+        </div>
+      </div>`,
+    afterRender: () => { initBSTCanvas(); },
+    solution: 'sol-10',
+    getAnswer: () => bstNodes.map(n=>n.val).join(',')
+  },
+  // Q11 — Heap insertion
+  {
+    id: 11, tag: "Max-Heap Insertion",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q11</div><div class="q-tag">Max-Heap Insertion</div></div>
+      <div class="q-body">
+        Starting max-heap (5 elements):
+        <div class="heap-array" style="margin:14px 0;">
+          ${[50,30,40,10,20].map((v,i)=>`<div class="heap-cell"><div class="heap-idx">[${i}]</div><div style="width:44px;height:36px;background:var(--surface2);border:1px solid var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent2);">${v}</div></div>`).join('')}
+          ${[5,6,7,8,9].map(i=>`<div class="heap-cell"><div class="heap-idx">[${i}]</div><div style="width:44px;height:36px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;"></div></div>`).join('')}
+        </div>
+        Insert <strong style="color:var(--accent4);">35</strong>, then insert <strong style="color:var(--accent4);">45</strong>. Fill in the final heap array after both insertions:
+      </div>
+      <div class="answer-section">
+        <div class="answer-label">Final Heap Array (fill in values, leave empty for unused)</div>
+        <div class="heap-array" id="heap-answer-arr">
+          ${Array.from({length:10},(_,i)=>`
+            <div class="heap-cell">
+              <div class="heap-idx">[${i}]</div>
+              <input type="number" class="heap-input" id="heap-${i}" placeholder="">
+            </div>`).join('')}
+        </div>
+        <div class="answer-label mt16">Describe the tree shape after both insertions:</div>
+        <textarea class="answer-box" id="ans-11" style="min-height:100px;" placeholder="Describe the final tree structure..."></textarea>
+      </div>
+      <div class="solution-panel" id="sol-11">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+          <strong>Insert 35:</strong> Place at index 5. Parent = index 2 (value 40). 35 &lt; 40, no swap. Heap unchanged in structure.
+          <br><strong>Array after 35:</strong> [50, 30, 40, 10, 20, 35, _, _, _, _]
+          <br><br>
+          <strong>Insert 45:</strong> Place at index 6. Parent = index 2 (value 40). 45 &gt; 40 → swap. Now index 2 = 45. Parent of index 2 = index 0 (value 50). 45 &lt; 50 → stop.
+          <br><strong>Array after 45:</strong> [50, 30, 45, 10, 20, 35, 40, _, _, _]
+          <div class="highlight-box">
+            <strong>Final Array:</strong> [50, 30, 45, 10, 20, 35, 40]<br>
+            <strong>Final Tree:</strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;50<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<br>
+            &nbsp;&nbsp;&nbsp;30&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;45<br>
+            &nbsp;&nbsp;/&nbsp;&nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;\<br>
+            &nbsp;10&nbsp;&nbsp;20&nbsp;&nbsp;35&nbsp;&nbsp;40
+          </div>
+        </div>
+      </div>`,
+    solution: 'sol-11',
+    getAnswer: () => {
+      const vals = Array.from({length:10},(_,i)=>document.getElementById(`heap-${i}`)?.value||'');
+      const txt = document.getElementById('ans-11')?.value||'';
+      return vals.join(',') + txt;
+    }
+  },
+  // Q12
+  {
+    id: 12, tag: "Quicksort Pivot",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q12</div><div class="q-tag">Quicksort · Pivot Strategy</div></div>
+      <div class="q-body">
+        Quicksort's worst case occurs when the pivot consistently splits the array into a 1-element side and an (n-1)-element side. The median would be ideal because it always produces an even split.
+        <div class="sub-q">
+          <div class="sub-q-label">(a)</div>
+          Why is computing the true median not practical as a pivot strategy in quicksort?
+        </div>
+        <div class="sub-q">
+          <div class="sub-q-label">(b)</div>
+          What is one practical approximation commonly used instead, and why does it work well enough?
+        </div>
+      </div>
+      <div class="answer-section">
+        <div class="answer-label">(a) Your Answer</div>
+        <textarea class="answer-box" id="ans-12a" placeholder="Why is true median impractical?"></textarea>
+        <div class="answer-label mt16">(b) Your Answer</div>
+        <textarea class="answer-box" id="ans-12b" placeholder="What approximation is used and why?"></textarea>
+      </div>
+      <div class="solution-panel" id="sol-12">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+          <strong>(a)</strong> Finding the true median of an unsorted array requires O(n) time per partition call using the median-of-medians algorithm. While that's theoretically O(1) per element, the constant factors are enormous and it defeats the purpose — you'd spend more time finding the pivot than you save from the balanced split. Quicksort's speed comes from cheap partitioning; an expensive pivot ruins that.
+          <hr class="divider">
+          <strong>(b) Median-of-Three:</strong> Pick three elements (typically first, middle, last), sort them, use the middle value as the pivot.
+          <div class="highlight-box">
+            Why it works: it's O(1) to compute, yet it avoids the worst-case behavior on common inputs like already-sorted or reverse-sorted arrays (which naive first-element pivots struggle with). It doesn't guarantee O(n log n) in all cases, but it makes worst-case inputs much rarer in practice. Random pivot selection is another valid answer for the same reason.
+          </div>
+        </div>
+      </div>`,
+    solution: 'sol-12',
+    getAnswer: () => {
+      const a = document.getElementById('ans-12a')?.value||'';
+      const b = document.getElementById('ans-12b')?.value||'';
+      return a + b;
+    }
+  },
+  // Q13
+  {
+    id: 13, tag: "Lomuto Partition",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q13</div><div class="q-tag">Implement Lomuto Partition</div></div>
+      <div class="q-body">
+        Implement the <strong>Lomuto partition</strong> algorithm. Use <code>vec[high]</code> as the pivot. After returning:
+        <ul style="margin:10px 0 0 20px;line-height:2;">
+          <li>Pivot element is at the returned index</li>
+          <li>All elements at <code>[low, returned index)</code> are ≤ pivot</li>
+          <li>All elements at <code>(returned index, high]</code> are ≥ pivot</li>
+        </ul>
+        Assume <code>0 &lt;= low &lt; high &lt; vec.size()</code>. You may use <code>std::swap</code>.
+      </div>
+      <div class="answer-section">
+        <div class="answer-label">Your Code</div>
+        <textarea class="answer-box code-box" id="ans-13" placeholder="int partition(std::vector<int>& vec, int low, int high)&#10;{&#10;&#10;}"></textarea>
+      </div>
+      <div class="solution-panel" id="sol-13">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+<pre>int partition(std::vector&lt;int&gt;& vec, int low, int high)
+{
+    int pivot = vec[high];
+    int i = low - 1;    // boundary of &lt;= pivot region
+
+    for (int j = low; j &lt; high; j++) {
+        if (vec[j] &lt;= pivot) {
+            i++;
+            std::swap(vec[i], vec[j]);
+        }
+    }
+    // Place pivot in correct position
+    std::swap(vec[i + 1], vec[high]);
+    return i + 1;
+}</pre>
+          <div class="highlight-box">
+            <code>i</code> tracks the last index known to be ≤ pivot. <code>j</code> scans through the array. When <code>vec[j] &lt;= pivot</code>, we expand the ≤ region by incrementing <code>i</code> and swapping <code>vec[i]</code> with <code>vec[j]</code>. At the end, <code>i+1</code> is where the pivot belongs — swap it there and return that index.
+          </div>
+        </div>
+      </div>`,
+    solution: 'sol-13'
+  },
+  // Q14
+  {
+    id: 14, tag: "SortedList Insert",
+    render: () => `
+      <div class="q-header"><div class="q-num">Q14</div><div class="q-tag">Linked List Insert</div></div>
+      <div class="q-body">
+        Implement <code>SortedList::insert(int value)</code> so the list stays in ascending order. Handle all four cases:
+        <ol style="margin:10px 0 0 20px;line-height:2;">
+          <li>List is empty</li>
+          <li>Value becomes the new first element</li>
+          <li>Value is inserted in the middle</li>
+          <li>Value is inserted at the end</li>
+        </ol>
+        Duplicates allowed — may go before or after an equal element.
+<pre>struct Node {
+    int value;
+    Node* next;
+    Node(int v, Node* n = nullptr) : value{v}, next{n} {}
+};
+
+class SortedList {
+    Node* _head;
+};</pre>
+      </div>
+      <div class="answer-section">
+        <div class="answer-label">Your Code</div>
+        <textarea class="answer-box code-box" id="ans-14" placeholder="void SortedList::insert(int value)&#10;{&#10;&#10;}"></textarea>
+      </div>
+      <div class="solution-panel" id="sol-14">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+<pre>void SortedList::insert(int value)
+{
+    Node* newNode = new Node(value);
+
+    // Case 1 & 2: empty list or new node goes before head
+    if (_head == nullptr || value &lt; _head->value) {
+        newNode->next = _head;
+        _head = newNode;
+        return;
+    }
+
+    // Cases 3 & 4: find insertion point
+    Node* curr = _head;
+    while (curr->next != nullptr && curr->next->value &lt;= value) {
+        curr = curr->next;
+    }
+    newNode->next = curr->next;
+    curr->next = newNode;
+}</pre>
+          <div class="highlight-box">
+            The loop stops when <code>curr->next</code> is null (end of list → case 4) or when <code>curr->next->value > value</code> (insert between curr and curr->next → case 3). The same code handles both. Cases 1 and 2 are caught by the early-return check.
+          </div>
+        </div>
+      </div>`,
+    solution: 'sol-14'
+  },
+  // Q15
+  {
+    id: 15, tag: "Data Structure Selection",
+    render: () => {
+      const scenarios = [
+        { id: 'a', label: '(a)', desc: "A web browser's \"back\" button history — most recently visited page returned first.", answer: 'stack' },
+        { id: 'b', label: '(b)', desc: "A print job manager that processes documents in submission order.", answer: 'queue' },
+        { id: 'c', label: '(c)', desc: "A hospital triage system — most critical patient always seen first.", answer: 'max-heap' },
+        { id: 'd', label: '(d)', desc: "A music playlist — move forward/backward one song, delete current song without scanning from beginning.", answer: 'doubly linked list' },
+        { id: 'e', label: '(e)', desc: "A grade book — fixed number of grades, inserted once, always reported in sorted order.", answer: 'bst' },
+      ];
+      const pool = ['ElasticArray','singly linked list','doubly linked list','stack','queue','max-heap','BST'];
+      return `
+      <div class="q-header"><div class="q-num">Q15</div><div class="q-tag">Data Structure Selection</div></div>
+      <div class="q-body">
+        For each scenario, choose the most appropriate structure from the pool and justify in one sentence.
+        <br><strong style="color:var(--accent2);">Pool:</strong> ElasticArray · singly linked list · doubly linked list · stack · queue · max-heap · BST
+      </div>
+      ${scenarios.map(s=>`
+        <div style="margin-bottom:20px;">
+          <div class="sub-q-label" style="color:var(--accent4);margin-bottom:8px;">${s.label} ${s.desc}</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+            <select class="ds-select" id="sel-15${s.id}" style="width:200px;">
+              <option value="">-- Choose --</option>
+              ${pool.map(p=>`<option value="${p.toLowerCase()}">${p}</option>`).join('')}
+            </select>
+          </div>
+          <textarea class="answer-box" id="ans-15${s.id}" style="min-height:70px;" placeholder="Justify in one sentence..."></textarea>
+        </div>`).join('')}
+      <div class="solution-panel" id="sol-15">
+        <div class="solution-title">✓ Solution</div>
+        <div class="solution-body">
+          <div class="highlight-box">
+            <strong>(a) Stack</strong> — LIFO perfectly models "back" button: last visited = first returned.<br>
+            <strong>(b) Queue</strong> — FIFO preserves submission order, first submitted = first printed.<br>
+            <strong>(c) Max-Heap</strong> — O(log n) extract-max always gives the highest-priority patient regardless of arrival time.<br>
+            <strong>(d) Doubly Linked List</strong> — O(1) forward and backward traversal, and O(1) deletion of current node without scanning from the beginning (given a pointer to current).<br>
+            <strong>(e) BST</strong> — In-order traversal gives sorted output in O(n). Since grades never change after insertion, no rebalancing needed; a simple BST suffices.
+          </div>
+        </div>
+      </div>`;
+    },
+    solution: 'sol-15',
+    getAnswer: () => {
+      const ids = ['a','b','c','d','e'];
+      return ids.map(id=>{
+        const s = document.getElementById(`sel-15${id}`)?.value||'';
+        const t = document.getElementById(`ans-15${id}`)?.value||'';
+        return s+t;
+      }).join('|');
+    }
+  }
+];
+
+// ─── TIMER ───────────────────────────────────────────────────────────────────
+function startTimer() {
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    const h = Math.floor(secondsLeft / 3600);
+    const m = Math.floor((secondsLeft % 3600) / 60);
+    const s = secondsLeft % 60;
+    const el = document.getElementById('timer');
+    el.textContent = `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if (secondsLeft <= 0) { clearInterval(timerInterval); submitExam(); }
+    else if (secondsLeft <= 600) { el.className='timer-box danger'; }
+    else if (secondsLeft <= 1800) { el.className='timer-box warn'; }
+  }, 1000);
+}
+
+// ─── EXAM FLOW ────────────────────────────────────────────────────────────────
+function startExam() {
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('exam-screen').style.display = 'block';
+  buildNavDots();
+  renderQuestion(0);
+  startTimer();
+}
+
+function buildNavDots() {
+  const container = document.getElementById('nav-dots');
+  container.innerHTML = '';
+  for (let i = 0; i < questions.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (i===0?' current':'');
+    d.id = `dot-${i}`;
+    d.textContent = i+1;
+    d.onclick = () => goTo(i);
+    container.appendChild(d);
+  }
+}
+
+function updateNavDots() {
+  for (let i = 0; i < questions.length; i++) {
+    const d = document.getElementById(`dot-${i}`);
+    if (!d) continue;
+    const isAnswered = answers[i] && answers[i].trim() !== '';
+    d.className = 'nav-dot' + (i===currentQ?' current':'') + (isAnswered?' answered':'');
+  }
+}
+
+function saveCurrentAnswer() {
+  const q = questions[currentQ];
+  if (q.getAnswer) {
+    answers[currentQ] = q.getAnswer();
+  } else {
+    const mainInput = document.getElementById(`ans-${q.id}`);
+    if (mainInput) answers[currentQ] = mainInput.value;
+  }
+}
+
+function renderQuestion(idx) {
+  currentQ = idx;
+  solutionVisible = false;
+  const q = questions[idx];
+  const area = document.getElementById('q-area');
+  area.innerHTML = q.render();
+  document.getElementById('q-progress').textContent = `Question ${idx+1} of ${questions.length}`;
+
+  // Solution panel starts hidden
+  const sp = document.getElementById(q.solution);
+  if (sp) sp.classList.remove('visible');
+
+  // Reveal button
+  document.getElementById('btn-reveal').textContent = '💡 Reveal Solution';
+
+  // Prev/Next/Submit
+  document.getElementById('btn-prev').style.display = idx === 0 ? 'none' : '';
+  const isLast = idx === questions.length - 1;
+  document.getElementById('btn-next').style.display = isLast ? 'none' : '';
+  document.getElementById('btn-submit').style.display = isLast ? '' : 'none';
+
+  updateNavDots();
+  window.scrollTo(0, 0);
+
+  if (q.afterRender) setTimeout(q.afterRender, 0);
+}
+
+function goTo(idx) {
+  saveCurrentAnswer();
+  renderQuestion(idx);
+}
+
+function navigate(dir) {
+  saveCurrentAnswer();
+  const next = currentQ + dir;
+  if (next >= 0 && next < questions.length) renderQuestion(next);
+}
+
+function toggleSolution() {
+  const q = questions[currentQ];
+  const sp = document.getElementById(q.solution);
+  if (!sp) return;
+  solutionVisible = !solutionVisible;
+  if (solutionVisible) {
+    sp.classList.add('visible');
+    sp.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('btn-reveal').textContent = '🙈 Hide Solution';
+  } else {
+    sp.classList.remove('visible');
+    document.getElementById('btn-reveal').textContent = '💡 Reveal Solution';
+  }
+}
+
+function submitExam() {
+  saveCurrentAnswer();
+  clearInterval(timerInterval);
+  const elapsed = 7200 - secondsLeft;
+  const hh = Math.floor(elapsed/3600);
+  const mm = Math.floor((elapsed%3600)/60);
+  const ss = elapsed%60;
+
+  document.getElementById('exam-screen').style.display = 'none';
+  const rs = document.getElementById('results-screen');
+  rs.style.display = 'block';
+
+  const answered = Object.values(answers).filter(v=>v&&v.trim()!=='').length;
+  document.getElementById('results-sub').textContent =
+    `${answered} of 15 answered · Time used: ${hh}h ${String(mm).padStart(2,'0')}m ${String(ss).padStart(2,'0')}s`;
+
+  const grid = document.getElementById('results-grid');
+  grid.innerHTML = questions.map((q,i) => {
+    const ans = answers[i];
+    const done = ans && ans.trim() !== '';
+    return `<div class="result-card ${done?'answered':'skipped'}">
+      <div class="rq">Q${i+1} · ${q.tag}</div>
+      <div class="rs">${done ? '✓ Answered' : '✗ Skipped'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── PARSONS DRAG AND DROP ────────────────────────────────────────────────────
+function initParsons() {
+  const sourceEl = document.getElementById('parsons-source');
+  const targetEl = document.getElementById('parsons-target');
+  if (!sourceEl || !targetEl) return;
+
+  // Shuffle for display
+  const shuffled = [...parsonsBank].sort(()=>Math.random()-0.5);
+  parsonsOrder = [];
+
+  function makeItem(item, inTarget) {
+    const div = document.createElement('div');
+    div.className = 'parsons-item';
+    div.draggable = true;
+    div.dataset.id = item.id;
+    div.innerHTML = `<span class="line-badge">${item.id}</span><span>${item.code}</span>`;
+    div.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', item.id);
+      div.classList.add('dragging');
+    });
+    div.addEventListener('dragend', () => div.classList.remove('dragging'));
+    div.addEventListener('dblclick', () => {
+      // Move between source and target
+      if (inTarget) {
+        parsonsOrder = parsonsOrder.filter(x=>x!==item.id);
+        div.remove();
+        sourceEl.appendChild(makeItem(item, false));
+      } else {
+        div.remove();
+        parsonsOrder.push(item.id);
+        const hint = document.getElementById('parsons-hint');
+        if (hint) hint.remove();
+        targetEl.appendChild(makeItem(item, true));
+      }
+      answers[currentQ] = parsonsOrder.join(',');
+    });
+    return div;
+  }
+
+  shuffled.forEach(item => sourceEl.appendChild(makeItem(item, false)));
+
+  [sourceEl, targetEl].forEach(zone => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('text/plain');
+      const item = parsonsBank.find(x=>x.id===id);
+      const isFromTarget = targetEl.querySelector(`[data-id="${id}"]`);
+      const isFromSource = sourceEl.querySelector(`[data-id="${id}"]`);
+
+      if (zone === targetEl && isFromSource) {
+        isFromSource.remove();
+        parsonsOrder.push(id);
+        const hint = document.getElementById('parsons-hint');
+        if (hint) hint.remove();
+        targetEl.appendChild(makeItem(item, true));
+      } else if (zone === sourceEl && isFromTarget) {
+        isFromTarget.remove();
+        parsonsOrder = parsonsOrder.filter(x=>x!==id);
+        sourceEl.appendChild(makeItem(item, false));
+      }
+      answers[currentQ] = parsonsOrder.join(',');
+    });
+  });
+}
+
+function parsonsReset() {
+  parsonsOrder = [];
+  const sourceEl = document.getElementById('parsons-source');
+  const targetEl = document.getElementById('parsons-target');
+  if (sourceEl) sourceEl.innerHTML = '';
+  if (targetEl) targetEl.innerHTML = '<div class="drop-hint" id="parsons-hint">Drag lines here</div>';
+  initParsons();
+}
+
+// ─── BST CANVAS ───────────────────────────────────────────────────────────────
+function initBSTCanvas() {
+  bstNodes = [];
+  bstEdges = [];
+  drawBST();
+}
+
+function bstInsertLogic(root, val) {
+  if (!root) return { val, left: null, right: null };
+  if (val < root.val) root.left = bstInsertLogic(root.left, val);
+  else root.right = bstInsertLogic(root.right, val);
+  return root;
+}
+
+function bstLayout(root, x, y, dx) {
+  if (!root) return [];
+  const nodes = [{ val: root.val, x, y }];
+  if (root.left) nodes.push(...bstLayout(root.left, x-dx, y+70, dx/2));
+  if (root.right) nodes.push(...bstLayout(root.right, x+dx, y+70, dx/2));
+  return nodes;
+}
+
+function bstEdgeList(root, x, y, dx, edges=[]) {
+  if (!root) return edges;
+  if (root.left) { edges.push([x,y,x-dx,y+70]); bstEdgeList(root.left, x-dx, y+70, dx/2, edges); }
+  if (root.right) { edges.push([x,y,x+dx,y+70]); bstEdgeList(root.right, x+dx, y+70, dx/2, edges); }
+  return edges;
+}
+
+function bstAutoBuild() {
+  const vals = [50,30,70,20,40,60,80,10,35,45];
+  let root = null;
+  vals.forEach(v => root = bstInsertLogic(root, v));
+  const canvas = document.getElementById('bst-canvas');
+  if (!canvas) return;
+  const cx = canvas.width/2;
+  bstNodes = bstLayout(root, cx, 40, 180);
+  bstEdges = bstEdgeList(root, cx, 40, 180);
+  drawBST();
+  answers[currentQ] = bstNodes.map(n=>n.val).join(',');
+}
+
+function bstReset() {
+  bstNodes = []; bstEdges = [];
+  drawBST();
+}
+
+function drawBST() {
+  const canvas = document.getElementById('bst-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.strokeStyle = '#3a3a6a';
+  ctx.lineWidth = 2;
+  bstEdges.forEach(([x1,y1,x2,y2]) => {
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  });
+
+  bstNodes.forEach(n => {
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, 20, 0, Math.PI*2);
+    ctx.fillStyle = '#1a1a45';
+    ctx.fill();
+    ctx.strokeStyle = '#6c63ff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#e8e8f0';
+    ctx.font = 'bold 13px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(n.val, n.x, n.y);
+  });
+}
+
+// ─── START ────────────────────────────────────────────────────────────────────
+</script>
+</body>
+</html>
